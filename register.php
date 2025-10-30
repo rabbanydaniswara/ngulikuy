@@ -21,11 +21,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 1. Ambil data dari form
         $name = $_POST['name'] ?? '';
         $username = $_POST['username'] ?? ''; // Ini adalah email
+        $phone = $_POST['phone'] ?? '';
         $password = $_POST['password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
 
         // 2. Validasi sederhana
-        if (empty($name) || empty($username) || empty($password) || empty($confirm_password)) {
+        if (empty($name) || empty($username) || empty($phone) || empty($password) || empty($confirm_password)) {
             $error_message = 'Semua field harus diisi!';
         } elseif ($password !== $confirm_password) {
             $error_message = 'Password dan Konfirmasi Password tidak cocok!';
@@ -46,11 +47,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
                     // 5. Masukkan ke database
-                    $sql = "INSERT INTO users (username, password, role, name) VALUES (?, ?, ?, ?)";
+                    $sql = "INSERT INTO users (username, password, role, name, phone) VALUES (?, ?, ?, ?, ?)";
                     $stmt = $pdo->prepare($sql);
                     
                     // User baru kita set sebagai 'customer' secara default
-                    $stmt->execute([$username, $hashedPassword, 'customer', $name]);
+                    $stmt->execute([$username, $hashedPassword, 'customer', $name, $phone]);
                     
                     $success_message = 'Registrasi berhasil! Silakan <a href="index.php" class="font-bold text-green-700 hover:underline">login</a>.';
 
@@ -133,6 +134,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <i data-feather="mail" class="text-gray-400"></i>
                             </div>
                             <input type="email" id="email" name="username" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="email@example.com" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-feather="phone" class="text-gray-400"></i>
+                            </div>
+                            <input type="tel" id="phone" name="phone" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="08123456789" required>
                         </div>
                     </div>
 

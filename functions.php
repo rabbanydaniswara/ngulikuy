@@ -175,6 +175,7 @@ function authenticate(string $username, string $password): bool {
             $_SESSION['user'] = $user['username'];
             $_SESSION['user_role'] = $user['role'];
             $_SESSION['user_name'] = $user['name'];
+            $_SESSION['user_phone'] = $user['phone'] ?? '';
             return true;
         }
 

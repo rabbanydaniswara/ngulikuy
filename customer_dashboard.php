@@ -37,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'address' => $_POST['job_location'] ?? '',
                 'status' => 'pending',
                 'customer' => $_SESSION['user_name'],
-                'customerPhone' => '081234567890', // TODO: Ambil dari profil user jika ada
+                'customerPhone' => $_SESSION['user_phone'] ?? 'N/A',
                 'customerEmail' => $customer_email,
                 // Hitung harga berdasarkan rate worker dan jumlah hari
                 'price' => 0, // Akan dihitung di bawah
