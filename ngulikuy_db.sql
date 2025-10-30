@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 26, 2025 at 11:58 AM
+-- Generation Time: Oct 30, 2025 at 02:27 PM
 -- Server version: 8.4.3
 -- PHP Version: 8.3.26
 
@@ -51,8 +51,7 @@ CREATE TABLE `jobs` (
 --
 
 INSERT INTO `jobs` (`jobId`, `workerId`, `workerName`, `jobType`, `startDate`, `endDate`, `customer`, `customerPhone`, `customerEmail`, `price`, `location`, `address`, `description`, `status`, `createdAt`, `updatedAt`) VALUES
-('JOB001', 'KUL001', 'Rizkash', 'Other', '2025-10-27', '2025-10-29', 'Daniswara', '081234567890', 'daniswara@gmail.com', 300000, 'ren', 'ren', 'ren', 'completed', '2025-10-26 09:55:01', '2025-10-26 16:55:10'),
-('JOB002', 'KUL003', 'Hadi Purnomo', 'Other', '2025-11-01', '2025-11-03', 'Daniswara', '081234567890', 'daniswara@gmail.com', 360000, 'ren', 'ren', 'ren', 'completed', '2025-10-26 10:01:34', '2025-10-26 17:01:42');
+('JOB002', 'KUL008', 'Arvian Syidq', 'Construction', '2025-10-31', '2025-11-08', 'Daniswara', '08972724855', 'daniswara@gmail.com', 810000, 'Jakarta Utara, Priok.', 'Jakarta Utara, Priok.', 'Pembuatan kamar/ruangan gaming.', 'completed', '2025-10-30 14:17:50', '2025-10-30 21:18:19');
 
 -- --------------------------------------------------------
 
@@ -75,8 +74,7 @@ CREATE TABLE `reviews` (
 --
 
 INSERT INTO `reviews` (`id`, `jobId`, `workerId`, `customerId`, `rating`, `comment`, `createdAt`) VALUES
-(6, 'JOB001', 'KUL001', 6, 5, 'memuaskan\r\n', '2025-10-26 09:55:46'),
-(7, 'JOB002', 'KUL003', 6, 5, 'sangat memuaskan', '2025-10-26 10:01:57');
+(10, 'JOB002', 'KUL008', 6, 5, 'Sangat Memuaskan, Pengerjaan sangat cepat dan rapi.', '2025-10-30 14:18:36');
 
 -- --------------------------------------------------------
 
@@ -88,18 +86,21 @@ CREATE TABLE `users` (
   `id` int NOT NULL,
   `username` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `role` enum('admin','customer') COLLATE utf8mb4_unicode_ci NOT NULL,
-  `name` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `role` enum('admin','customer','worker') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `phone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `worker_profile_id` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `username`, `password`, `role`, `name`) VALUES
-(1, 'admin', '$2y$10$oui3nmQUjDUxV4YRSitoeOgQVZCOzhzXbng7TTiwsUVYQgxzNBT1i', 'admin', 'Administrator'),
-(2, 'user@gmail.com', '$2y$10$C2MCgSvxv9Ian.QWX9eu9.YimKPHatOmy/ExPEUuntm87tULhZcAu', 'customer', 'Customer User'),
-(6, 'daniswara@gmail.com', '$2y$10$DGikOqv8868fnR3zBfcvFOo7LM/U.ahXjQL0CwUreIR1iDgEU1dXW', 'customer', 'Daniswara');
+INSERT INTO `users` (`id`, `username`, `password`, `role`, `name`, `phone`, `worker_profile_id`) VALUES
+(1, 'admin', '$2y$10$oui3nmQUjDUxV4YRSitoeOgQVZCOzhzXbng7TTiwsUVYQgxzNBT1i', 'admin', 'Administrator', NULL, NULL),
+(2, 'user@gmail.com', '$2y$10$C2MCgSvxv9Ian.QWX9eu9.YimKPHatOmy/ExPEUuntm87tULhZcAu', 'customer', 'Customer User', '081250800137', NULL),
+(6, 'daniswara@gmail.com', '$2y$10$DGikOqv8868fnR3zBfcvFOo7LM/U.ahXjQL0CwUreIR1iDgEU1dXW', 'customer', 'Daniswara', '08972724855', NULL),
+(7, 'arvian@gmail.com', '$2y$10$A97XuF0pEbXxiyLG0wxA6eDbXehKniadHGmzzRyaKMb9w3ilqtIOu', 'worker', 'Arvian Syidq', '082132445968', 'KUL008');
 
 -- --------------------------------------------------------
 
@@ -129,10 +130,12 @@ CREATE TABLE `workers` (
 --
 
 INSERT INTO `workers` (`id`, `name`, `email`, `phone`, `location`, `skills`, `status`, `rate`, `experience`, `description`, `photo`, `rating`, `completedJobs`, `joinDate`) VALUES
-('KUL001', 'Rizkash', 'rizkash@gmail.com', '0827275584', 'Depok', '[\"Construction\", \"Moving\", \"Gardening\"]', 'Available', 100000, '1 Tahun', 'konstruksi dan renovasi rumah', 'uploads/workers/worker_68fdc838e441f_1761462328.png', 5, 0, '2025-10-18'),
-('KUL002', 'Daniswara', 'daniswara@gmail.com', '08972724855', 'Depok', '[\"Construction\", \"Cleaning\", \"Painting\"]', 'Available', 150000, '1 Bulan', 'renovasi dan cat rumah.', 'uploads/workers/Screenshot 2025-07-12 102823.png', 4, 0, '2025-10-18'),
-('KUL003', 'Hadi Purnomo', 'hadi@gmail.com', '08523345121', 'Gunung Sindur', '[\"Construction\", \"Gardening\", \"Electrical\"]', 'Available', 120000, '1 Bulan', 'Perbaikan dan Renovasi rumah.', 'uploads/workers/worker_68f34803209a1_1760774147.png', 5, 0, '2025-10-18'),
-('KUL005', 'Fathan Antony', 'fathan@gmail.com', '0877223345', 'Bintaro', '[\"Construction\", \"Moving\", \"Cleaning\", \"Gardening\"]', 'Available', 200000, '1 Tahun', 'Renovasi dan Pembuatan rumah.', 'uploads/workers/worker_68fdad77bd466_1761455479.png', 4, 0, '2025-10-26');
+('KUL002', 'Daniswara', 'daniswara@gmail.com', '08972724855', 'Depok', '[\"Construction\", \"Cleaning\", \"Painting\"]', 'Available', 150000, '1 Bulan', 'renovasi dan cat rumah.', 'uploads/workers/worker_690262c3057e0_1761764035.png', 4, 0, '2025-10-18'),
+('KUL003', 'Hadi Purnomo', 'hadi@gmail.com', '08523345121', 'Gunung Sindur', '[\"Construction\", \"Gardening\", \"Electrical\"]', 'Available', 120000, '1 Bulan', 'Perbaikan dan Renovasi rumah.', 'uploads/workers/worker_69026337d8281_1761764151.png', 5, 0, '2025-10-18'),
+('KUL005', 'Fathan Antony', 'fathan@gmail.com', '0877223345', 'Bintaro', '[\"Construction\", \"Moving\", \"Cleaning\", \"Gardening\"]', 'Available', 200000, '1 Tahun', 'Renovasi dan Pembuatan rumah.', 'uploads/workers/worker_6902633fac547_1761764159.png', 5, 0, '2025-10-26'),
+('KUL006', 'George Floyd', 'floyd@gmail.com', '089223344556', 'Disitu', '[\"Moving\", \"Cleaning\", \"Plumbing\", \"Painting\"]', 'Available', 50000, '3 Tahun', 'Breathtaking', 'https://upload.wikimedia.org/wikipedia/en/9/9c/George_Floyd.png', 5, 0, '2025-10-29'),
+('KUL007', 'Firman Djibran', 'firman@gmail.com', '087373556679', 'Jakarta Barat', '[\"Construction\", \"Moving\", \"Cleaning\"]', 'Available', 75000, '2 Tahun', 'Pengalaman yang sangat mumpuni dibidang Konstruksi, renovasi, dan perbaikan rumah.', 'uploads/workers/worker_414777040bccfeb1ae6626b185c24ddc.png', 4, 0, '2025-10-30'),
+('KUL008', 'Arvian Syidq', 'arvian@gmail.com', '082132445968', 'Jakarta Utara', '[\"Construction\", \"Moving\", \"Cleaning\"]', 'Available', 90000, '3 Tahun', 'Pengerjaan Cepat dan Rapi', 'uploads/workers/worker_d1e9742b83767437e0f866ba1cccd69b.png', 5, 0, '2025-10-30');
 
 --
 -- Indexes for dumped tables
@@ -159,7 +162,8 @@ ALTER TABLE `reviews`
 --
 ALTER TABLE `users`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `username` (`username`);
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `worker_profile_id_unique` (`worker_profile_id`);
 
 --
 -- Indexes for table `workers`
@@ -175,13 +179,13 @@ ALTER TABLE `workers`
 -- AUTO_INCREMENT for table `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
