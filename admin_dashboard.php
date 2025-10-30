@@ -77,10 +77,6 @@ if ($active_tab === 'reviews') {
     $reviews = getAllReviews();
 }
 
-// Helper function
-function getStatusClass($status, $type = 'job') { /* ... (fungsi sama) ... */
-     if ($type === 'job') { $classes = ['completed' => 'status-completed', 'in-progress' => 'status-in-progress', 'pending' => 'status-pending', 'cancelled' => 'status-cancelled']; return $classes[$status] ?? 'status-pending'; } else { $classes = ['Available' => 'status-available', 'Assigned' => 'status-assigned', 'On Leave' => 'status-on-leave']; return $classes[$status] ?? 'status-available'; }
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">

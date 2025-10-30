@@ -24,32 +24,6 @@ if (!$jobId) {
     }
 }
 
-// Helper untuk status text (bisa dipindah ke functions.php jika mau)
-function getStatusTextAndClass($status) {
-    $text = 'Tidak Diketahui';
-    $class = 'bg-gray-200 text-gray-800'; // Default
-
-    switch ($status) {
-        case 'pending':
-            $text = 'Menunggu Konfirmasi';
-            $class = 'bg-yellow-100 text-yellow-800';
-            break;
-        case 'in-progress':
-            $text = 'Sedang Dikerjakan';
-            $class = 'bg-blue-100 text-blue-800';
-            break;
-        case 'completed':
-            $text = 'Selesai';
-            $class = 'bg-green-100 text-green-800';
-            break;
-        case 'cancelled':
-            $text = 'Dibatalkan';
-            $class = 'bg-red-100 text-red-800';
-            break;
-    }
-    return ['text' => $text, 'class' => $class];
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="en">

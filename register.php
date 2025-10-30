@@ -7,7 +7,7 @@ require_once 'functions.php'; // Kita butuh functions.php untuk validasi CSRF
 // session_start() sudah dipanggil di functions.php
 
 $error_message = '';
-$success_message = 'Registrasi berhasil!';
+$success_message = '';
 
 // Cek jika form sudah di-submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
