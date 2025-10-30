@@ -124,8 +124,15 @@ if (!defined('IS_ADMIN_PAGE')) {
             <a href="?tab=jobs" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 mr-2 hover:bg-gray-50">
                 Cancel
             </a>
-            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Simpan Pekerjaan
+            <button type="submit" id="saveJobBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
+                <span class="btn-text flex items-center">
+                    <i data-feather="save" class="w-4 h-4 mr-2"></i>
+                    Simpan Pekerjaan
+                </span>
+                <span class="btn-loading hidden flex items-center">
+                    <i data-feather="loader" class="animate-spin mr-2"></i>
+                    Menyimpan...
+                </span>
             </button>
         </div>
     </form>

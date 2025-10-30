@@ -14,32 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
     // --- AKHIR VALIDASI CSRF ---
 
-        // !!! LOGIKA ADD_WORKER & EDIT_WORKER DIHAPUS DARI SINI !!!
-
-        // Logika Add Job (Tetap di sini karena belum di-AJAX)
-        if (isset($_POST['add_job'])) {
-             $workerId = $_POST['worker_id'] ?? ''; $worker = getWorkerById($workerId); $jobData = [ 'workerId' => $workerId, 'workerName' => $worker ? $worker['name'] : 'Unknown Worker', 'jobType' => $_POST['job_type'] ?? '', 'startDate' => $_POST['start_date'] ?? '', 'endDate' => $_POST['end_date'] ?? '', 'customer' => $_POST['customer'] ?? '', 'customerPhone' => $_POST['customer_phone'] ?? '', 'customerEmail' => $_POST['customer_email'] ?? '', 'price' => intval($_POST['price'] ?? 0), 'location' => $_POST['location'] ?? '', 'address' => $_POST['address'] ?? '', 'description' => $_POST['description'] ?? '', 'status' => $_POST['status'] ?? 'pending' ]; if (addJob($jobData)) $success_message = 'Job berhasil ditambahkan!'; else $error_message = 'Gagal menambah job!';
-        }
-        
-        // --- LOGIKA HAPUS (TETAP DI SINI) ---
-        if (isset($_POST['delete_worker_post']) && isset($_POST['worker_id_to_delete'])) {
-            if (deleteWorker((string)$_POST['worker_id_to_delete'])) $success_message = 'Worker berhasil dihapus!';
-            else $error_message = 'Gagal menghapus worker!';
-        }
-        
-        if (isset($_POST['delete_job_post']) && isset($_POST['job_id_to_delete'])) {
-            if (deleteJob((string)$_POST['job_id_to_delete'])) $success_message = 'Job berhasil dihapus!';
-            else $error_message = 'Gagal menghapus job!';
-        }
-
-        if (isset($_POST['delete_review_post']) && isset($_POST['review_id_to_delete'])) {
-            if (deleteReview((int)$_POST['review_id_to_delete'])) $success_message = 'Ulasan berhasil dihapus!';
-            else $error_message = 'Gagal menghapus ulasan!';
-            // Redirect untuk membersihkan POST dan menampilkan pesan
-            header('Location: admin_dashboard.php?tab=reviews' . ($success_message ? '&success=1' : '&error=1'));
-            exit;
-        }
-        // --- AKHIR LOGIKA HAPUS ---
     }
 }
 
@@ -272,8 +246,7 @@ if ($active_tab === 'reviews') {
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <form method="POST" action="admin_dashboard.php?tab=workers" class="inline">
-                        <?php echo csrfInput(); ?>
+                    <form id="deleteWorkerForm" class="inline"> <?php echo csrfInput(); ?>
                         <input type="hidden" name="worker_id_to_delete" id="deleteWorkerIdInput">
                         <button type="submit" name="delete_worker_post" value="1" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm">
                             Ya, Hapus
@@ -307,8 +280,7 @@ if ($active_tab === 'reviews') {
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <form method="POST" action="admin_dashboard.php?tab=jobs" class="inline">
-                        <?php echo csrfInput(); ?>
+                    <form id="deleteJobForm" class="inline"> <?php echo csrfInput(); ?>
                         <input type="hidden" name="job_id_to_delete" id="deleteJobIdInput">
                         <button type="submit" name="delete_job_post" value="1" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm">
                             Ya, Hapus
@@ -342,8 +314,7 @@ if ($active_tab === 'reviews') {
                     </div>
                 </div>
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <form method="POST" action="admin_dashboard.php?tab=reviews" class="inline">
-                        <?php echo csrfInput(); ?>
+                    <form id="deleteReviewForm" class="inline"> <?php echo csrfInput(); ?>
                         <input type="hidden" name="review_id_to_delete" id="deleteReviewIdInput">
                         <button type="submit" name="delete_review_post" value="1" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm">
                             Ya, Hapus Ulasan
@@ -397,18 +368,25 @@ if ($active_tab === 'reviews') {
         // --- LOGIKA BARU: AJAX FORM SUBMIT ---
         
         // Fungsi generik untuk handle submit AJAX
-        async function handleFormSubmit(event, action) {
+            async function handleFormSubmit(event, action) {
             event.preventDefault(); // Mencegah submit biasa
             const form = event.target;
+            
+            // Temukan tombol submit di dalam form yang di-submit
             const submitButton = form.querySelector('button[type="submit"]');
-            const btnText = submitButton.querySelector('.btn-text');
-            const btnLoading = submitButton.querySelector('.btn-loading');
+            let btnText = null;
+            let btnLoading = null;
+            
+            if (submitButton) {
+                 btnText = submitButton.querySelector('.btn-text');
+                 btnLoading = submitButton.querySelector('.btn-loading');
 
-            // Tampilkan loading
-            if (btnText) btnText.classList.add('hidden');
-            if (btnLoading) btnLoading.classList.remove('hidden');
-            submitButton.disabled = true;
-            feather.replace(); // Update ikon loader
+                // Tampilkan loading
+                if (btnText) btnText.classList.add('hidden');
+                if (btnLoading) btnLoading.classList.remove('hidden');
+                submitButton.disabled = true;
+                feather.replace(); // Update ikon loader
+            }
 
             const formData = new FormData(form);
             formData.append('action', action);
@@ -418,7 +396,6 @@ if ($active_tab === 'reviews') {
                 const response = await fetch('ajax_handler.php', {
                     method: 'POST',
                     body: formData,
-                    // PENTING: Jangan set Content-Type header manual untuk FormData
                 });
 
                 if (!response.ok) {
@@ -432,9 +409,21 @@ if ($active_tab === 'reviews') {
                     
                     // Reset form & tutup modal (jika modal)
                     form.reset(); 
-                    if (action === 'edit_worker') {
-                        closeEditWorkerModal();
+                    
+                    // Tentukan tab tujuan berdasarkan aksi
+                    let redirectTab = 'dashboard';
+                    if (action === 'add_worker' || action === 'edit_worker' || action === 'delete_worker') {
+                        redirectTab = 'workers';
+                        closeEditWorkerModal(); // Tutup modal edit
+                        closeDeleteWorkerModal(); // Tutup modal delete
+                    } else if (action === 'add_job' || action === 'delete_job') {
+                        redirectTab = 'jobs';
+                        closeDeleteJobModal(); // Tutup modal delete
+                    } else if (action === 'delete_review') {
+                        redirectTab = 'reviews';
+                        closeDeleteReviewModal(); // Tutup modal delete
                     }
+                    
                     if (action === 'add_worker' && photoPreview) { // Reset preview foto
                          photoPreview.classList.add('hidden');
                          if(previewImage) previewImage.src = '';
@@ -443,9 +432,8 @@ if ($active_tab === 'reviews') {
                          if(uploadArea) uploadArea.classList.remove('bg-green-50', 'border-green-300');
                     }
 
-                    // Redirect ke halaman workers setelah sukses
-                    // Menambahkan pesan ke URL agar bisa ditampilkan setelah redirect
-                    window.location.href = `?tab=workers&success_msg=${encodeURIComponent(data.message || 'Operasi berhasil!')}`;
+                    // Redirect ke halaman tab yang sesuai
+                    window.location.href = `?tab=${redirectTab}&success_msg=${encodeURIComponent(data.message || 'Operasi berhasil!')}`;
                     
                 } else {
                     showAjaxNotification(data.message || 'Operasi gagal.', 'error');
@@ -456,23 +444,30 @@ if ($active_tab === 'reviews') {
                 showAjaxNotification('Terjadi error: ' + error.message, 'error');
             } finally {
                 // Sembunyikan loading
-                if (btnText) btnText.classList.remove('hidden');
-                if (btnLoading) btnLoading.classList.add('hidden');
-                submitButton.disabled = false;
+                if (submitButton) {
+                    if (btnText) btnText.classList.remove('hidden');
+                    if (btnLoading) btnLoading.classList.add('hidden');
+                    submitButton.disabled = false;
+                }
             }
         }
 
         // Terapkan ke form Add Worker
-        // Cari form berdasarkan tombol submitnya (lebih spesifik)
         const addWorkerForm = document.getElementById('saveWorkerBtn')?.closest('form');
         if (addWorkerForm) {
             addWorkerForm.addEventListener('submit', (event) => handleFormSubmit(event, 'add_worker'));
-            // Tambahkan ID ke tombol submit agar bisa dipilih
             const addWorkerBtn = document.getElementById('saveWorkerBtn');
             if(addWorkerBtn) {
                  addWorkerBtn.innerHTML = `<span class="btn-text flex items-center"><i data-feather="save" class="w-4 h-4 mr-2"></i> Simpan Kuli</span><span class="btn-loading hidden flex items-center"><i data-feather="loader" class="animate-spin mr-2"></i>Menyimpan...</span>`;
                  feather.replace();
             }
+        }
+        
+        // *** BARU: Terapkan ke form Add Job ***
+        const addJobForm = document.getElementById('saveJobBtn')?.closest('form');
+        if (addJobForm) {
+            addJobForm.addEventListener('submit', (event) => handleFormSubmit(event, 'add_job'));
+            // Kita sudah menambahkan HTML (btn-text/btn-loading) di file add_job.php
         }
 
 
@@ -480,12 +475,27 @@ if ($active_tab === 'reviews') {
         const editWorkerForm = document.getElementById('editWorkerForm');
         if (editWorkerForm) {
             editWorkerForm.addEventListener('submit', (event) => handleFormSubmit(event, 'edit_worker'));
-            // Pastikan tombol submit di modal edit punya class .btn-text dan .btn-loading
              const editWorkerSubmitBtn = editWorkerForm.querySelector('button[type="submit"]');
              if(editWorkerSubmitBtn) {
                  editWorkerSubmitBtn.innerHTML = `<span class="btn-text">Update Data Kuli</span><span class="btn-loading hidden"><i data-feather="loader" class="animate-spin mr-2"></i>Updating...</span>`;
                  feather.replace();
              }
+        }
+        
+        // *** BARU: Terapkan ke form Delete ***
+        const deleteWorkerForm = document.getElementById('deleteWorkerForm');
+        if (deleteWorkerForm) {
+            deleteWorkerForm.addEventListener('submit', (event) => handleFormSubmit(event, 'delete_worker'));
+        }
+        
+        const deleteJobForm = document.getElementById('deleteJobForm');
+        if (deleteJobForm) {
+            deleteJobForm.addEventListener('submit', (event) => handleFormSubmit(event, 'delete_job'));
+        }
+        
+        const deleteReviewForm = document.getElementById('deleteReviewForm');
+        if (deleteReviewForm) {
+            deleteReviewForm.addEventListener('submit', (event) => handleFormSubmit(event, 'delete_review'));
         }
         
         // --- AKHIR LOGIKA AJAX FORM SUBMIT ---

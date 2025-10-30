@@ -171,6 +171,60 @@ if ($action === 'update_job_status') {
     } else {
         $response['message'] = 'Gagal mengupdate data worker di database!';
     }
+} elseif ($action === 'add_job') {
+    // Logika ini diambil dari admin_dashboard.php
+    $workerId = $_POST['worker_id'] ?? '';
+    $worker = getWorkerById($workerId);
+    
+    $jobData = [
+        'workerId' => $workerId,
+        'workerName' => $worker ? $worker['name'] : 'Unknown Worker',
+        'jobType' => $_POST['job_type'] ?? '',
+        'startDate' => $_POST['start_date'] ?? '',
+        'endDate' => $_POST['end_date'] ?? '',
+        'customer' => $_POST['customer'] ?? '',
+        'customerPhone' => $_POST['customer_phone'] ?? '',
+        'customerEmail' => $_POST['customer_email'] ?? '',
+        'price' => intval($_POST['price'] ?? 0),
+        'location' => $_POST['location'] ?? '',
+        'address' => $_POST['address'] ?? '',
+        'description' => $_POST['description'] ?? '',
+        'status' => $_POST['status'] ?? 'pending'
+    ];
+    
+    if (addJob($jobData)) {
+        $response['success'] = true;
+        $response['message'] = 'Pekerjaan berhasil ditambahkan!';
+    } else {
+        $response['message'] = 'Gagal menambah pekerjaan ke database!';
+    }
+
+} elseif ($action === 'delete_worker') {
+    $workerId = $_POST['worker_id_to_delete'] ?? null;
+    if ($workerId && deleteWorker((string)$workerId)) {
+        $response['success'] = true;
+        $response['message'] = 'Worker berhasil dihapus!';
+    } else {
+        $response['message'] = 'Gagal menghapus worker!';
+    }
+
+} elseif ($action === 'delete_job') {
+    $jobId = $_POST['job_id_to_delete'] ?? null;
+    if ($jobId && deleteJob((string)$jobId)) {
+        $response['success'] = true;
+        $response['message'] = 'Job berhasil dihapus!';
+    } else {
+        $response['message'] = 'Gagal menghapus job!';
+    }
+
+} elseif ($action === 'delete_review') {
+    $reviewId = $_POST['review_id_to_delete'] ?? null;
+    if ($reviewId && deleteReview((int)$reviewId)) {
+        $response['success'] = true;
+        $response['message'] = 'Ulasan berhasil dihapus!';
+    } else {
+        $response['message'] = 'Gagal menghapus ulasan!';
+    }
 }
 
 // Kirim response JSON final
