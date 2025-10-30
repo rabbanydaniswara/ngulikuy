@@ -315,14 +315,15 @@ function deleteReview(int $reviewId): bool {
 
 function getWorkers(): array {
     global $pdo;
-
+    
+    // Kueri ini di-JOIN dengan tabel reviews untuk MENGHITUNG ulasan
     $sql = "SELECT w.*, COUNT(r.id) as review_count
             FROM workers w
             LEFT JOIN reviews r ON w.id = r.workerId
             GROUP BY w.id
             ORDER BY w.name ASC"; // Urutkan berdasarkan nama
-
-    $stmt = $pdo->query("SELECT * FROM workers");
+            
+    $stmt = $pdo->query($sql); // <-- UBAH BARIS INI (gunakan $sql)
     $workers = $stmt->fetchAll();
     
     // Decode 'skills' dari JSON string ke array PHP
