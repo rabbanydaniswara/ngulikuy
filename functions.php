@@ -176,6 +176,7 @@ function authenticate(string $username, string $password): bool {
             $_SESSION['user_role'] = $user['role'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_phone'] = $user['phone'] ?? '';
+            $_SESSION['worker_profile_id'] = $user['worker_profile_id'] ?? null;
             return true;
         }
 
@@ -388,18 +389,20 @@ function generateJobId(): string {
 function addWorker(array $workerData): bool {
     global $pdo;
     
-    // Fungsi ini hanya melakukan 1 query, jadi tidak perlu transaksi
+    // --- SEKARANG MENGGUNAKAN TRANSAKSI ---
+    $pdo->beginTransaction();
+
     try {
-        $sql = "INSERT INTO workers (id, name, email, phone, location, skills, status, rate, experience, description, photo, rating, completedJobs, joinDate)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        
-        $stmt = $pdo->prepare($sql);
-        
+        // 1. Buat ID Kuli
         $id = generateWorkerId();
-        // Encode 'skills' array ke JSON string untuk disimpan di DB
+        
+        // 2. INSERT ke tabel 'workers' (Profil Kuli)
+        $sqlWorker = "INSERT INTO workers (id, name, email, phone, location, skills, status, rate, experience, description, photo, rating, completedJobs, joinDate)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmtWorker = $pdo->prepare($sqlWorker);
         $skillsJson = json_encode($workerData['skills'] ?? []);
         
-        $stmt->execute([
+        $stmtWorker->execute([
             $id,
             $workerData['name'] ?? '',
             $workerData['email'] ?? '',
@@ -416,9 +419,35 @@ function addWorker(array $workerData): bool {
             $workerData['joinDate'] ?? date('Y-m-d')
         ]);
         
+        // 3. Buat Akun Login untuk Kuli di tabel 'users'
+        // Anda bisa memberi password acak, tapi untuk kemudahan kita set default 'ngulikuy123'
+        $defaultPassword = 'ngulikuy123';
+        $hashedPassword = password_hash($defaultPassword, PASSWORD_DEFAULT);
+        
+        $sqlUser = "INSERT INTO users (username, password, role, name, phone, worker_profile_id)
+                    VALUES (?, ?, ?, ?, ?, ?)";
+        $stmtUser = $pdo->prepare($sqlUser);
+        $stmtUser->execute([
+            $workerData['email'] ?? '',
+            $hashedPassword,
+            'worker', // Set role sebagai 'worker'
+            $workerData['name'] ?? '',
+            $workerData['phone'] ?? '',
+            $id // Tautkan ke ID Kuli (KULXXX)
+        ]);
+        
+        // 4. Jika semua berhasil, commit
+        $pdo->commit();
         return true;
+
     } catch (PDOException $e) {
+        // Jika salah satu gagal, batalkan semua
+        $pdo->rollBack();
         error_log($e->getMessage());
+        // Kirim pesan error spesifik jika email duplikat
+        if (isset($e->errorInfo[1]) && $e->errorInfo[1] == 1062) {
+             throw new Exception("Gagal menambah kuli: Email '" . $workerData['email'] . "' sudah digunakan untuk akun lain.");
+        }
         return false;
     }
 }
@@ -602,28 +631,26 @@ function updateWorker(string $workerId, array $updatedData): bool {
 function deleteWorker(string $workerId): bool {
     global $pdo;
     
-    // Ini juga kandidat untuk transaksi,
-    // karena menghapus 1 worker dan mengupdate banyak job
-    
-    // --- TRANSAKSI ---
     $pdo->beginTransaction();
 
     try {
-        // 1. Hapus worker
+        // 1. Hapus worker dari tabel 'workers'
         $sql = "DELETE FROM workers WHERE id = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$workerId]);
         
-        // 2. Update job yang terkait dengan worker ini agar tidak yatim
+        // 2. Hapus akun user kuli dari tabel 'users'
+        $sqlUser = "DELETE FROM users WHERE worker_profile_id = ?";
+        $pdo->prepare($sqlUser)->execute([$workerId]);
+        
+        // 3. Update job yang terkait (Ini sudah ada di kode Anda, dan sudah benar)
         $sqlJobs = "UPDATE jobs SET workerId = NULL, workerName = 'Deleted Worker' WHERE workerId = ?";
         $pdo->prepare($sqlJobs)->execute([$workerId]);
         
-        // --- TRANSAKSI ---
         $pdo->commit();
         return true;
 
     } catch (PDOException $e) {
-        // --- TRANSAKSI ---
         $pdo->rollBack();
         error_log("Error deleting worker: " . $e->getMessage());
         return false;
@@ -823,4 +850,23 @@ function getStatusTextAndClass(string $status): array {
             break;
     }
     return ['text' => $text, 'class' => $class];
+}
+
+function isWorker(): bool {
+    return isLoggedIn() && $_SESSION['user_role'] === 'worker';
+}
+
+function redirectIfNotWorker(): void {
+    if (!isWorker()) {
+        header('Location: index.php');
+        exit();
+    }
+}
+
+// Fungsi untuk mengambil job khusus untuk kuli yang sedang login
+function getWorkerJobs(string $workerProfileId): array {
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT * FROM jobs WHERE workerId = ? ORDER BY createdAt DESC");
+    $stmt->execute([$workerProfileId]);
+    return $stmt->fetchAll();
 }

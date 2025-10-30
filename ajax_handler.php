@@ -7,9 +7,9 @@ require_once 'functions.php'; // functions.php sudah include db.php dan session_
 // karena add/edit worker mungkin mengembalikan pesan error non-JSON saat upload gagal
 
 // Keamanan: Pastikan hanya admin yang login bisa akses
-if (!isAdmin()) {
-    header('Content-Type: application/json'); // Set header JSON untuk pesan error
-    echo json_encode(['success' => false, 'message' => 'Akses ditolak. Hanya admin.']);
+if (!isAdmin() && !isWorker()) { // <-- UBAH INI
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Akses ditolak. Hanya admin atau kuli.']);
     exit;
 }
 
@@ -40,6 +40,11 @@ header('Content-Type: application/json'); // Set header JSON default untuk semua
 
 if ($action === 'update_job_status') {
     // Logika ini sekarang perlu membaca dari $_POST, bukan $input JSON
+    if (!isAdmin()) {
+        $response['message'] = 'Aksi ini hanya untuk admin.';
+        echo json_encode($response);
+        exit;
+    }
     $jobId = $_POST['job_id'] ?? null;
     $status = $_POST['status'] ?? null;
 
@@ -224,6 +229,49 @@ if ($action === 'update_job_status') {
         $response['message'] = 'Ulasan berhasil dihapus!';
     } else {
         $response['message'] = 'Gagal menghapus ulasan!';
+    }
+} elseif ($action === 'worker_accept_job' || $action === 'worker_reject_job' || $action === 'worker_complete_job') {
+    
+    // Pastikan hanya kuli yang bisa melakukan ini
+    if (!isWorker()) {
+        $response['message'] = 'Aksi ini hanya untuk kuli.';
+        echo json_encode($response);
+        exit;
+    }
+    
+    $jobId = $_POST['job_id'] ?? null;
+    $workerProfileId = $_SESSION['worker_profile_id'];
+
+    if (!$jobId) {
+        $response['message'] = 'Job ID tidak ada.';
+        echo json_encode($response);
+        exit;
+    }
+    
+    // Verifikasi ekstra: pastikan kuli ini pemilik job-nya
+    $jobDetails = getJobById($jobId);
+    if ($jobDetails['workerId'] !== $workerProfileId) {
+        $response['message'] = 'Anda tidak berhak mengubah job ini.';
+        echo json_encode($response);
+        exit;
+    }
+
+    // Tentukan status baru berdasarkan aksi
+    $newStatus = '';
+    if ($action === 'worker_accept_job') {
+        $newStatus = 'in-progress';
+    } elseif ($action === 'worker_reject_job') {
+        $newStatus = 'cancelled';
+    } elseif ($action === 'worker_complete_job') {
+        $newStatus = 'completed';
+    }
+
+    // Panggil fungsi updateJobStatus yang sudah ada (aman & pakai transaksi)
+    if (updateJobStatus($jobId, $newStatus)) {
+        $response['success'] = true;
+        $response['message'] = 'Status job berhasil diupdate!';
+    } else {
+        $response['message'] = 'Gagal mengupdate status job.';
     }
 }
 

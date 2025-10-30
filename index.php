@@ -38,10 +38,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $email = $_POST['email'] ?? '';
             $password = $_POST['password'] ?? '';
             
-            if (authenticate($email, $password) && $_SESSION['user_role'] === 'customer') {
-                header('Location: customer_dashboard.php');
-                session_regenerate_id(true);
-                exit();
+            if (authenticate($email, $password)) {
+                // Cek role SETELAH authenticate berhasil
+                if ($_SESSION['user_role'] === 'customer') {
+                    header('Location: customer_dashboard.php');
+                    session_regenerate_id(true);
+                    exit();
+                } elseif ($_SESSION['user_role'] === 'worker') {
+                    header('Location: worker_dashboard.php'); // <-- HALAMAN BARU
+                    session_regenerate_id(true);
+                    exit();
+                } else {
+                    // Jika role-nya admin tapi login via form customer
+                    $login_error = 'Email atau Password salah';
+                    logout(); // Hapus session admin yang mungkin terbentuk
+                }
             } else {
                 $login_error = 'Email atau Password salah';
             }
