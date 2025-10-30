@@ -327,7 +327,7 @@ $order_status_filter = $_GET['status'] ?? 'all';
                                         <div class="flex text-yellow-400">
                                             <?php echo formatRating($worker['rating']); ?>
                                         </div>
-                                        <span class="text-xs text-gray-500 ml-1">(<?php echo $worker['completedJobs']; ?>)</span>
+                                        <span class="text-xs text-gray-500 ml-1">(<?php echo $worker['review_count']; ?> ulasan)</span>
                                     </div>
                                     <p class="text-sm font-bold text-blue-600"><?php echo formatCurrency($worker['rate']); ?>/hari</p>
                                     <button type="button" 
@@ -444,7 +444,7 @@ $order_status_filter = $_GET['status'] ?? 'all';
                                                         <div class="flex text-yellow-400 mr-1">
                                                             <?php echo formatRating($worker['rating']); ?>
                                                         </div>
-                                                        <span class="text-sm">(<?php echo $worker['completedJobs']; ?>)</span>
+                                                        <span class="text-sm">(<?php echo $worker['review_count']; ?> ulasan)</span>
                                                     </div>
                                                 </div>
                                                 

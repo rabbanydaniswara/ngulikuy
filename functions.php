@@ -315,6 +315,13 @@ function deleteReview(int $reviewId): bool {
 
 function getWorkers(): array {
     global $pdo;
+
+    $sql = "SELECT w.*, COUNT(r.id) as review_count
+            FROM workers w
+            LEFT JOIN reviews r ON w.id = r.workerId
+            GROUP BY w.id
+            ORDER BY w.name ASC"; // Urutkan berdasarkan nama
+
     $stmt = $pdo->query("SELECT * FROM workers");
     $workers = $stmt->fetchAll();
     
@@ -344,7 +351,17 @@ function getAvailableWorkers(): array {
 
 function getTopRatedWorkers(int $limit = 4): array {
     global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM workers WHERE status = 'Available' ORDER BY rating DESC LIMIT ?");
+
+    // Kueri ini juga di-JOIN untuk MENGHITUNG ulasan
+    $sql = "SELECT w.*, COUNT(r.id) as review_count
+            FROM workers w
+            LEFT JOIN reviews r ON w.id = r.workerId
+            WHERE w.status = 'Available'
+            GROUP BY w.id
+            ORDER BY w.rating DESC, review_count DESC
+            LIMIT ?";
+            
+    $stmt = $pdo->prepare($sql);
     $stmt->execute([$limit]);
     $workers = $stmt->fetchAll();
     
@@ -698,7 +715,10 @@ function deleteJob(string $jobId): bool {
 function searchWorkers(array $criteria = []): array {
     global $pdo;
     
-    $sql = "SELECT * FROM workers WHERE status = 'Available'";
+    $sql = "SELECT w.*, COUNT(r.id) as review_count
+            FROM workers w
+            LEFT JOIN reviews r ON w.id = r.workerId
+            WHERE w.status = 'Available'";
     $params = [];
     
     if (!empty($criteria['skill'])) {
@@ -723,10 +743,12 @@ function searchWorkers(array $criteria = []): array {
     }
     
     if (!empty($criteria['min_rating'])) {
-        $sql .= " AND rating >= ?";
+        $sql .= " AND w.rating >= ?"; // Tambahkan 'w.'
         $params[] = floatval($criteria['min_rating']);
     }
     
+    $sql .= " GROUP BY w.id";
+
     try {
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
