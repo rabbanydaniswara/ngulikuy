@@ -102,6 +102,9 @@ if (!defined('IS_ADMIN_PAGE')) {
                                     <span class="text-sm text-gray-600">
                                         <?php echo number_format($worker['rating'], 1); ?>
                                     </span>
+                                    <div class="text-xs text-gray-500">
+                                    (<?php echo $worker['review_count']; ?> ulasan)
+                                </div>
                                 </div>
                             </td>
 
