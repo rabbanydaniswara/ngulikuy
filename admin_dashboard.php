@@ -43,14 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Handle GET actions (HANYA non-destruktif: Export, dll.)
-if (isset($_GET['action'])) {
-    if ($_GET['action'] === 'export') {
-        exportData();
-        exit;
-    }
-}
-
 
 // Menampilkan pesan sukses/error dari redirect setelah hapus review atau dari AJAX (jika di-set di session/GET)
 if (isset($_GET['success_msg'])) $success_message = urldecode($_GET['success_msg']);
@@ -132,7 +124,8 @@ if ($active_tab === 'reviews') {
             <a href="?tab=add_worker" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'add_worker' ? 'active-tab' : ''; ?>"><i data-feather="user-plus" class="mr-3"></i>Tambah Kuli</a>
             <a href="?tab=add_job" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'add_job' ? 'active-tab' : ''; ?>"><i data-feather="plus-circle" class="mr-3"></i>Tambah Pekerjaan</a>
         </div>
-        <div class="absolute bottom-0 w-full p-4 border-t"><a href="?action=export" class="flex items-center text-gray-700 hover:text-blue-600 mb-2 w-full text-left"><i data-feather="download" class="mr-2"></i>Export Data</a><a href="?action=sync" class="flex items-center text-gray-700 hover:text-blue-600 mb-2 w-full text-left"><i data-feather="refresh-cw" class="mr-2"></i>Sync Data</a><a href="index.php?logout=1" class="flex items-center text-gray-700 hover:text-blue-600"><i data-feather="log-out" class="mr-2"></i>Logout</a></div>
+        <div class="absolute bottom-0 w-full p-4 border-t">
+            <a href="index.php?logout=1" class="flex items-center text-gray-700 hover:text-blue-600"><i data-feather="log-out" class="mr-2"></i>Logout</a></div>
     </div>
 
     <div class="flex-1 ml-64">
