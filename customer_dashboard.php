@@ -121,6 +121,11 @@ $customerOrders = getCustomerOrders($customer_email);
 // Set active tab
 $active_tab = $_GET['tab'] ?? 'home';
 $order_status_filter = $_GET['status'] ?? 'all';
+
+// KUNCI RESPONSIVE: Hitung notifikasi di sini agar bisa dipakai di menu mobile & desktop
+$pendingOrderCount = count(array_filter($customerOrders, function($order) { 
+    return $order['status'] === 'pending'; 
+}));
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -151,6 +156,11 @@ $order_status_filter = $_GET['status'] ?? 'all';
         .nav-active {
             border-bottom: 2px solid #3b82f6;
             color: #1f2937;
+        }
+        /* Style untuk link menu mobile yang aktif */
+        .mobile-nav-active {
+            background-color: #eff6ff;
+            color: #3b82f6;
         }
         .status-available {
             background-color: #dcfce7;
@@ -191,10 +201,11 @@ $order_status_filter = $_GET['status'] ?? 'all';
     </style>
 </head>
 <body class="min-h-screen">
+    
     <nav class="bg-white shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <div class="flex items-center">
+                <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
                         <i data-feather="tool" class="text-blue-600"></i>
                         <span class="ml-2 font-bold text-xl">NguliKuy</span>
@@ -211,13 +222,12 @@ $order_status_filter = $_GET['status'] ?? 'all';
                         </a>
                     </div>
                 </div>
+
                 <div class="hidden sm:ml-6 sm:flex sm:items-center">
                     <div class="relative">
                         <i data-feather="bell" class="text-gray-500 hover:text-blue-600 cursor-pointer"></i>
                         <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                            <?php echo count(array_filter($customerOrders, function($order) { 
-                                return $order['status'] === 'pending'; 
-                            })); ?>
+                            <?php echo $pendingOrderCount; ?>
                         </span>
                     </div>
                     <div class="ml-3 relative">
@@ -230,10 +240,48 @@ $order_status_filter = $_GET['status'] ?? 'all';
                         </div>
                     </div>
                 </div>
+
+                <div class="flex items-center sm:hidden">
+                    <button id="mobile-menu-button" type="button" class="p-2 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-blue-600 hover:bg-gray-100" aria-controls="mobile-menu" aria-expanded="false">
+                        <span class="sr-only">Buka menu</span>
+                        <i id="mobile-menu-icon" data-feather="menu" class="block h-6 w-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="hidden sm:hidden" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="?tab=home" class="block px-3 py-2 rounded-md text-base font-medium <?php echo $active_tab === 'home' ? 'mobile-nav-active' : 'text-gray-700 hover:bg-gray-50'; ?>">Beranda</a>
+                <a href="?tab=search" class="block px-3 py-2 rounded-md text-base font-medium <?php echo $active_tab === 'search' ? 'mobile-nav-active' : 'text-gray-700 hover:bg-gray-50'; ?>">Cari Kuli</a>
+                <a href="?tab=orders" class="block px-3 py-2 rounded-md text-base font-medium <?php echo $active_tab === 'orders' ? 'mobile-nav-active' : 'text-gray-700 hover:bg-gray-50'; ?>">Pesanan Saya</a>
+            </div>
+            <div class="pt-4 pb-3 border-t border-gray-200">
+                <div class="flex items-center px-4">
+                    <div class="flex-shrink-0">
+                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="User" class="w-10 h-10 rounded-full">
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-base font-medium text-gray-800"><?php echo htmlspecialchars($_SESSION['user_name']); ?></div>
+                        <div class="text-sm font-medium text-gray-500"><?php echo htmlspecialchars($_SESSION['user']); ?></div>
+                    </div>
+                    <div class="ml-auto flex-shrink-0">
+                         <div class="relative p-1 rounded-full text-gray-500 hover:text-blue-600">
+                            <i data-feather="bell" class="w-6 h-6"></i>
+                            <span class="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                                <?php echo $pendingOrderCount; ?>
+                            </span>
+                         </div>
+                    </div>
+                </div>
+                <div class="mt-3 px-2 space-y-1">
+                    <a href="index.php?logout=1" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-50">
+                        Logout
+                    </a>
+                </div>
             </div>
         </div>
     </nav>
-
     <?php if (isset($success_message)): ?>
         <div class="m-4 p-4 bg-green-100 text-green-700 rounded-lg">
             <?php echo htmlspecialchars($success_message); ?>
@@ -249,8 +297,7 @@ $order_status_filter = $_GET['status'] ?? 'all';
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <?php if ($active_tab === 'home'): ?>
             <div id="homeContent" class="content-section">
-                <div class="gradient-bg rounded-xl text-white p-8 mb-8">
-                    <h1 class="text-3xl font-bold mb-4">Solusi Cepat untuk Kebutuhan Tukang Harian</h1>
+                <div class="gradient-bg rounded-xl text-white p-6 md:p-8 mb-8"> <h1 class="text-2xl md:text-3xl font-bold mb-4">Solusi Cepat untuk Kebutuhan Tukang Harian</h1>
                     <p class="text-lg mb-6">Temukan tukang berpengalaman dengan mudah dan transparan</p>
                     <a href="?tab=search" class="bg-white text-blue-600 px-6 py-3 rounded-lg font-medium inline-block hover:bg-gray-100 transition">Cari Tukang Sekarang</a>
                 </div>
@@ -281,8 +328,7 @@ $order_status_filter = $_GET['status'] ?? 'all';
 
                 <div class="mb-12">
                     <h2 class="text-2xl font-bold mb-6">Cara Kerja NguliKuy</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="text-center">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-4"> <div class="text-center">
                             <div class="bg-blue-100 text-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
                                 <i data-feather="search" class="w-6 h-6"></i>
                             </div>
@@ -401,10 +447,10 @@ $order_status_filter = $_GET['status'] ?? 'all';
                     </div>
                     
                     <div class="md:w-3/4">
-                        <div class="flex justify-between items-center mb-6">
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                             <h2 class="text-2xl font-bold">Hasil Pencarian</h2>
-                            <div class="relative">
-                                <input type="text" id="searchInput" placeholder="Cari tukang..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="relative w-full md:w-auto">
+                                <input type="text" id="searchInput" placeholder="Cari tukang..." class="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full">
                                 <i data-feather="search" class="absolute left-3 top-2.5 text-gray-400"></i>
                             </div>
                         </div>
@@ -432,15 +478,15 @@ $order_status_filter = $_GET['status'] ?? 'all';
                                     <div class="worker-card bg-white rounded-xl shadow p-6 transition duration-300">
                                         <div class="flex flex-col md:flex-row gap-6">
                                             <div class="md:w-1/4">
-                                                <img src="<?php echo htmlspecialchars($worker['photo']); ?>" alt="<?php echo htmlspecialchars($worker['name']); ?>" class="w-full rounded-lg object-cover h-48">
+                                                <img src="<?php echo htmlspecialchars($worker['photo']); ?>" alt="<?php echo htmlspecialchars($worker['name']); ?>" class="w-full rounded-lg object-cover h-48 md:h-full">
                                             </div>
                                             <div class="md:w-3/4">
-                                                <div class="flex justify-between items-start mb-2">
+                                                <div class="flex flex-col md:flex-row justify-between items-start mb-2">
                                                     <div>
                                                         <h3 class="font-bold text-xl"><?php echo htmlspecialchars($worker['name']); ?></h3>
                                                         <p class="text-gray-600"><?php echo htmlspecialchars(implode(', ', $worker['skills'])); ?> | <?php echo htmlspecialchars($worker['location']); ?></p>
                                                     </div>
-                                                    <div class="flex items-center">
+                                                    <div class="flex items-center mt-2 md:mt-0">
                                                         <div class="flex text-yellow-400 mr-1">
                                                             <?php echo formatRating($worker['rating']); ?>
                                                         </div>
@@ -462,17 +508,17 @@ $order_status_filter = $_GET['status'] ?? 'all';
                                                     <p class="text-sm"><?php echo htmlspecialchars($worker['description'] ?? 'Tidak ada deskripsi'); ?></p>
                                                 </div>
                                                 
-                                                <div class="flex justify-between items-center">
+                                                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                                                     <div>
                                                         <h4 class="font-semibold mb-1">Harga:</h4>
                                                         <p class="text-blue-600 font-bold"><?php echo formatCurrency($worker['rate']); ?>/hari</p>
                                                     </div>
-                                                    <div class="flex space-x-2">
-                                                        <button class="flex items-center text-white gradient-bg px-4 py-2 rounded-lg hover:opacity-90">
+                                                    <div class="flex space-x-2 w-full sm:w-auto">
+                                                        <button class="flex-1 sm:flex-none flex items-center justify-center text-white gradient-bg px-4 py-2 rounded-lg hover:opacity-90">
                                                             <i data-feather="message-square" class="w-4 h-4 mr-1"></i> Chat
                                                         </button>
                                                         <button type="button" 
-                                                                class="book-worker-btn flex items-center text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700"
+                                                                class="book-worker-btn flex-1 sm:flex-none flex items-center justify-center text-white bg-green-600 px-4 py-2 rounded-lg hover:bg-green-700"
                                                                 data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"
                                                                 data-worker-name="<?php echo htmlspecialchars($worker['name']); ?>"
                                                                 data-worker-rate="<?php echo $worker['rate']; ?>"
@@ -498,24 +544,23 @@ $order_status_filter = $_GET['status'] ?? 'all';
                     
                     <div class="bg-white rounded-xl shadow overflow-hidden">
                         <div class="border-b border-gray-200">
-                            <nav class="flex -mb-px">
-                                <a href="?tab=orders&status=all" class="<?php echo $order_status_filter === 'all' ? 'px-6 py-4 text-sm font-medium text-gray-900 border-b-2 border-blue-500' : 'px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300'; ?>">
+                            <nav class="flex -mb-px overflow-x-auto">
+                                <a href="?tab=orders&status=all" class="flex-shrink-0 <?php echo $order_status_filter === 'all' ? 'px-6 py-4 text-sm font-medium text-gray-900 border-b-2 border-blue-500' : 'px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300'; ?>">
                                     Semua
                                 </a>
-                                <a href="?tab=orders&status=pending" class="<?php echo $order_status_filter === 'pending' ? 'px-6 py-4 text-sm font-medium text-gray-900 border-b-2 border-blue-500' : 'px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300'; ?>">
+                                <a href="?tab=orders&status=pending" class="flex-shrink-0 <?php echo $order_status_filter === 'pending' ? 'px-6 py-4 text-sm font-medium text-gray-900 border-b-2 border-blue-500' : 'px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300'; ?>">
                                     Menunggu
                                 </a>
-                                <a href="?tab=orders&status=in-progress" class="<?php echo $order_status_filter === 'in-progress' ? 'px-6 py-4 text-sm font-medium text-gray-900 border-b-2 border-blue-500' : 'px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300'; ?>">
+                                <a href="?tab=orders&status=in-progress" class="flex-shrink-0 <?php echo $order_status_filter === 'in-progress' ? 'px-6 py-4 text-sm font-medium text-gray-900 border-b-2 border-blue-500' : 'px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300'; ?>">
                                     Berjalan
                                 </a>
-                                <a href="?tab=orders&status=completed" class="<?php echo $order_status_filter === 'completed' ? 'px-6 py-4 text-sm font-medium text-gray-900 border-b-2 border-blue-500' : 'px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300'; ?>">
+                                <a href="?tab=orders&status=completed" class="flex-shrink-0 <?php echo $order_status_filter === 'completed' ? 'px-6 py-4 text-sm font-medium text-gray-900 border-b-2 border-blue-500' : 'px-6 py-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 hover:border-gray-300'; ?>">
                                     Selesai
                                 </a>
                             </nav>
                         </div>
                         
-                        <div class="p-6">
-                            <div class="overflow-x-auto">
+                        <div class="p-0 md:p-6"> <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead>
                                         <tr>
@@ -592,7 +637,7 @@ $order_status_filter = $_GET['status'] ?? 'all';
                                                             // Ganti pengecekan DB dengan pengecekan array PHP
                                                             $hasReviewed = in_array($order['jobId'], $reviewedJobIds);
                                                             ?>
-                                                            <?php if (!$hasReviewed): // Tampilkan tombol review hanya jika belum direview ?>
+                                                            <?php if (!$hasReviewed): // Tampilkan tombol review only if not reviewed ?>
                                                             <button type="button" 
                                                                     class="text-purple-600 hover:text-purple-800 review-btn" 
                                                                     data-job-id="<?php echo htmlspecialchars($order['jobId']); ?>"
@@ -601,7 +646,7 @@ $order_status_filter = $_GET['status'] ?? 'all';
                                                                     title="Beri Ulasan">
                                                                 <i data-feather="star"></i>
                                                             </button>
-                                                            <?php else: // Tampilkan ikon centang jika sudah direview ?>
+                                                            <?php else: // Show checkmark if reviewed ?>
                                                                 <span class="text-green-500" title="Sudah Direview">
                                                                     <i data-feather="check-circle"></i>
                                                                 </span>
@@ -689,12 +734,12 @@ $order_status_filter = $_GET['status'] ?? 'all';
                         </div>
                         <p class="text-xs text-gray-500 mt-2">* Harga final dapat berubah sesuai kompleksitas pekerjaan</p>
                     </div>
-                    <div class="flex justify-end space-x-4">
-                        <button type="button" id="cancelBooking" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition duration-200">
-                            Batal
-                        </button>
-                        <button type="submit" class="gradient-bg px-4 py-2 rounded-lg text-white hover:opacity-90 transition duration-200">
+                    <div class="flex flex-col sm:flex-row-reverse sm:space-x-4 sm:space-x-reverse">
+                        <button type="submit" class="w-full sm:w-auto gradient-bg px-4 py-2 rounded-lg text-white hover:opacity-90 transition duration-200">
                             Pesan Sekarang
+                        </button>
+                        <button type="button" id="cancelBooking" class="w-full sm:w-auto mt-2 sm:mt-0 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition duration-200">
+                            Batal
                         </button>
                     </div>
                 </form>
@@ -729,12 +774,12 @@ $order_status_filter = $_GET['status'] ?? 'all';
                         <label class="block text-sm font-medium text-gray-700 mb-1">Komentar Anda (Opsional)</label>
                         <textarea name="comment" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Bagaimana pengalaman Anda dengan tukang ini?"></textarea>
                     </div>
-                    <div class="flex justify-end space-x-4">
-                        <button type="button" id="cancelReview" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition duration-200">
-                            Batal
-                        </button>
-                        <button type="submit" class="gradient-bg px-4 py-2 rounded-lg text-white hover:opacity-90 transition duration-200">
+                    <div class="flex flex-col sm:flex-row-reverse sm:space-x-4 sm:space-x-reverse">
+                        <button type="submit" class="w-full sm:w-auto gradient-bg px-4 py-2 rounded-lg text-white hover:opacity-90 transition duration-200">
                             Kirim Ulasan
+                        </button>
+                        <button type="button" id="cancelReview" class="w-full sm:w-auto mt-2 sm:mt-0 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition duration-200">
+                            Batal
                         </button>
                     </div>
                 </form>
@@ -746,6 +791,31 @@ $order_status_filter = $_GET['status'] ?? 'all';
     <script>
         // Initialize feather icons
         feather.replace();
+
+        // --- KUNCI RESPONSIVE #5: JavaScript untuk Hamburger Menu ---
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuIcon = document.getElementById('mobile-menu-icon');
+
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', () => {
+                const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
+                mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
+                
+                // Toggle menu visibility
+                mobileMenu.classList.toggle('hidden');
+                
+                // Toggle icon (menu vs x)
+                if (mobileMenu.classList.contains('hidden')) {
+                    mobileMenuIcon.setAttribute('data-feather', 'menu');
+                } else {
+                    mobileMenuIcon.setAttribute('data-feather', 'x');
+                }
+                feather.replace(); // Re-render icon
+            });
+        }
+        // --- Akhir Script Hamburger ---
+
 
         // Booking Modal Functionality
         const bookingModal = document.getElementById('bookingModal');

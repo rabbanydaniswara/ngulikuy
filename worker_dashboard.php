@@ -61,7 +61,7 @@ $filteredJobs = array_filter($allJobs, function($job) use ($active_tab) {
                         <span class="ml-2 font-bold text-xl">NguliKuy (Kuli)</span>
                     </div>
                 </div>
-                <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                <div class="flex items-center">
                     <div class="ml-3 relative">
                         <div class="flex items-center space-x-2">
                             <span class="text-sm font-medium">Halo, <?php echo htmlspecialchars($worker_name); ?></span>
@@ -83,20 +83,20 @@ $filteredJobs = array_filter($allJobs, function($job) use ($active_tab) {
             
             <div class="bg-white rounded-xl shadow overflow-hidden">
                 <div class="border-b border-gray-200">
-                    <nav class="flex -mb-px">
-                        <a href="?tab=pending" class="<?php echo $active_tab === 'pending' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
+                    <nav class="flex -mb-px overflow-x-auto">
+                        <a href="?tab=pending" class="flex-shrink-0 <?php echo $active_tab === 'pending' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
                             Tawaran Baru (Pending)
                         </a>
-                        <a href="?tab=active" class="<?php echo $active_tab === 'active' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
+                        <a href="?tab=active" class="flex-shrink-0 <?php echo $active_tab === 'active' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
                             Sedang Berjalan
                         </a>
-                        <a href="?tab=completed" class="<?php echo $active_tab === 'completed' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
+                        <a href="?tab=completed" class="flex-shrink-0 <?php echo $active_tab === 'completed' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
                             Riwayat (Selesai/Batal)
                         </a>
                     </nav>
                 </div>
                 
-                <div class="p-6">
+                <div class="p-0 sm:p-6">
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead>
@@ -127,28 +127,30 @@ $filteredJobs = array_filter($allJobs, function($job) use ($active_tab) {
                                                 <div class="font-medium"><?php echo htmlspecialchars($job['customer']); ?></div>
                                                 <div class="text-sm text-gray-500"><?php echo htmlspecialchars($job['customerPhone']); ?></div>
                                             </td>
-                                            <td class="px-6 py-4 text-sm"><?php echo date('d M Y', strtotime($job['startDate'])); ?></td>
-                                            <td class="px-6 py-4 font-medium"><?php echo formatCurrency($job['price']); ?></td>
+                                            <td class="px-6 py-4 text-sm whitespace-nowrap"><?php echo date('d M Y', strtotime($job['startDate'])); ?></td>
+                                            <td class="px-6 py-4 font-medium whitespace-nowrap"><?php echo formatCurrency($job['price']); ?></td>
                                             <td class="px-6 py-4">
-                                                <span class="status-badge px-2 py-1 text-xs rounded-full <?php echo getStatusClass($job['status'], 'job'); ?>">
+                                                <span class="status-badge px-2 py-1 text-xs rounded-full whitespace-nowrap <?php echo getStatusClass($job['status'], 'job'); ?>">
                                                     <?php echo htmlspecialchars($job['status']); ?>
                                                 </span>
                                             </td>
                                             <td class="px-6 py-4">
-                                                <?php if ($job['status'] === 'pending'): ?>
-                                                    <button type="button" class="job-action-btn px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600" data-action="worker_accept_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
-                                                        Terima
-                                                    </button>
-                                                    <button type="button" class="job-action-btn px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600" data-action="worker_reject_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
-                                                        Tolak
-                                                    </button>
-                                                <?php elseif ($job['status'] === 'in-progress'): ?>
-                                                    <button type="button" class="job-action-btn px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600" data-action="worker_complete_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
-                                                        Selesaikan
-                                                    </button>
-                                                <?php else: ?>
-                                                    -
-                                                <?php endif; ?>
+                                                <div class="flex flex-col sm:flex-row gap-2">
+                                                    <?php if ($job['status'] === 'pending'): ?>
+                                                        <button type="button" class="job-action-btn w-full sm:w-auto text-center px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600" data-action="worker_accept_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
+                                                            Terima
+                                                        </button>
+                                                        <button type="button" class="job-action-btn w-full sm:w-auto text-center px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600" data-action="worker_reject_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
+                                                            Tolak
+                                                        </button>
+                                                    <?php elseif ($job['status'] === 'in-progress'): ?>
+                                                        <button type="button" class="job-action-btn w-full sm:w-auto text-center px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600" data-action="worker_complete_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
+                                                            Selesaikan
+                                                        </button>
+                                                    <?php else: ?>
+                                                        -
+                                                    <?php endif; ?>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -212,26 +214,36 @@ $filteredJobs = array_filter($allJobs, function($job) use ($active_tab) {
                     
                     // Update UI
                     const statusBadge = row.querySelector('.status-badge');
-                    const actionCell = button.parentElement;
+                    const actionCell = button.closest('div'); // Ambil wrapper div
 
                     if (action === 'worker_accept_job') {
                         statusBadge.textContent = 'in-progress';
-                        statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full status-in-progress';
-                        actionCell.innerHTML = `<button type="button" class="job-action-btn px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600" data-action="worker_complete_job" data-job-id="${jobId}">Selesaikan</button>`;
-                        // Re-attach listener ke tombol baru (jika diperlukan, tapi untuk 1x klik cukup)
+                        statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full whitespace-nowrap status-in-progress';
+                        // Perbarui tombol di dalam wrapper
+                        actionCell.innerHTML = `<button type="button" class="job-action-btn w-full sm:w-auto text-center px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600" data-action="worker_complete_job" data-job-id="${jobId}">Selesaikan</button>`;
+                        // Re-attach listener ke tombol baru
+                        actionCell.querySelector('.job-action-btn').addEventListener('click', arguments.callee);
                     } else if (action === 'worker_reject_job') {
                         statusBadge.textContent = 'cancelled';
-                        statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full status-cancelled';
+                        statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full whitespace-nowrap status-cancelled';
                         actionCell.innerHTML = '-';
                     } else if (action === 'worker_complete_job') {
                         statusBadge.textContent = 'completed';
-                        statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full status-completed';
+                        statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full whitespace-nowrap status-completed';
                         actionCell.innerHTML = '-';
                     }
                     
                     // Jika tab-nya 'pending', hapus barisnya setelah diterima/ditolak
                     <?php if ($active_tab === 'pending'): ?>
                     if (action === 'worker_accept_job' || action === 'worker_reject_job') {
+                         row.style.opacity = 0.5;
+                         setTimeout(() => row.remove(), 500);
+                    }
+                    <?php endif; ?>
+                    
+                    // Jika tab-nya 'active', hapus barisnya setelah selesai
+                    <?php if ($active_tab === 'active'): ?>
+                    if (action === 'worker_complete_job') {
                          row.style.opacity = 0.5;
                          setTimeout(() => row.remove(), 500);
                     }

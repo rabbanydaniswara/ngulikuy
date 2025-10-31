@@ -58,6 +58,7 @@ if ($active_tab === 'reviews') {
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
         .gradient-bg { background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); }
+        /* KUNCI RESPONSIVE #2: Mengubah 'sidebar' agar transisi lebih mulus */
         .sidebar { transition: all 0.3s; }
         .active-tab { border-left: 4px solid #3b82f6; background-color: #eff6ff; }
         .status-available { background-color: #dcfce7 !important; color: #166534 !important; }
@@ -85,8 +86,16 @@ if ($active_tab === 'reviews') {
 </head>
 <body class="min-h-screen flex">
 
-    <div class="sidebar w-64 bg-white shadow-lg fixed h-full">
-        <div class="p-4 gradient-bg text-white"><h1 class="text-xl font-bold">NguliKuy</h1><p class="text-sm opacity-80">Admin Dashboard</p></div>
+    <div id="sidebar" class="sidebar w-64 bg-white shadow-lg fixed h-screen z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div class="p-4 gradient-bg text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold">NguliKuy</h1>
+                <p class="text-sm opacity-80">Admin Dashboard</p>
+            </div>
+            <button id="closeSidebarBtn" class="md:hidden p-1 rounded-full hover:bg-white/20">
+                <i data-feather="x" class="w-6 h-6"></i>
+            </button>
+        </div>
         <div class="mt-6">
              <a href="?tab=dashboard" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'dashboard' ? 'active-tab' : ''; ?>"><i data-feather="home" class="mr-3"></i>Dashboard</a>
             <a href="?tab=workers" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'workers' ? 'active-tab' : ''; ?>"><i data-feather="users" class="mr-3"></i>Data Kuli</a>
@@ -102,8 +111,22 @@ if ($active_tab === 'reviews') {
             <a href="index.php?logout=1" class="flex items-center text-gray-700 hover:text-blue-600"><i data-feather="log-out" class="mr-2"></i>Logout</a></div>
     </div>
 
-    <div class="flex-1 ml-64">
-        <header class="bg-white shadow-sm p-4 flex justify-between items-center"><h2 class="text-xl font-semibold text-gray-800"><?php $titles = ['dashboard' => 'Dashboard', 'workers' => 'Data Kuli', 'jobs' => 'Status Pengerjaan', 'reviews' => 'Ulasan Pelanggan', 'add_worker' => 'Tambah Kuli', 'add_job' => 'Tambah Pekerjaan']; echo $titles[$active_tab] ?? 'Dashboard'; // Tambahkan title 'reviews' ?></h2><div class="flex items-center space-x-4"><div class="relative"><i data-feather="bell" class="text-gray-500 hover:text-blue-600 cursor-pointer"></i><span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"><?php echo $stats['pending_jobs'] ?? 0; ?></span></div><div class="flex items-center"><img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="Admin" class="w-8 h-8 rounded-full mr-2"><span class="text-sm font-medium"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span></div></div></header>
+    <div class="flex-1 ml-0 md:ml-64 transition-all duration-300 ease-in-out">
+        <header class="bg-white shadow-sm p-4 flex justify-between items-center">
+            <div class="flex items-center">
+                <button id="openSidebarBtn" class="md:hidden mr-4 text-gray-600 hover:text-blue-600">
+                    <i data-feather="menu" class="w-6 h-6"></i>
+                </button>
+                <h2 class="text-xl font-semibold text-gray-800"><?php $titles = ['dashboard' => 'Dashboard', 'workers' => 'Data Kuli', 'jobs' => 'Status Pengerjaan', 'reviews' => 'Ulasan Pelanggan', 'add_worker' => 'Tambah Kuli', 'add_job' => 'Tambah Pekerjaan']; echo $titles[$active_tab] ?? 'Dashboard'; // Tambahkan title 'reviews' ?></h2>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="relative"><i data-feather="bell" class="text-gray-500 hover:text-blue-600 cursor-pointer"></i><span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"><?php echo $stats['pending_jobs'] ?? 0; ?></span></div>
+                <div class="flex items-center">
+                    <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="Admin" class="w-8 h-8 rounded-full mr-2">
+                    <span class="text-sm font-medium"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+                </div>
+            </div>
+        </header>
 
         <?php if (isset($success_message)): ?><div class="m-4 p-4 bg-green-100 text-green-700 rounded-lg"><?php echo htmlspecialchars($success_message); ?></div><?php endif; ?>
         <?php if (isset($error_message)): ?><div class="m-4 p-4 bg-red-100 text-red-700 rounded-lg"><?php echo htmlspecialchars($error_message); ?></div><?php endif; ?>
@@ -122,7 +145,9 @@ if ($active_tab === 'reviews') {
         </main>
     </div>
 
-    <!-- Modal Edit Worker -->
+    <div id="sidebarOverlay" class="hidden md:hidden fixed inset-0 bg-black/50 z-20"></div>
+
+
     <div id="editWorkerModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
@@ -224,7 +249,6 @@ if ($active_tab === 'reviews') {
         </div>
     </div>
 
-    <!-- Modal Delete Worker -->
     <div id="deleteWorkerModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
@@ -258,7 +282,6 @@ if ($active_tab === 'reviews') {
         </div>
     </div>
 
-    <!-- Modal Delete Job -->
     <div id="deleteJobModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
@@ -292,7 +315,6 @@ if ($active_tab === 'reviews') {
         </div>
     </div>
 
-    <!-- Modal Delete Review -->
     <div id="deleteReviewModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
@@ -329,6 +351,36 @@ if ($active_tab === 'reviews') {
     <script>
         // Initialize feather icons
         feather.replace();
+        
+        // --- KUNCI RESPONSIVE #8: JavaScript untuk Toggle Sidebar ---
+        const sidebar = document.getElementById('sidebar');
+        const openSidebarBtn = document.getElementById('openSidebarBtn');
+        const closeSidebarBtn = document.getElementById('closeSidebarBtn');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        if (openSidebarBtn) {
+            openSidebarBtn.addEventListener('click', () => {
+                if (sidebar) sidebar.classList.remove('-translate-x-full');
+                if (sidebarOverlay) sidebarOverlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Mencegah scroll body saat sidebar mobile terbuka
+            });
+        }
+        
+        function closeMobileSidebar() {
+             if (sidebar) sidebar.classList.add('-translate-x-full');
+             if (sidebarOverlay) sidebarOverlay.classList.add('hidden');
+             document.body.style.overflow = 'auto'; // Kembalikan scroll body
+        }
+
+        if (closeSidebarBtn) {
+            closeSidebarBtn.addEventListener('click', closeMobileSidebar);
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', closeMobileSidebar);
+        }
+        // --- Akhir Script Responsive Sidebar ---
+
 
         // CSRF Token
         const CSRF_TOKEN = '<?php echo getCsrfToken(); ?>';
