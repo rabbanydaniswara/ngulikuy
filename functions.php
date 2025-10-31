@@ -551,38 +551,33 @@ function updateWorkerStatus(string $workerId, string $status): bool {
  */
 function updateJobStatus(string $jobId, string $status): bool {
     global $pdo;
-
-    // --- TRANSAKSI ---
     $pdo->beginTransaction();
     
     try {
-        // 1. Dapatkan job untuk info worker
-        $job = null;
-        $stmtJob = $pdo->prepare("SELECT workerId, status FROM jobs WHERE jobId = ?");
+        // LOCK baris ini untuk transaksi
+        $stmtJob = $pdo->prepare("SELECT workerId, status FROM jobs WHERE jobId = ? FOR UPDATE");
         $stmtJob->execute([$jobId]);
         $job = $stmtJob->fetch();
 
         if (!$job) {
-             $pdo->rollBack();
-             return false;
+            $pdo->rollBack();
+            return false;
         }
 
-        // 2. Update status job
+        // Update status job
         $sql = "UPDATE jobs SET status = ?, updatedAt = NOW() WHERE jobId = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$status, $jobId]);
         
-        // 3. Update status worker jika job selesai atau dibatalkan
-        if ($job['workerId'] && ($status === 'completed' || $status === 'cancelled')) {
+        // Update status worker
+        if ($job['workerId'] && in_array($status, ['completed', 'cancelled'])) {
             updateWorkerStatus($job['workerId'], 'Available');
         }
         
-        // --- TRANSAKSI ---
         $pdo->commit();
         return true;
 
-    } catch (Exception $e) { // Tangkap Exception umum
-        // --- TRANSAKSI ---
+    } catch (Exception $e) {
         $pdo->rollBack();
         error_log("Error updating job status: " . $e->getMessage());
         return false;

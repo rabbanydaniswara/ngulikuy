@@ -40,10 +40,15 @@ if (!defined('IS_ADMIN_PAGE')) {
                                 <span><?php echo htmlspecialchars($review['jobType']); ?></span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="rating-stars">
-                                    <?php for ($i = 1; $i <= 5; $i++): ?>
-                                        <i data-feather="star" class="w-4 h-4 <?php echo $i <= $review['rating'] ? 'fill-current' : ''; ?>"></i>
+                                <div class="flex items-center">
+                                    <?php
+                                    $rating = intval($review['rating']);
+                                    for ($i = 1; $i <= 5; $i++):
+                                        $fillColor = ($i <= $rating) ? 'text-yellow-500' : 'text-gray-300';
+                                    ?>
+                                        <i data-feather="star" class="w-4 h-4 <?php echo $fillColor; ?>" <?php echo $i <= $rating ? 'fill="currentColor"' : ''; ?>></i>
                                     <?php endfor; ?>
+                                    <span class="ml-2 text-sm text-gray-600"><?php echo number_format($review['rating'], 1); ?></span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-sm text-gray-600 max-w-sm break-words"><?php echo htmlspecialchars($review['comment'] ?: '-'); ?></td>

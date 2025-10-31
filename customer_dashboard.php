@@ -1019,26 +1019,29 @@ $pendingOrderCount = count(array_filter($customerOrders, function($order) {
         }
 
         // Star rating interactivity
-        if (starIcons.length > 0) {
-            starIcons.forEach(star => {
-                star.addEventListener('mouseover', function() {
-                    fillStars(this.dataset.value);
-                });
-                
-                star.addEventListener('mouseout', function() {
-                    if (ratingValueInput) {
-                        fillStars(ratingValueInput.value);
-                    }
-                });
-                
-                star.addEventListener('click', function() {
-                    if (ratingValueInput) {
-                        // 1. Set nilai input hidden
-                        ratingValueInput.value = this.dataset.value;
-                        // 2. Update tampilan bintang berdasarkan nilai baru
-                        fillStars(this.dataset.value); 
-                    }
-                });
+        // Star rating interactivity dengan Event Delegation (lebih efisien)
+        if (starRatingContainer) {
+            // Gunakan 1 event listener di parent, bukan di setiap bintang
+            starRatingContainer.addEventListener('mouseover', function(e) {
+                // Cek apakah yang di-hover adalah bintang
+                if (e.target.closest('.star-icon')) {
+                    const star = e.target.closest('.star-icon');
+                    fillStars(star.dataset.value);
+                }
+            });
+            
+            starRatingContainer.addEventListener('mouseout', function(e) {
+                if (e.target.closest('.star-icon') && ratingValueInput) {
+                    fillStars(ratingValueInput.value);
+                }
+            });
+            
+            starRatingContainer.addEventListener('click', function(e) {
+                if (e.target.closest('.star-icon') && ratingValueInput) {
+                    const star = e.target.closest('.star-icon');
+                    ratingValueInput.value = star.dataset.value;
+                    fillStars(star.dataset.value);
+                }
             });
         }
 
