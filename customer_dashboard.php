@@ -198,6 +198,23 @@ $pendingOrderCount = count(array_filter($customerOrders, function($order) {
             color: #f59e0b; /* Tailwind 'amber-500' */
             fill: #f59e0b;
         }
+
+        /* === KODE BARU UNTUK ANIMASI MENU MOBILE === */
+        #mobile-menu {
+            overflow: hidden; /* Penting untuk transisi max-height */
+            transition: all 0.3s ease-in-out;
+            /* Atur state "terbuka" di sini */
+            max-height: 500px; /* Atur ke nilai yang cukup besar */
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #mobile-menu.mobile-menu-closed {
+            /* Atur state "tertutup" di sini */
+            max-height: 0px;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        /* === AKHIR KODE BARU === */
     </style>
 </head>
 <body class="min-h-screen">
@@ -250,7 +267,7 @@ $pendingOrderCount = count(array_filter($customerOrders, function($order) {
             </div>
         </div>
 
-        <div class="hidden sm:hidden" id="mobile-menu">
+        <div class="sm:hidden mobile-menu-closed" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1">
                 <a href="?tab=home" class="block px-3 py-2 rounded-md text-base font-medium <?php echo $active_tab === 'home' ? 'mobile-nav-active' : 'text-gray-700 hover:bg-gray-50'; ?>">Beranda</a>
                 <a href="?tab=search" class="block px-3 py-2 rounded-md text-base font-medium <?php echo $active_tab === 'search' ? 'mobile-nav-active' : 'text-gray-700 hover:bg-gray-50'; ?>">Cari Kuli</a>
@@ -802,11 +819,11 @@ $pendingOrderCount = count(array_filter($customerOrders, function($order) {
                 const isExpanded = mobileMenuButton.getAttribute('aria-expanded') === 'true';
                 mobileMenuButton.setAttribute('aria-expanded', !isExpanded);
                 
-                // Toggle menu visibility
-                mobileMenu.classList.toggle('hidden');
+                // PERUBAHAN JS: Toggle kelas 'mobile-menu-closed' BUKAN 'hidden'
+                mobileMenu.classList.toggle('mobile-menu-closed');
                 
-                // Toggle icon (menu vs x)
-                if (mobileMenu.classList.contains('hidden')) {
+                // PERUBAHAN JS: Cek kelas 'mobile-menu-closed' BUKAN 'hidden'
+                if (mobileMenu.classList.contains('mobile-menu-closed')) {
                     mobileMenuIcon.setAttribute('data-feather', 'menu');
                 } else {
                     mobileMenuIcon.setAttribute('data-feather', 'x');
