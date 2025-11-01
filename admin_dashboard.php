@@ -157,9 +157,13 @@ if ($active_tab === 'reviews') {
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-                <div class="gradient-bg p-6 text-center text-white rounded-t-lg">
+                <div class="gradient-bg p-6 text-center text-white rounded-t-lg relative">
                     <h2 class="text-xl font-bold">Edit Data Kuli</h2>
                     <p id="editWorkerTitle" class="text-blue-100 mt-1"></p>
+                    
+                    <button type="button" id="closeEditWorkerModalX" class="absolute top-4 right-4 text-blue-100 hover:text-white transition p-1 rounded-full hover:bg-white/10">
+                        <i data-feather="x" class="w-6 h-6"></i>
+                    </button>
                 </div>
                 <form id="editWorkerForm" method="POST" enctype="multipart/form-data">
                     <input type="hidden" name="edit_worker" value="1">
@@ -584,6 +588,9 @@ if ($active_tab === 'reviews') {
         const deleteReviewIdSpan = document.getElementById('deleteReviewId');
         const deleteReviewCustomerSpan = document.getElementById('deleteReviewCustomer');
 
+        // PERBAIKAN: Menambahkan tombol close X
+        const closeEditWorkerModalXBtn = document.getElementById('closeEditWorkerModalX');
+
         // Edit Worker
         editWorkerBtns.forEach(btn => btn.addEventListener('click', function() { /* ... (Logika sama) ... */ const workerId = this.dataset.workerId; const workers = <?php echo json_encode($workers); ?>; const worker = workers.find(w => w.id === workerId); if (worker) { document.getElementById('editWorkerId').value = worker.id; document.getElementById('editWorkerName').value = worker.name; document.getElementById('editWorkerEmail').value = worker.email; document.getElementById('editWorkerPhone').value = worker.phone; document.getElementById('editWorkerLocation').value = worker.location; document.getElementById('editWorkerRate').value = worker.rate; document.getElementById('editWorkerExperience').value = worker.experience || ''; document.getElementById('editWorkerDescription').value = worker.description || ''; document.getElementById('editWorkerStatus').value = worker.status; document.getElementById('currentWorkerPhoto').src = worker.photo; document.getElementById('currentPhotoUrl').textContent = worker.photo; document.getElementById('editWorkerTitle').textContent = 'Edit: ' + worker.name; const skillsSelect = document.getElementById('editWorkerSkills'); Array.from(skillsSelect.options).forEach(option => { option.selected = Array.isArray(worker.skills) && worker.skills.includes(option.value); }); editWorkerModal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; } }));
         
@@ -599,17 +606,38 @@ if ($active_tab === 'reviews') {
         // Close Modals (Sama)
         function closeEditWorkerModal() { if(editWorkerModal) editWorkerModal.classList.add('hidden'); document.body.style.overflow = 'auto'; }
         if(cancelEditWorkerBtn) cancelEditWorkerBtn.addEventListener('click', closeEditWorkerModal);
+        // PERBAIKAN: Menambahkan listener untuk tombol X
+        if(closeEditWorkerModalXBtn) closeEditWorkerModalXBtn.addEventListener('click', closeEditWorkerModal);
+        
         function closeDeleteWorkerModal() { if(deleteWorkerModal) deleteWorkerModal.classList.add('hidden'); document.body.style.overflow = 'auto'; }
         if(cancelDeleteWorkerBtn) cancelDeleteWorkerBtn.addEventListener('click', closeDeleteWorkerModal);
+        
         function closeDeleteJobModal() { if(deleteJobModal) deleteJobModal.classList.add('hidden'); document.body.style.overflow = 'auto'; }
         if(cancelDeleteJobBtn) cancelDeleteJobBtn.addEventListener('click', closeDeleteJobModal);
+        
         function closeDeleteReviewModal() { if(deleteReviewModal) deleteReviewModal.classList.add('hidden'); document.body.style.overflow = 'auto'; }
         if(cancelDeleteReviewBtn) cancelDeleteReviewBtn.addEventListener('click', closeDeleteReviewModal);
 
         // Close modal on overlay click (Sama)
-        document.addEventListener('click', function(e) { if (e.target.classList.contains('modal-overlay')) { closeEditWorkerModal(); closeDeleteWorkerModal(); closeDeleteJobModal(); closeDeleteReviewModal(); } });
+        // PERBAIKAN: Logika ini sudah benar dan akan berfungsi untuk semua modal
+        document.addEventListener('click', function(e) { 
+            if (e.target.classList.contains('modal-overlay')) { 
+                closeEditWorkerModal(); 
+                closeDeleteWorkerModal(); 
+                closeDeleteJobModal(); 
+                closeDeleteReviewModal(); 
+            } 
+        });
+        
         // Close modal on Escape key (Sama)
-        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closeEditWorkerModal(); closeDeleteWorkerModal(); closeDeleteJobModal(); closeDeleteReviewModal(); } });
+        document.addEventListener('keydown', function(e) { 
+            if (e.key === 'Escape') { 
+                closeEditWorkerModal(); 
+                closeDeleteWorkerModal(); 
+                closeDeleteJobModal(); 
+                closeDeleteReviewModal(); 
+            } 
+        });
 
         // AJAX Update Status Job... (DIUBAH UNTUK PAKAI FormData)
         document.querySelectorAll('.job-status-select').forEach(selectElement => { 
