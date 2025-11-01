@@ -49,6 +49,24 @@ $filteredJobs = array_filter($allJobs, function($job) use ($active_tab) {
         #ajax-notification { position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; border-radius: 5px; color: white; z-index: 1000; display: none; transition: opacity 0.5s ease-in-out; }
         #ajax-notification.success { background-color: #10B981; }
         #ajax-notification.error { background-color: #EF4444; }
+        
+        /* Gaya Modal */
+        #actionModal { transition: opacity 0.3s ease-out; }
+        #modal-content { 
+            transition: all 0.3s ease-out; 
+            transform: translateY(20px); 
+            opacity: 0;
+        }
+        #actionModal:not(.hidden) { opacity: 1; }
+        #actionModal:not(.hidden) #modal-content { 
+            transform: translateY(0); 
+            opacity: 1;
+        }
+        
+        /* * PERBAIKAN: 
+         * Menghapus CSS .btn-loading dan .btn-loading.flex 
+         * Kita akan mengandalkan kelas 'hidden' dari Tailwind 
+        */
     </style>
 </head>
 <body class="min-h-screen">
@@ -137,14 +155,23 @@ $filteredJobs = array_filter($allJobs, function($job) use ($active_tab) {
                                             <td class="px-6 py-4">
                                                 <div class="flex flex-col sm:flex-row gap-2">
                                                     <?php if ($job['status'] === 'pending'): ?>
-                                                        <button type="button" class="job-action-btn w-full sm:w-auto text-center px-3 py-1 bg-green-500 text-white text-xs rounded hover:bg-green-600" data-action="worker_accept_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
+                                                        <button type="button" class="job-modal-trigger flex items-center justify-center w-full sm:w-auto text-center px-3 py-1.5 bg-green-100 text-green-700 text-xs rounded-full hover:bg-green-200 transition"
+                                                                data-action="worker_accept_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>"
+                                                                data-job-type="<?php echo htmlspecialchars($job['jobType']); ?>" data-job-customer="<?php echo htmlspecialchars($job['customer']); ?>">
+                                                            <i data-feather="check-circle" class="w-4 h-4 mr-1"></i>
                                                             Terima
                                                         </button>
-                                                        <button type="button" class="job-action-btn w-full sm:w-auto text-center px-3 py-1 bg-red-500 text-white text-xs rounded hover:bg-red-600" data-action="worker_reject_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
+                                                        <button type="button" class="job-modal-trigger flex items-center justify-center w-full sm:w-auto text-center px-3 py-1.5 bg-red-100 text-red-700 text-xs rounded-full hover:bg-red-200 transition"
+                                                                data-action="worker_reject_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>"
+                                                                data-job-type="<?php echo htmlspecialchars($job['jobType']); ?>" data-job-customer="<?php echo htmlspecialchars($job['customer']); ?>">
+                                                            <i data-feather="x-circle" class="w-4 h-4 mr-1"></i>
                                                             Tolak
                                                         </button>
                                                     <?php elseif ($job['status'] === 'in-progress'): ?>
-                                                        <button type="button" class="job-action-btn w-full sm:w-auto text-center px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600" data-action="worker_complete_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
+                                                        <button type="button" class="job-modal-trigger flex items-center justify-center w-full sm:w-auto text-center px-3 py-1.5 bg-blue-100 text-blue-700 text-xs rounded-full hover:bg-blue-200 transition"
+                                                                data-action="worker_complete_job" data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>"
+                                                                data-job-type="<?php echo htmlspecialchars($job['jobType']); ?>" data-job-customer="<?php echo htmlspecialchars($job['customer']); ?>">
+                                                            <i data-feather="check-square" class="w-4 h-4 mr-1"></i>
                                                             Selesaikan
                                                         </button>
                                                     <?php else: ?>
@@ -163,6 +190,42 @@ $filteredJobs = array_filter($allJobs, function($job) use ($active_tab) {
         </div>
     </div>
 
+<div id="actionModal" class="fixed inset-0 z-50 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        
+        <div id="modal-overlay" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+        
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+        
+        <div id="modal-content" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="sm:flex sm:items-start">
+                    <div id="modal-icon-container" class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                        <i id="modal-icon" data-feather="info" class="h-6 w-6 text-blue-600"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Konfirmasi Tindakan</h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-500" id="modal-description">Apakah Anda yakin?</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" id="modal-confirm-btn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 sm:ml-3 sm:w-auto sm:text-sm">
+                    <span class="btn-text">Konfirmasi</span>
+                    <span class="btn-loading hidden items-center">
+                        <i data-feather="loader" class="animate-spin -ml-1 mr-2 h-5 w-5"></i>
+                        Memproses...
+                    </span>
+                </button>
+                <button type="button" id="modal-cancel-btn" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     feather.replace();
     
@@ -182,86 +245,202 @@ $filteredJobs = array_filter($allJobs, function($job) use ($active_tab) {
             setTimeout(() => { ajaxNotification.style.display = 'none'; }, 500);
         }, 3000);
     }
+    
+    // --- LOGIKA MODAL BARU ---
 
-    // Event listener untuk tombol aksi
-    document.querySelectorAll('.job-action-btn').forEach(button => {
-        button.addEventListener('click', async function() {
-            const action = this.dataset.action;
-            const jobId = this.dataset.jobId;
-            const row = document.getElementById('job-row-' + jobId);
-            
-            if (!confirm('Apakah Anda yakin?')) {
-                return;
-            }
+    // Ambil elemen-elemen modal
+    const actionModal = document.getElementById('actionModal');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const modalContent = document.getElementById('modal-content');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDescription = document.getElementById('modal-description');
+    const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+    const modalCancelBtn = document.getElementById('modal-cancel-btn');
+    const modalIcon = document.getElementById('modal-icon');
+    const modalIconContainer = document.getElementById('modal-icon-container');
 
-            button.disabled = true;
-            button.textContent = 'Memproses...';
+    // Fungsi untuk menutup modal
+    function closeModal() {
+        actionModal.classList.add('hidden');
+    }
 
-            const formData = new FormData();
-            formData.append('action', action);
-            formData.append('job_id', jobId);
-            formData.append('csrf_token', CSRF_TOKEN);
-
-            try {
-                const response = await fetch('ajax_handler.php', {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await response.json();
-
-                if (data.success) {
-                    showAjaxNotification(data.message, 'success');
-                    
-                    // Update UI
-                    const statusBadge = row.querySelector('.status-badge');
-                    const actionCell = button.closest('div'); // Ambil wrapper div
-
-                    if (action === 'worker_accept_job') {
-                        statusBadge.textContent = 'in-progress';
-                        statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full whitespace-nowrap status-in-progress';
-                        // Perbarui tombol di dalam wrapper
-                        actionCell.innerHTML = `<button type="button" class="job-action-btn w-full sm:w-auto text-center px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600" data-action="worker_complete_job" data-job-id="${jobId}">Selesaikan</button>`;
-                        // Re-attach listener ke tombol baru
-                        actionCell.querySelector('.job-action-btn').addEventListener('click', arguments.callee);
-                    } else if (action === 'worker_reject_job') {
-                        statusBadge.textContent = 'cancelled';
-                        statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full whitespace-nowrap status-cancelled';
-                        actionCell.innerHTML = '-';
-                    } else if (action === 'worker_complete_job') {
-                        statusBadge.textContent = 'completed';
-                        statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full whitespace-nowrap status-completed';
-                        actionCell.innerHTML = '-';
-                    }
-                    
-                    // Jika tab-nya 'pending', hapus barisnya setelah diterima/ditolak
-                    <?php if ($active_tab === 'pending'): ?>
-                    if (action === 'worker_accept_job' || action === 'worker_reject_job') {
-                         row.style.opacity = 0.5;
-                         setTimeout(() => row.remove(), 500);
-                    }
-                    <?php endif; ?>
-                    
-                    // Jika tab-nya 'active', hapus barisnya setelah selesai
-                    <?php if ($active_tab === 'active'): ?>
-                    if (action === 'worker_complete_job') {
-                         row.style.opacity = 0.5;
-                         setTimeout(() => row.remove(), 500);
-                    }
-                    <?php endif; ?>
-
-                } else {
-                    showAjaxNotification(data.message, 'error');
-                    button.disabled = false;
-                    button.textContent = this.textContent; // Kembalikan teks tombol
-                }
-
-            } catch (error) {
-                showAjaxNotification('Terjadi error: ' + error.message, 'error');
-                button.disabled = false;
-                button.textContent = this.textContent;
-            }
+    // Listener untuk tombol-tombol pemicu modal
+    // Kita buat fungsi ini agar bisa dipanggil ulang
+    function attachModalListeners() {
+        document.querySelectorAll('.job-modal-trigger').forEach(button => {
+            // Hapus listener lama agar tidak duplikat
+            button.removeEventListener('click', openModalHandler);
+            // Tambah listener baru
+            button.addEventListener('click', openModalHandler);
         });
+    }
+    
+    function openModalHandler() {
+        const action = this.dataset.action;
+        const jobId = this.dataset.jobId;
+        const jobType = this.dataset.jobType;
+        const jobCustomer = this.dataset.jobCustomer;
+
+        let title, description, confirmText, confirmClass, iconName, iconClass, iconContainerClass;
+
+        switch (action) {
+            case 'worker_accept_job':
+                title = 'Terima Pekerjaan?';
+                description = `Anda akan menerima pekerjaan <strong>${jobType}</strong> dari customer <strong>${jobCustomer}</strong>. Lanjutkan?`;
+                confirmText = 'Ya, Terima';
+                confirmClass = 'bg-green-600 hover:bg-green-700';
+                iconName = 'check-circle';
+                iconClass = 'text-green-600';
+                iconContainerClass = 'bg-green-100';
+                break;
+            case 'worker_reject_job':
+                title = 'Tolak Pekerjaan?';
+                description = `Anda akan menolak pekerjaan <strong>${jobType}</strong> dari customer <strong>${jobCustomer}</strong>. Tindakan ini tidak dapat dibatalkan.`;
+                confirmText = 'Ya, Tolak';
+                confirmClass = 'bg-red-600 hover:bg-red-700';
+                iconName = 'x-circle';
+                iconClass = 'text-red-600';
+                iconContainerClass = 'bg-red-100';
+                break;
+            case 'worker_complete_job':
+                title = 'Selesaikan Pekerjaan?';
+                description = `Konfirmasi bahwa pekerjaan <strong>${jobType}</strong> untuk <strong>${jobCustomer}</strong> telah selesai.`;
+                confirmText = 'Ya, Selesaikan';
+                confirmClass = 'bg-blue-600 hover:bg-blue-700';
+                iconName = 'check-square';
+                iconClass = 'text-blue-600';
+                iconContainerClass = 'bg-blue-100';
+                break;
+        }
+
+        // Isi konten modal
+        modalTitle.textContent = title;
+        modalDescription.innerHTML = description;
+        
+        // Set tombol konfirmasi
+        const btnText = modalConfirmBtn.querySelector('.btn-text');
+        if (btnText) btnText.textContent = confirmText;
+        
+        // Hapus kelas warna lama & tambahkan yang baru
+        modalConfirmBtn.className = modalConfirmBtn.className.replace(/bg-\w+-600/g, '').replace(/hover:bg-\w+-700/g, '');
+        modalConfirmBtn.classList.add(...confirmClass.split(' '));
+        
+        // Set ikon
+        modalIcon.setAttribute('data-feather', iconName);
+        modalIcon.className = `h-6 w-6 ${iconClass}`;
+        modalIconContainer.className = `mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full sm:mx-0 sm:h-10 sm:w-10 ${iconContainerClass}`;
+        feather.replace(); // Render ikon baru
+
+        // Simpan data di tombol konfirmasi untuk dipakai nanti
+        modalConfirmBtn.dataset.action = action;
+        modalConfirmBtn.dataset.jobId = jobId;
+
+        // Tampilkan modal
+        actionModal.classList.remove('hidden');
+    }
+
+    // Panggil fungsi attach listener saat halaman dimuat
+    attachModalListeners();
+
+
+    // Listener untuk tombol Batal di modal
+    modalCancelBtn.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', closeModal);
+
+    // Listener untuk tombol Konfirmasi di modal
+    modalConfirmBtn.addEventListener('click', async function() {
+        const action = this.dataset.action;
+        const jobId = this.dataset.jobId;
+        const row = document.getElementById('job-row-' + jobId);
+        
+        const btnText = this.querySelector('.btn-text');
+        const btnLoading = this.querySelector('.btn-loading');
+
+        // Tampilkan loading
+        btnText.classList.add('hidden');
+        btnLoading.classList.remove('hidden'); // <-- PERBAIKAN 1: Hapus 'hidden'
+        btnLoading.classList.add('flex');      // <-- PERBAIKAN 2: Tambah 'flex'
+        this.disabled = true;
+        modalCancelBtn.disabled = true; // Nonaktifkan tombol batal saat loading
+
+        const formData = new FormData();
+        formData.append('action', action);
+        formData.append('job_id', jobId);
+        formData.append('csrf_token', CSRF_TOKEN);
+
+        try {
+            const response = await fetch('ajax_handler.php', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+
+            closeModal(); // Tutup modal baik sukses atau gagal
+
+            if (data.success) {
+                showAjaxNotification(data.message, 'success');
+                
+                // Update UI (Logika ini sama seperti sebelumnya)
+                const statusBadge = row.querySelector('.status-badge');
+                const actionCell = row.querySelector('td:last-child div'); // Ambil wrapper div
+
+                if (action === 'worker_accept_job') {
+                    statusBadge.textContent = 'in-progress';
+                    statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full whitespace-nowrap status-in-progress';
+                    // Perbarui tombol di dalam wrapper
+                    actionCell.innerHTML = `<button type="button" class="job-modal-trigger flex items-center justify-center w-full sm:w-auto text-center px-3 py-1.5 bg-blue-100 text-blue-700 text-xs rounded-full hover:bg-blue-200 transition"
+                                                data-action="worker_complete_job" data-job-id="${jobId}"
+                                                data-job-type="${row.querySelector('td:first-child div:first-child').textContent}" 
+                                                data-job-customer="${row.querySelector('td:nth-child(2) div:first-child').textContent}">
+                                            <i data-feather="check-square" class="w-4 h-4 mr-1"></i>
+                                            Selesaikan
+                                        </button>`;
+                    // Re-attach listener ke tombol baru
+                    attachModalListeners(); // Panggil fungsi utama lagi
+                    feather.replace();
+                } else if (action === 'worker_reject_job') {
+                    statusBadge.textContent = 'cancelled';
+                    statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full whitespace-nowrap status-cancelled';
+                    actionCell.innerHTML = '-';
+                } else if (action === 'worker_complete_job') {
+                    statusBadge.textContent = 'completed';
+                    statusBadge.className = 'status-badge px-2 py-1 text-xs rounded-full whitespace-nowrap status-completed';
+                    actionCell.innerHTML = '-';
+                }
+                
+                // Jika tab-nya 'pending', hapus barisnya setelah diterima/ditolak
+                <?php if ($active_tab === 'pending'): ?>
+                if (action === 'worker_accept_job' || action === 'worker_reject_job') {
+                     row.style.opacity = 0.5;
+                     setTimeout(() => row.remove(), 500);
+                }
+                <?php endif; ?>
+                
+                // Jika tab-nya 'active', hapus barisnya setelah selesai
+                <?php if ($active_tab === 'active'): ?>
+                if (action === 'worker_complete_job') {
+                     row.style.opacity = 0.5;
+                     setTimeout(() => row.remove(), 500);
+                }
+                <?php endif; ?>
+
+            } else {
+                showAjaxNotification(data.message, 'error');
+            }
+
+        } catch (error) {
+            closeModal();
+            showAjaxNotification('Terjadi error: ' + error.message, 'error');
+        } finally {
+            // Sembunyikan loading & aktifkan tombol
+            btnText.classList.remove('hidden');
+            btnLoading.classList.add('hidden');   // <-- PERBAIKAN 3: Tambah 'hidden'
+            btnLoading.classList.remove('flex');  // <-- PERBAIKAN 4: Hapus 'flex'
+            this.disabled = false;
+            modalCancelBtn.disabled = false;
+        }
     });
+
 </script>
 
 </body>

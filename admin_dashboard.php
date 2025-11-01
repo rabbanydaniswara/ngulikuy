@@ -153,6 +153,9 @@ if ($active_tab === 'reviews') {
             <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
+            
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
                 <div class="gradient-bg p-6 text-center text-white rounded-t-lg">
                     <h2 class="text-xl font-bold">Edit Data Kuli</h2>
@@ -254,6 +257,9 @@ if ($active_tab === 'reviews') {
             <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <div class="bg-white p-6">
                     <div class="sm:flex sm:items-start">
@@ -287,6 +293,9 @@ if ($active_tab === 'reviews') {
             <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <div class="bg-white p-6">
                     <div class="sm:flex sm:items-start">
@@ -320,6 +329,9 @@ if ($active_tab === 'reviews') {
             <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
                 <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
                 <div class="bg-white p-6">
                     <div class="sm:flex sm:items-start">
@@ -435,7 +447,10 @@ if ($active_tab === 'reviews') {
 
                 // Tampilkan loading
                 if (btnText) btnText.classList.add('hidden');
-                if (btnLoading) btnLoading.classList.remove('hidden');
+                if (btnLoading) {
+                     btnLoading.classList.remove('hidden');
+                     btnLoading.classList.add('flex'); // Pastikan 'flex' ditambahkan
+                }
                 submitButton.disabled = true;
                 feather.replace(); // Update ikon loader
             }
@@ -498,7 +513,10 @@ if ($active_tab === 'reviews') {
                 // Sembunyikan loading
                 if (submitButton) {
                     if (btnText) btnText.classList.remove('hidden');
-                    if (btnLoading) btnLoading.classList.add('hidden');
+                    if (btnLoading) {
+                        btnLoading.classList.add('hidden');
+                        btnLoading.classList.remove('flex'); // Hapus 'flex'
+                    }
                     submitButton.disabled = false;
                 }
             }
@@ -510,7 +528,7 @@ if ($active_tab === 'reviews') {
             addWorkerForm.addEventListener('submit', (event) => handleFormSubmit(event, 'add_worker'));
             const addWorkerBtn = document.getElementById('saveWorkerBtn');
             if(addWorkerBtn) {
-                 addWorkerBtn.innerHTML = `<span class="btn-text flex items-center"><i data-feather="save" class="w-4 h-4 mr-2"></i> Simpan Kuli</span><span class="btn-loading hidden flex items-center"><i data-feather="loader" class="animate-spin mr-2"></i>Menyimpan...</span>`;
+                 addWorkerBtn.innerHTML = `<span class="btn-text flex items-center"><i data-feather="save" class="w-4 h-4 mr-2"></i> Simpan Kuli</span><span class="btn-loading hidden items-center"><i data-feather="loader" class="animate-spin mr-2"></i>Menyimpan...</span>`;
                  feather.replace();
             }
         }
@@ -529,7 +547,7 @@ if ($active_tab === 'reviews') {
             editWorkerForm.addEventListener('submit', (event) => handleFormSubmit(event, 'edit_worker'));
              const editWorkerSubmitBtn = editWorkerForm.querySelector('button[type="submit"]');
              if(editWorkerSubmitBtn) {
-                 editWorkerSubmitBtn.innerHTML = `<span class="btn-text">Update Data Kuli</span><span class="btn-loading hidden"><i data-feather="loader" class="animate-spin mr-2"></i>Updating...</span>`;
+                 editWorkerSubmitBtn.innerHTML = `<span class="btn-text">Update Data Kuli</span><span class="btn-loading hidden items-center"><i data-feather="loader" class="animate-spin mr-2"></i>Updating...</span>`;
                  feather.replace();
              }
         }
