@@ -1,16 +1,19 @@
-<?php declare(strict_types=1);
+<?php 
+declare(strict_types=1);
+
+/**
+ * PERBAIKAN: Load db.php TERLEBIH DAHULU
+ * Ini akan mendefinisikan APP_INIT sebelum security_config.php dimuat
+ */
+require_once 'db.php'; // <-- INI HARUS PALING ATAS!
+
+/**
+ * Setelah db.php dimuat, baru load security_config.php
+ */
 require_once 'security_config.php';
 
-// Load security config
 /**
  * Utility Functions for NguliKuy Application (MySQL Version)
- */
-
-// Sertakan file koneksi database
-require_once 'db.php'; // <-- INI PENTING!
-
-/**
- * Fungsi-fungsi yang TIDAK BERUBAH (Helper, Auth, Upload)
  */
 
 // Mulai session
@@ -79,9 +82,8 @@ function getCsrfToken(): string {
  */
 function validateCsrfToken(string $tokenFromForm): bool {
     if (empty($_SESSION['csrf_token'])) {
-        return false; // Tidak ada token di session untuk dibandingkan
+        return false;
     }
-    // Gunakan hash_equals() untuk perbandingan yang aman dari timing attack
     return hash_equals($_SESSION['csrf_token'], $tokenFromForm);
 }
 

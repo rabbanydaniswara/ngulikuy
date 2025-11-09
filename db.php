@@ -1,11 +1,17 @@
 <?php
 /**
  * Improved Database Connection
- * Ganti file db.php lama dengan file ini
+ * PERBAIKAN: Definisi APP_INIT dipindah ke paling atas
  */
 
-// Konstanta untuk menandai bahwa app sudah diinisialisasi
-define('APP_INIT', true);
+// ============================================
+// DEFINISI KONSTANTA APP_INIT
+// ============================================
+// Konstanta ini HARUS didefinisikan PERTAMA KALI
+// sebelum file lain di-load
+if (!defined('APP_INIT')) {
+    define('APP_INIT', true);
+}
 
 // ============================================
 // KONFIGURASI DATABASE
@@ -32,7 +38,7 @@ try {
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES   => false,
-        PDO::ATTR_PERSISTENT         => false, // Hindari persistent connection untuk shared hosting
+        PDO::ATTR_PERSISTENT         => false,
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
     ];
     
@@ -43,7 +49,7 @@ try {
     
 } catch (PDOException $e) {
     // JANGAN tampilkan error detail di production
-    $isDevelopment = (getenv('APP_ENV') === 'development');
+    $isDevelopment = (getenv('APP_ENV') === 'development' || !getenv('APP_ENV'));
     
     if ($isDevelopment) {
         die("Database Connection Failed: " . $e->getMessage());
