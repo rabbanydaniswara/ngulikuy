@@ -1,0 +1,31 @@
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# Protect sensitive files
+<FilesMatch "^\.env$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^(db\.php|security_config\.php|functions\.php)$">
+    Order allow,deny
+    Deny from all
+    # Tapi izinkan dari PHP internal
+    Satisfy Any
+    Allow from env=REDIRECT_STATUS
+</FilesMatch>
+
+# Prevent directory listing
+Options -Indexes
+
+# Protect uploads folder
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{REQUEST_URI} ^/uploads/.*\.(php|php3|php4|php5|phtml|pl|py|jsp|asp|html|htm|shtml|sh|cgi)$ [NC]
+    RewriteRule .* - [F,L]
+</IfModule>

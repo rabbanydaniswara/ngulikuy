@@ -1,0 +1,22 @@
+# Environment
+.env
+
+# Logs
+logs/
+*.log
+
+# Uploads
+uploads/workers/*
+!uploads/workers/.gitkeep
+
+# Backups
+backups/
+*.sql
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

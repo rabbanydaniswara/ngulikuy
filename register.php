@@ -12,55 +12,61 @@ $success_message = '';
 // Cek jika form sudah di-submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // --- VALIDASI CSRF ---
     if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
         $error_message = 'Sesi tidak valid atau telah kedaluwarsa. Silakan coba lagi.';
     } else {
-    // --- AKHIR VALIDASI CSRF ---
-
-        // 1. Ambil data dari form
-        $name = $_POST['name'] ?? '';
-        $username = $_POST['username'] ?? ''; // Ini adalah email
+        
+        // Ambil dan validasi input
+        $name = InputValidator::sanitizeString($_POST['name'] ?? '');
+        $username = $_POST['username'] ?? '';
         $phone = $_POST['phone'] ?? '';
         $password = $_POST['password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
-
-        // 2. Validasi sederhana
-        if (empty($name) || empty($username) || empty($phone) || empty($password) || empty($confirm_password)) {
+        
+        // Validasi dasar
+        if (empty($name) || empty($username) || empty($phone) || empty($password)) {
             $error_message = 'Semua field harus diisi!';
-        } elseif ($password !== $confirm_password) {
+        } 
+        // Validasi email
+        elseif (!InputValidator::validateEmail($username)) {
+            $error_message = 'Format email tidak valid!';
+        }
+        // Validasi phone
+        elseif (!InputValidator::validatePhone($phone)) {
+            $error_message = 'Format nomor telepon tidak valid!';
+        }
+        // Validasi password
+        elseif ($password !== $confirm_password) {
             $error_message = 'Password dan Konfirmasi Password tidak cocok!';
-        } elseif (!filter_var($username, FILTER_VALIDATE_EMAIL)) {
-            $error_message = 'Email tidak valid!';
         } else {
-            
-            // 3. Cek apakah email (username) sudah ada
-            try {
-                $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
-                $stmtCheck->execute([$username]);
-                
-                if ($stmtCheck->fetchColumn() > 0) {
-                    $error_message = 'Email ini sudah terdaftar. Silakan gunakan email lain.';
-                } else {
+            $passwordCheck = InputValidator::validatePassword($password);
+            if (!$passwordCheck['valid']) {
+                $error_message = $passwordCheck['message'];
+            } else {
+                // Proses registrasi
+                try {
+                    $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+                    $stmtCheck->execute([$username]);
                     
-                    // 4. (INI BAGIAN PENTING) Hash password-nya!
-                    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-                    // 5. Masukkan ke database
-                    $sql = "INSERT INTO users (username, password, role, name, phone) VALUES (?, ?, ?, ?, ?)";
-                    $stmt = $pdo->prepare($sql);
-                    
-                    // User baru kita set sebagai 'customer' secara default
-                    $stmt->execute([$username, $hashedPassword, 'customer', $name, $phone]);
-                    
-                    $success_message = 'Registrasi berhasil! Silakan <a href="index.php" class="font-bold text-green-700 hover:underline">login</a>.';
-
+                    if ($stmtCheck->fetchColumn() > 0) {
+                        $error_message = 'Email ini sudah terdaftar.';
+                    } else {
+                        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+                        
+                        $sql = "INSERT INTO users (username, password, role, name, phone) VALUES (?, ?, ?, ?, ?)";
+                        $stmt = $pdo->prepare($sql);
+                        $stmt->execute([$username, $hashedPassword, 'customer', $name, $phone]);
+                        
+                        SecurityLogger::log('INFO', 'New user registered: ' . $username);
+                        $success_message = 'Registrasi berhasil!';
+                    }
+                } catch (PDOException $e) {
+                    SecurityLogger::logError('Registration error: ' . $e->getMessage());
+                    $error_message = 'Registrasi gagal. Silakan coba lagi.';
                 }
-            } catch (PDOException $e) {
-                $error_message = "Registrasi gagal, terjadi error pada database: " . $e->getMessage();
             }
         }
-    } // <-- Penutup blok 'else' dari validasi CSRF
+    }
 }
 ?>
 

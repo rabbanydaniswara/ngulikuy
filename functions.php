@@ -1,4 +1,7 @@
 <?php declare(strict_types=1);
+require_once 'security_config.php';
+
+// Load security config
 /**
  * Utility Functions for NguliKuy Application (MySQL Version)
  */
@@ -111,45 +114,25 @@ function formatRating(int|float $rating): string {
 }
 
 function handlePhotoUpload(array $file): array {
+    // Validasi menggunakan class baru
+    $validation = SecureFileUpload::validate($file);
+    
+    if (!$validation['valid']) {
+        return ['success' => false, 'error' => implode(', ', $validation['errors'])];
+    }
+    
     $uploadDir = 'uploads/workers/';
     if (!is_dir($uploadDir)) {
         mkdir($uploadDir, 0755, true);
     }
     
-    // ✅ TAMBAHKAN: Cek apakah benar-benar gambar
-    $check = getimagesize($file['tmp_name']);
-    if($check === false) {
-        return ['success' => false, 'error' => 'File bukan gambar yang valid.'];
-    }
-    
-    // ✅ EXISTING: Validasi MIME type
-    $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
-    $fileType = mime_content_type($file['tmp_name']);
-    
-    if (!in_array($fileType, $allowedTypes)) {
-        return ['success' => false, 'error' => 'Jenis file tidak diizinkan.'];
-    }
-    
-    // ✅ EXISTING: Validasi ukuran
-    $maxSize = 2 * 1024 * 1024;
-    if ($file['size'] > $maxSize) {
-        return ['success' => false, 'error' => 'Ukuran file terlalu besar. Maksimal 2MB.'];
-    }
-    
-    // ✅ PERBAIKAN: Sanitasi nama file lebih ketat
-    $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-    $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
-    
-    if (!in_array($fileExtension, $allowedExt)) {
-        return ['success' => false, 'error' => 'Ekstensi file tidak diizinkan.'];
-    }
-    
-    $fileName = 'worker_' . bin2hex(random_bytes(16)) . '.' . $fileExtension;
+    // Generate secure filename
+    $fileName = SecureFileUpload::generateSecureFilename($validation['extension']);
     $filePath = $uploadDir . $fileName;
     
     if (move_uploaded_file($file['tmp_name'], $filePath)) {
-        // ✅ TAMBAHKAN: Set permission yang aman
         chmod($filePath, 0644);
+        SecurityLogger::log('INFO', 'File uploaded: ' . $fileName);
         return ['success' => true, 'file_path' => $filePath, 'file_name' => $fileName];
     }
     
@@ -163,26 +146,49 @@ function handlePhotoUpload(array $file): array {
  */
 
 function authenticate(string $username, string $password): bool {
-    global $pdo; // Ambil koneksi PDO
+    global $pdo;
+    
+    // Rate limiting
+    $rateLimiter = new RateLimiter($pdo);
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+    
+    if (!$rateLimiter->isAllowed($ip, 'login', 5, 300)) {
+        SecurityLogger::logSecurityEvent('Rate limit exceeded for login', ['ip' => $ip, 'username' => $username]);
+        return false;
+    }
+    
+    // Input validation
+    if (!InputValidator::validateEmail($username) && strlen($username) < 3) {
+        SecurityLogger::logLoginAttempt($username, false);
+        return false;
+    }
 
     try {
         $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
 
-        // Verifikasi password menggunakan password_verify()
-        if ($user && password_verify($password, $user['password'])) { // <-- INI KODENYA
+        if ($user && password_verify($password, $user['password'])) {
+            // Reset rate limit on successful login
+            $rateLimiter->reset($ip, 'login');
+            
+            // Set session
             $_SESSION['user'] = $user['username'];
             $_SESSION['user_role'] = $user['role'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_phone'] = $user['phone'] ?? '';
             $_SESSION['worker_profile_id'] = $user['worker_profile_id'] ?? null;
+            $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
+            
+            SecurityLogger::logLoginAttempt($username, true);
             return true;
         }
 
-        return false; // Password salah atau user tidak ada
+        SecurityLogger::logLoginAttempt($username, false);
+        return false;
+        
     } catch (PDOException $e) {
-        error_log($e->getMessage());
+        SecurityLogger::logError('Authentication error: ' . $e->getMessage());
         return false;
     }
 }
