@@ -20,3 +20,7 @@ backups/
 # OS
 .DS_Store
 Thumbs.db
+
+# Testing files
+test_*.php
+phpinfo.php

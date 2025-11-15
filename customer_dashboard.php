@@ -1,25 +1,12 @@
 <?php
 /**
- * Customer Dashboard - Versi Optimized
- * File ini menggantikan customer_dashboard.php
- * Dengan tambahan optimasi performa dan keamanan
+ * Customer Dashboard - Production Ready
  */
 
-// Load dependencies
 require_once 'functions.php';
-require_once 'performance.php';
-
-// Start performance monitoring
-PerformanceMonitor::start();
 
 // Set secure headers
 SecureHeaders::set();
-
-// Start secure session
-SecureSession::start();
-
-// Enable output compression
-OutputCompression::enable();
 
 // Authentication check
 redirectIfNotCustomer();
@@ -28,28 +15,17 @@ redirectIfNotCustomer();
 $customer_email = $_SESSION['user'];
 $customer_id = null;
 
-// Get customer ID (dengan caching untuk menghindari query berulang)
-$cacheKey = 'customer_id_' . md5($customer_email);
-$customer_id = QueryCache::get($cacheKey);
+// Get customer ID
+global $pdo;
+$stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
+$stmt->execute([$customer_email]);
+$customer = $stmt->fetch();
+$customer_id = $customer ? $customer['id'] : null;
 
-if ($customer_id === null) {
-    global $pdo;
-    $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
-    $stmt->execute([$customer_email]);
-    $customer = $stmt->fetch();
-    $customer_id = $customer ? $customer['id'] : null;
-    
-    // Cache for 1 hour
-    QueryCache::set($cacheKey, $customer_id, 3600);
-}
-
-// Initialize optimized queries
-$optimizedQueries = new OptimizedQueries($pdo);
-
-// Handle form submissions dengan rate limiting
+// Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // Rate limiting untuk form submission
+    // Rate limiting
     $rateLimiter = new RateLimiter($pdo);
     $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
     
@@ -70,14 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!InputValidator::validateDate($startDate) || !InputValidator::validateDate($endDate)) {
                 $error_message = 'Format tanggal tidak valid.';
             } else {
-                // Get worker info (with caching)
-                $workerCacheKey = 'worker_' . $worker_id;
-                $worker = QueryCache::get($workerCacheKey);
-                
-                if ($worker === null) {
-                    $worker = getWorkerById($worker_id);
-                    QueryCache::set($workerCacheKey, $worker, 300);
-                }
+                $worker = getWorkerById($worker_id);
                 
                 if ($worker) {
                     $jobData = [
@@ -102,9 +71,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $jobData['price'] = $days > 0 ? $worker['rate'] * $days : 0;
                     
                     if (addJob($jobData)) {
-                        // Clear cache
-                        QueryCache::clear();
-                        
                         SecurityLogger::log('INFO', 'Job created', ['customer' => $customer_email, 'worker' => $worker_id]);
                         $success_message = 'Pesanan berhasil dibuat!';
                     } else {
@@ -147,9 +113,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     DatabaseHelper::commit();
                     
-                    // Clear cache
-                    QueryCache::clear();
-                    
                     SecurityLogger::log('INFO', 'Review submitted', ['job' => $jobId, 'rating' => $rating]);
                     $success_message = 'Ulasan berhasil dikirim!';
                     
@@ -168,13 +131,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get data dengan pagination dan caching
+// Get data
 $active_tab = $_GET['tab'] ?? 'home';
 $order_status_filter = $_GET['status'] ?? 'all';
-$page = (int)($_GET['page'] ?? 1);
 
-// Get workers dengan pagination (untuk tab search)
-$workersData = null;
+// Get workers untuk search
+$workers = [];
+$searchFilters = [];
+
 if ($active_tab === 'search') {
     $searchFilters = [
         'skill' => $_GET['skill'] ?? '',
@@ -182,54 +146,37 @@ if ($active_tab === 'search') {
         'status' => 'Available'
     ];
     
-    $cacheKey = 'workers_search_' . md5(json_encode(['page' => $page, 'filters' => $searchFilters]));
-    $workersData = QueryCache::get($cacheKey);
-    
-    if ($workersData === null) {
-        $workersData = $optimizedQueries->getWorkersPaginated($page, 12, $searchFilters);
-        QueryCache::set($cacheKey, $workersData, 300);
+    if (!empty($searchFilters['skill']) || !empty($searchFilters['location'])) {
+        $workers = searchWorkers($searchFilters);
+    } else {
+        $workers = getAvailableWorkers();
     }
 }
 
-// Get customer orders (optimized)
+// Get customer orders
 $customerOrders = [];
 if ($active_tab === 'orders') {
-    $orderFilters = ['customer_email' => $customer_email];
-    if ($order_status_filter !== 'all') {
-        $orderFilters['status'] = $order_status_filter;
-    }
-    
-    $cacheKey = 'orders_' . md5($customer_email . $order_status_filter);
-    $customerOrders = QueryCache::get($cacheKey);
-    
-    if ($customerOrders === null) {
-        $customerOrders = $optimizedQueries->getJobsOptimized($orderFilters);
-        QueryCache::set($cacheKey, $customerOrders, 60); // Cache 1 minute untuk orders
+    if ($order_status_filter === 'all') {
+        $customerOrders = getCustomerOrders($customer_email);
+    } else {
+        $allOrders = getCustomerOrders($customer_email);
+        $customerOrders = array_filter($allOrders, function($order) use ($order_status_filter) {
+            return $order['status'] === $order_status_filter;
+        });
     }
 }
 
 // Get top workers untuk homepage
 $topWorkers = [];
 if ($active_tab === 'home') {
-    $cacheKey = 'top_workers';
-    $topWorkers = QueryCache::get($cacheKey);
-    
-    if ($topWorkers === null) {
-        $topWorkers = getTopRatedWorkers(4);
-        QueryCache::set($cacheKey, $topWorkers, 600); // Cache 10 minutes
-    }
+    $topWorkers = getTopRatedWorkers(4);
 }
 
-// Hitung notifikasi pending orders (dengan caching)
-$cacheKey = 'pending_count_' . md5($customer_email);
-$pendingOrderCount = QueryCache::get($cacheKey);
-
-if ($pendingOrderCount === null) {
-    $pendingOrderCount = count(array_filter($customerOrders ?: getCustomerOrders($customer_email), 
-        function($o) { return $o['status'] === 'pending'; }
-    ));
-    QueryCache::set($cacheKey, $pendingOrderCount, 60);
-}
+// Count pending orders
+$pendingOrderCount = count(array_filter(
+    getCustomerOrders($customer_email), 
+    function($o) { return $o['status'] === 'pending'; }
+));
 
 ?>
 <!DOCTYPE html>
@@ -238,14 +185,7 @@ if ($pendingOrderCount === null) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NguliKuy - Platform booking tukang harian terpercaya">
-    <meta name="theme-color" content="#3b82f6">
-    
     <title><?php echo $active_tab === 'home' ? 'Dashboard' : ucfirst($active_tab); ?> - NguliKuy</title>
-    
-    <?php echo ResourceHints::generate(); ?>
-    
-    <!-- Preload critical resources -->
-    <link rel="preload" as="style" href="https://cdn.tailwindcss.com">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
@@ -254,45 +194,73 @@ if ($pendingOrderCount === null) {
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; background-color: #f8fafc; }
         .gradient-bg { background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); }
-        
-        /* Lazy loading placeholder */
-        img.lazy {
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        img:not(.lazy) {
-            opacity: 1;
-        }
-        
-        /* Skeleton loader untuk performance feedback */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
+        .nav-active { border-bottom: 2px solid #3b82f6; color: #1f2937; }
+        .status-completed { background-color: #dcfce7; color: #166534; }
+        .status-in-progress { background-color: #fef3c7; color: #92400e; }
+        .status-pending { background-color: #dbeafe; color: #1e40af; }
+        .status-cancelled { background-color: #fecaca; color: #dc2626; }
     </style>
 </head>
-<body>
+<body class="min-h-screen">
     
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm">
-        <!-- [Navigation code tetap sama, tidak perlu diubah] -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="?tab=home" class="flex-shrink-0 flex items-center">
+                        <i data-feather="tool" class="text-blue-600"></i>
+                        <span class="ml-2 font-bold text-xl">NguliKuy</span>
+                    </a>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="?tab=home" class="<?php echo $active_tab === 'home' ? 'nav-active' : 'text-gray-500'; ?> inline-flex items-center px-1 pt-1 text-sm font-medium">
+                            Home
+                        </a>
+                        <a href="?tab=search" class="<?php echo $active_tab === 'search' ? 'nav-active' : 'text-gray-500'; ?> inline-flex items-center px-1 pt-1 text-sm font-medium">
+                            Cari Tukang
+                        </a>
+                        <a href="?tab=orders" class="<?php echo $active_tab === 'orders' ? 'nav-active' : 'text-gray-500'; ?> inline-flex items-center px-1 pt-1 text-sm font-medium">
+                            Pesanan Saya
+                        </a>
+                    </div>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:items-center">
+                    <div class="relative mr-4">
+                        <i data-feather="bell" class="text-gray-500 hover:text-blue-600 cursor-pointer"></i>
+                        <?php if ($pendingOrderCount > 0): ?>
+                        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                            <?php echo $pendingOrderCount; ?>
+                        </span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="ml-3 relative">
+                        <div class="flex items-center space-x-2">
+                            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="User" class="w-8 h-8 rounded-full">
+                            <span class="text-sm font-medium"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+                            <a href="index.php?logout=1" class="text-gray-500 hover:text-blue-600">
+                                <i data-feather="log-out" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </nav>
-    
+
     <!-- Alert Messages -->
     <?php if (isset($success_message)): ?>
-        <div class="m-4 p-4 bg-green-100 text-green-700 rounded-lg">
-            <?php echo htmlspecialchars($success_message); ?>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            <div class="p-4 bg-green-100 text-green-700 rounded-lg">
+                <?php echo htmlspecialchars($success_message); ?>
+            </div>
         </div>
     <?php endif; ?>
     
     <?php if (isset($error_message)): ?>
-        <div class="m-4 p-4 bg-red-100 text-red-700 rounded-lg">
-            <?php echo htmlspecialchars($error_message); ?>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+            <div class="p-4 bg-red-100 text-red-700 rounded-lg">
+                <?php echo htmlspecialchars($error_message); ?>
+            </div>
         </div>
     <?php endif; ?>
     
@@ -300,7 +268,8 @@ if ($pendingOrderCount === null) {
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         
         <?php if ($active_tab === 'home'): ?>
-            <!-- Homepage content -->
+            
+            <!-- Hero Section -->
             <div class="gradient-bg rounded-xl text-white p-8 mb-8">
                 <h1 class="text-3xl font-bold mb-4">Solusi Cepat untuk Kebutuhan Tukang Harian</h1>
                 <p class="text-lg mb-6">Temukan tukang berpengalaman dengan mudah dan transparan</p>
@@ -309,7 +278,48 @@ if ($pendingOrderCount === null) {
                 </a>
             </div>
             
-            <!-- Top Workers dengan Lazy Loading -->
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+                            <i data-feather="users"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Total Tukang</p>
+                            <h3 class="text-2xl font-bold"><?php echo count(getWorkers()); ?></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                            <i data-feather="check-circle"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Pesanan Selesai</p>
+                            <h3 class="text-2xl font-bold">
+                                <?php echo count(array_filter(getCustomerOrders($customer_email), function($o) { 
+                                    return $o['status'] === 'completed'; 
+                                })); ?>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-yellow-100 text-yellow-600 mr-4">
+                            <i data-feather="clock"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Pesanan Pending</p>
+                            <h3 class="text-2xl font-bold"><?php echo $pendingOrderCount; ?></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Top Workers -->
             <div class="mb-12">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl font-bold">Tukang Terbaik</h2>
@@ -320,15 +330,9 @@ if ($pendingOrderCount === null) {
                     <?php foreach ($topWorkers as $worker): ?>
                         <div class="bg-white rounded-xl shadow p-4 transition hover:shadow-lg">
                             <div class="flex justify-center mb-4">
-                                <?php 
-                                echo LazyLoader::image(
-                                    $worker['photo'], 
-                                    $worker['name'],
-                                    'w-20 h-20 rounded-full object-cover',
-                                    80,
-                                    80
-                                );
-                                ?>
+                                <img src="<?php echo htmlspecialchars($worker['photo']); ?>" 
+                                     alt="<?php echo htmlspecialchars($worker['name']); ?>"
+                                     class="w-20 h-20 rounded-full object-cover">
                             </div>
                             <div class="text-center">
                                 <h3 class="font-bold"><?php echo htmlspecialchars($worker['name']); ?></h3>
@@ -336,98 +340,362 @@ if ($pendingOrderCount === null) {
                                     <?php echo htmlspecialchars($worker['skills'][0] ?? ''); ?>
                                 </p>
                                 <div class="flex justify-center items-center mb-2">
-                                    <div class="flex text-yellow-400">
+                                    <div class="flex text-yellow-400 text-sm">
                                         <?php echo formatRating($worker['rating']); ?>
                                     </div>
                                     <span class="text-xs text-gray-500 ml-1">
                                         (<?php echo $worker['review_count']; ?>)
                                     </span>
                                 </div>
-                                <p class="text-sm font-bold text-blue-600">
+                                <p class="text-sm font-bold text-blue-600 mb-3">
                                     <?php echo formatCurrency($worker['rate']); ?>/hari
                                 </p>
+                                <button onclick="openBookingModal('<?php echo $worker['id']; ?>')" 
+                                        class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm">
+                                    Pesan Sekarang
+                                </button>
                             </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
             </div>
             
-        <?php elseif ($active_tab === 'search' && $workersData): ?>
+        <?php elseif ($active_tab === 'search'): ?>
             
-            <!-- Search Results dengan Pagination -->
+            <!-- Search Header -->
             <div class="mb-6">
-                <h2 class="text-2xl font-bold">
-                    Hasil Pencarian 
-                    <span class="text-gray-500 text-lg">
-                        (<?php echo $workersData['pagination']['total']; ?> tukang)
-                    </span>
-                </h2>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                <?php foreach ($workersData['workers'] as $worker): ?>
-                    <div class="bg-white rounded-xl shadow p-4">
-                        <?php 
-                        echo LazyLoader::image(
-                            $worker['photo'],
-                            $worker['name'],
-                            'w-full h-48 object-cover rounded-lg mb-4'
-                        );
-                        ?>
-                        <h3 class="font-bold text-lg"><?php echo htmlspecialchars($worker['name']); ?></h3>
-                        <p class="text-gray-600 text-sm mb-2">
-                            <?php echo htmlspecialchars(implode(', ', array_slice($worker['skills'], 0, 2))); ?>
-                        </p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-blue-600 font-bold">
-                                <?php echo formatCurrency($worker['rate']); ?>/hari
-                            </span>
-                            <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                                Pesan
+                <h2 class="text-2xl font-bold mb-4">Cari Tukang</h2>
+                
+                <!-- Filter Form -->
+                <form method="GET" class="bg-white rounded-lg shadow p-6">
+                    <input type="hidden" name="tab" value="search">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Keahlian</label>
+                            <select name="skill" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">Semua Keahlian</option>
+                                <option value="Construction" <?php echo ($searchFilters['skill'] ?? '') === 'Construction' ? 'selected' : ''; ?>>Construction</option>
+                                <option value="Moving" <?php echo ($searchFilters['skill'] ?? '') === 'Moving' ? 'selected' : ''; ?>>Moving</option>
+                                <option value="Cleaning" <?php echo ($searchFilters['skill'] ?? '') === 'Cleaning' ? 'selected' : ''; ?>>Cleaning</option>
+                                <option value="Gardening" <?php echo ($searchFilters['skill'] ?? '') === 'Gardening' ? 'selected' : ''; ?>>Gardening</option>
+                                <option value="Plumbing" <?php echo ($searchFilters['skill'] ?? '') === 'Plumbing' ? 'selected' : ''; ?>>Plumbing</option>
+                                <option value="Electrical" <?php echo ($searchFilters['skill'] ?? '') === 'Electrical' ? 'selected' : ''; ?>>Electrical</option>
+                                <option value="Painting" <?php echo ($searchFilters['skill'] ?? '') === 'Painting' ? 'selected' : ''; ?>>Painting</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Lokasi</label>
+                            <input type="text" name="location" value="<?php echo htmlspecialchars($searchFilters['location'] ?? ''); ?>" 
+                                   placeholder="Masukkan lokasi..." 
+                                   class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+                                <i data-feather="search" class="w-4 h-4 inline mr-2"></i>
+                                Cari
                             </button>
                         </div>
                     </div>
-                <?php endforeach; ?>
+                </form>
             </div>
             
-            <!-- Pagination -->
-            <?php if ($workersData['pagination']['total_pages'] > 1): ?>
-                <div class="flex justify-center space-x-2">
-                    <?php for ($i = 1; $i <= $workersData['pagination']['total_pages']; $i++): ?>
-                        <a href="?tab=search&page=<?php echo $i; ?>" 
-                           class="px-4 py-2 rounded-lg <?php echo $i === $page ? 'bg-blue-600 text-white' : 'bg-gray-200 hover:bg-gray-300'; ?>">
-                            <?php echo $i; ?>
-                        </a>
-                    <?php endfor; ?>
+            <!-- Workers Grid -->
+            <?php if (empty($workers)): ?>
+                <div class="bg-white rounded-lg shadow p-8 text-center">
+                    <i data-feather="search" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada tukang ditemukan</h3>
+                    <p class="text-gray-500">Coba ubah filter pencarian Anda</p>
+                </div>
+            <?php else: ?>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <?php foreach ($workers as $worker): ?>
+                        <div class="bg-white rounded-xl shadow hover:shadow-lg transition">
+                            <img src="<?php echo htmlspecialchars($worker['photo']); ?>" 
+                                 alt="<?php echo htmlspecialchars($worker['name']); ?>"
+                                 class="w-full h-48 object-cover rounded-t-lg">
+                            <div class="p-4">
+                                <h3 class="font-bold text-lg mb-1"><?php echo htmlspecialchars($worker['name']); ?></h3>
+                                <p class="text-gray-600 text-sm mb-2">
+                                    <?php echo htmlspecialchars(implode(', ', array_slice($worker['skills'], 0, 2))); ?>
+                                </p>
+                                <div class="flex items-center mb-2">
+                                    <div class="flex text-yellow-400 text-sm mr-2">
+                                        <?php echo formatRating($worker['rating']); ?>
+                                    </div>
+                                    <span class="text-xs text-gray-500">
+                                        (<?php echo $worker['review_count']; ?> ulasan)
+                                    </span>
+                                </div>
+                                <p class="text-gray-600 text-sm mb-3">
+                                    <i data-feather="map-pin" class="w-4 h-4 inline"></i>
+                                    <?php echo htmlspecialchars($worker['location']); ?>
+                                </p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-blue-600 font-bold">
+                                        <?php echo formatCurrency($worker['rate']); ?>/hari
+                                    </span>
+                                    <button onclick="openBookingModal('<?php echo $worker['id']; ?>')" 
+                                            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                                        Pesan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
             
         <?php elseif ($active_tab === 'orders'): ?>
             
-            <!-- Orders list -->
-            <!-- [Code orders tetap sama] -->
+            <!-- Orders Header -->
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold mb-4">Pesanan Saya</h2>
+                
+                <!-- Status Filter -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="border-b border-gray-200">
+                        <nav class="flex -mb-px overflow-x-auto">
+                            <a href="?tab=orders&status=all" 
+                               class="flex-shrink-0 <?php echo $order_status_filter === 'all' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
+                                Semua
+                            </a>
+                            <a href="?tab=orders&status=pending" 
+                               class="flex-shrink-0 <?php echo $order_status_filter === 'pending' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
+                                Pending
+                            </a>
+                            <a href="?tab=orders&status=in-progress" 
+                               class="flex-shrink-0 <?php echo $order_status_filter === 'in-progress' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
+                                Sedang Dikerjakan
+                            </a>
+                            <a href="?tab=orders&status=completed" 
+                               class="flex-shrink-0 <?php echo $order_status_filter === 'completed' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
+                                Selesai
+                            </a>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Orders List -->
+            <?php if (empty($customerOrders)): ?>
+                <div class="bg-white rounded-lg shadow p-8 text-center">
+                    <i data-feather="clipboard" class="w-16 h-16 mx-auto text-gray-400 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada pesanan</h3>
+                    <p class="text-gray-500 mb-4">Mulai pesan tukang untuk pekerjaan Anda</p>
+                    <a href="?tab=search" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        <i data-feather="plus" class="w-4 h-4 mr-2"></i>
+                        Buat Pesanan
+                    </a>
+                </div>
+            <?php else: ?>
+                <div class="space-y-4">
+                    <?php foreach ($customerOrders as $order): 
+                        $statusInfo = getStatusTextAndClass($order['status']);
+                    ?>
+                        <div class="bg-white rounded-lg shadow p-6">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
+                                <div>
+                                    <h3 class="text-lg font-bold"><?php echo htmlspecialchars($order['jobType']); ?></h3>
+                                    <p class="text-sm text-gray-500">Order #<?php echo htmlspecialchars($order['jobId']); ?></p>
+                                </div>
+                                <span class="px-3 py-1 text-sm font-medium rounded-full <?php echo $statusInfo['class']; ?> mt-2 md:mt-0">
+                                    <?php echo $statusInfo['text']; ?>
+                                </span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div>
+                                    <p class="text-sm text-gray-600"><strong>Tukang:</strong> <?php echo htmlspecialchars($order['workerName']); ?></p>
+                                    <p class="text-sm text-gray-600"><strong>Tanggal:</strong> 
+                                        <?php echo date('d M Y', strtotime($order['startDate'])); ?> - 
+                                        <?php echo date('d M Y', strtotime($order['endDate'])); ?>
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-600"><strong>Lokasi:</strong> <?php echo htmlspecialchars($order['location']); ?></p>
+                                    <p class="text-sm text-gray-600"><strong>Total:</strong> 
+                                        <span class="font-bold text-blue-600"><?php echo formatCurrency($order['price']); ?></span>
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-2">
+                                <a href="detail_pesanan.php?id=<?php echo $order['jobId']; ?>" 
+                                   class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm">
+                                    Lihat Detail
+                                </a>
+                                <?php if ($order['status'] === 'completed'): ?>
+                                    <button onclick="openReviewModal('<?php echo $order['jobId']; ?>', '<?php echo $order['workerId']; ?>')" 
+                                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+                                        <i data-feather="star" class="w-4 h-4 inline mr-1"></i>
+                                        Beri Ulasan
+                                    </button>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
             
         <?php endif; ?>
-        
     </div>
-    
-    <!-- Lazy Loading Script -->
-    <?php echo LazyLoader::script(); ?>
-    
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
+                <div class="gradient-bg p-6 rounded-t-xl">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-white">Buat Pesanan</h3>
+                        <button onclick="closeBookingModal()" class="text-white hover:text-gray-200">
+                            <i data-feather="x" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <form method="POST" class="p-6">
+                    <?php echo csrfInput(); ?>
+                    <input type="hidden" name="book_worker" value="1">
+                    <input type="hidden" id="modal_worker_id" name="worker_id">
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Pekerjaan</label>
+                        <select name="job_type" required class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">Pilih Jenis Pekerjaan</option>
+                            <option value="Construction">Construction</option>
+                            <option value="Moving">Moving</option>
+                            <option value="Cleaning">Cleaning</option>
+                            <option value="Gardening">Gardening</option>
+                            <option value="Plumbing">Plumbing</option>
+                            <option value="Electrical">Electrical</option>
+                            <option value="Painting">Painting</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Mulai</label>
+                        <input type="date" name="start_date" required min="<?php echo date('Y-m-d'); ?>"
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Tanggal Selesai</label>
+                        <input type="date" name="end_date" required min="<?php echo date('Y-m-d'); ?>"
+                               class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Lokasi Pekerjaan</label>
+                        <textarea name="job_location" required rows="3"
+                                  class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Masukkan alamat lengkap lokasi pekerjaan..."></textarea>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Catatan (Opsional)</label>
+                        <textarea name="job_notes" rows="2"
+                                  class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Tambahkan catatan untuk tukang..."></textarea>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="closeBookingModal()" 
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                            Batal
+                        </button>
+                        <button type="submit" 
+                                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Pesan Sekarang
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div id="reviewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
+                <div class="gradient-bg p-6 rounded-t-xl">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xl font-bold text-white">Beri Ulasan</h3>
+                        <button onclick="closeReviewModal()" class="text-white hover:text-gray-200">
+                            <i data-feather="x" class="w-6 h-6"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <form method="POST" class="p-6">
+                    <?php echo csrfInput(); ?>
+                    <input type="hidden" name="submit_review" value="1">
+                    <input type="hidden" id="review_job_id" name="job_id">
+                    <input type="hidden" id="review_worker_id" name="worker_id">
+                    
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+                        <div class="flex space-x-2">
+                            <?php for ($i = 1; $i <= 5; $i++): ?>
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="rating" value="<?php echo $i; ?>" required class="hidden peer">
+                                    <i data-feather="star" class="w-8 h-8 text-gray-300 peer-checked:text-yellow-400 peer-checked:fill-current hover:text-yellow-200"></i>
+                                </label>
+                            <?php endfor; ?>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Komentar</label>
+                        <textarea name="comment" required rows="4"
+                                  class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                  placeholder="Bagaimana pengalaman Anda dengan tukang ini?"></textarea>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button type="button" onclick="closeReviewModal()" 
+                                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
+                            Batal
+                        </button>
+                        <button type="submit" 
+                                class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Kirim Ulasan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Initialize feather icons
         feather.replace();
         
-        // Your other JavaScript here...
+        function openBookingModal(workerId) {
+            document.getElementById('modal_worker_id').value = workerId;
+            document.getElementById('bookingModal').classList.remove('hidden');
+        }
+        
+        function closeBookingModal() {
+            document.getElementById('bookingModal').classList.add('hidden');
+        }
+        
+        function openReviewModal(jobId, workerId) {
+            document.getElementById('review_job_id').value = jobId;
+            document.getElementById('review_worker_id').value = workerId;
+            document.getElementById('reviewModal').classList.remove('hidden');
+        }
+        
+        function closeReviewModal() {
+            document.getElementById('reviewModal').classList.add('hidden');
+        }
+        
+        // Close modals on overlay click
+        document.getElementById('bookingModal').addEventListener('click', function(e) {
+            if (e.target === this) closeBookingModal();
+        });
+        
+        document.getElementById('reviewModal').addEventListener('click', function(e) {
+            if (e.target === this) closeReviewModal();
+        });
     </script>
-    
-    <?php
-    // Performance monitoring (hanya di development)
-    if (getenv('APP_ENV') === 'development') {
-        PerformanceMonitor::log();
-        $stats = PerformanceMonitor::end();
-        echo "<!-- Performance: {$stats['execution_time']}, Memory: {$stats['memory_used']} -->";
-    }
-    ?>
 </body>
 </html>

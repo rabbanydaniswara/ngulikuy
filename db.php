@@ -1,24 +1,56 @@
 <?php
 /**
- * Improved Database Connection
- * PERBAIKAN: Definisi APP_INIT dipindah ke paling atas
+ * Database Connection - Production Ready
+ * Optimized for shared hosting (Niagahoster/cPanel)
  */
 
 // ============================================
 // DEFINISI KONSTANTA APP_INIT
 // ============================================
-// Konstanta ini HARUS didefinisikan PERTAMA KALI
-// sebelum file lain di-load
 if (!defined('APP_INIT')) {
     define('APP_INIT', true);
 }
 
 // ============================================
-// KONFIGURASI DATABASE
+// LOAD ENVIRONMENT VARIABLES
 // ============================================
+function loadEnv($path = '.env') {
+    if (!file_exists($path)) {
+        return false;
+    }
+    
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        // Skip comments
+        if (strpos(trim($line), '#') === 0) {
+            continue;
+        }
+        
+        // Parse line
+        if (strpos($line, '=') !== false) {
+            list($key, $value) = explode('=', $line, 2);
+            $key = trim($key);
+            $value = trim($value);
+            
+            // Remove quotes if present
+            $value = trim($value, '"\'');
+            
+            // Set environment variable
+            if (!getenv($key)) {
+                putenv("$key=$value");
+            }
+        }
+    }
+    
+    return true;
+}
 
-// Gunakan environment variables untuk production
-// Buat file .env untuk menyimpan kredensial (jangan commit ke git)
+// Load .env file
+loadEnv(__DIR__ . '/.env');
+
+// ============================================
+// DATABASE CONFIGURATION
+// ============================================
 $db_config = [
     'host' => getenv('DB_HOST') ?: 'localhost',
     'name' => getenv('DB_NAME') ?: 'ngulikuy_db',
@@ -28,9 +60,27 @@ $db_config = [
 ];
 
 // ============================================
-// KONEKSI DATABASE DENGAN ERROR HANDLING
+// ENVIRONMENT DETECTION
 // ============================================
+$isProduction = (getenv('APP_ENV') === 'production');
+$isDebug = (getenv('APP_DEBUG') === 'true');
 
+// Set error reporting based on environment
+if ($isProduction && !$isDebug) {
+    // Production: Hide all errors
+    error_reporting(0);
+    ini_set('display_errors', '0');
+    ini_set('display_startup_errors', '0');
+} else {
+    // Development: Show all errors
+    error_reporting(E_ALL);
+    ini_set('display_errors', '1');
+    ini_set('display_startup_errors', '1');
+}
+
+// ============================================
+// DATABASE CONNECTION
+// ============================================
 try {
     $dsn = "mysql:host={$db_config['host']};dbname={$db_config['name']};charset={$db_config['charset']}";
     
@@ -38,42 +88,139 @@ try {
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES   => false,
-        PDO::ATTR_PERSISTENT         => false,
+        PDO::ATTR_PERSISTENT         => false, // Disable persistent connections on shared hosting
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci"
     ];
     
+    // Create PDO instance
     $pdo = new PDO($dsn, $db_config['user'], $db_config['pass'], $options);
     
-    // Set timezone MySQL
+    // Set timezone
+    $timezone = getenv('APP_TIMEZONE') ?: 'Asia/Jakarta';
     $pdo->exec("SET time_zone = '+07:00'"); // WIB
     
-} catch (PDOException $e) {
-    // JANGAN tampilkan error detail di production
-    $isDevelopment = (getenv('APP_ENV') === 'development' || !getenv('APP_ENV'));
+    // Set SQL mode for compatibility
+    $pdo->exec("SET sql_mode=(SELECT REPLACE(@@sql_mode,'ONLY_FULL_GROUP_BY',''))");
     
-    if ($isDevelopment) {
-        die("Database Connection Failed: " . $e->getMessage());
+} catch (PDOException $e) {
+    // Log error
+    $logDir = __DIR__ . '/logs';
+    if (!is_dir($logDir)) {
+        @mkdir($logDir, 0755, true);
+    }
+    
+    $logFile = $logDir . '/database_errors.log';
+    $timestamp = date('Y-m-d H:i:s');
+    $errorMsg = "[{$timestamp}] Database Connection Error: " . $e->getMessage() . "\n";
+    @file_put_contents($logFile, $errorMsg, FILE_APPEND);
+    
+    // Show appropriate error based on environment
+    if ($isProduction && !$isDebug) {
+        // Production: User-friendly error
+        http_response_code(503);
+        die('
+        <!DOCTYPE html>
+        <html lang="id">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Layanan Tidak Tersedia - NguliKuy</title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    min-height: 100vh;
+                    margin: 0;
+                    padding: 20px;
+                }
+                .error-container {
+                    background: white;
+                    border-radius: 10px;
+                    padding: 40px;
+                    max-width: 500px;
+                    text-align: center;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                }
+                .error-icon {
+                    font-size: 64px;
+                    margin-bottom: 20px;
+                }
+                h1 {
+                    color: #333;
+                    margin: 0 0 10px 0;
+                    font-size: 24px;
+                }
+                p {
+                    color: #666;
+                    line-height: 1.6;
+                    margin: 0 0 20px 0;
+                }
+                .error-code {
+                    font-size: 12px;
+                    color: #999;
+                    font-family: monospace;
+                    margin-top: 20px;
+                    padding: 10px;
+                    background: #f5f5f5;
+                    border-radius: 5px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="error-container">
+                <div class="error-icon">⚠️</div>
+                <h1>Layanan Sedang Tidak Tersedia</h1>
+                <p>Maaf, kami sedang mengalami gangguan teknis. Tim kami sedang bekerja untuk memperbaikinya.</p>
+                <p>Silakan coba beberapa saat lagi.</p>
+                <p style="margin-top: 30px;">
+                    <a href="/" style="color: #667eea; text-decoration: none; font-weight: 600;">← Kembali ke Halaman Utama</a>
+                </p>
+                <div class="error-code">Error Code: DB_CONNECTION_FAILED</div>
+            </div>
+        </body>
+        </html>
+        ');
     } else {
-        // Log error
-        error_log("Database Error: " . $e->getMessage());
-        
-        // Tampilkan pesan user-friendly
+        // Development: Detailed error
         die("
         <!DOCTYPE html>
         <html>
         <head>
-            <title>Database Error</title>
+            <title>Database Connection Error</title>
             <style>
-                body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-                .error-box { background: #fee; border: 1px solid #fcc; padding: 20px; border-radius: 5px; max-width: 500px; margin: 0 auto; }
-                h1 { color: #c00; }
+                body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
+                .error-box { background: white; border-left: 4px solid #e74c3c; padding: 20px; border-radius: 5px; max-width: 800px; margin: 0 auto; }
+                h1 { color: #e74c3c; margin: 0 0 10px 0; }
+                .error-details { background: #f8f9fa; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 13px; margin: 15px 0; overflow-x: auto; }
+                .checklist { margin: 20px 0; }
+                .checklist li { margin: 10px 0; }
             </style>
         </head>
         <body>
             <div class='error-box'>
-                <h1>Layanan Tidak Tersedia</h1>
-                <p>Maaf, sistem sedang mengalami gangguan. Silakan coba beberapa saat lagi.</p>
-                <p>Jika masalah berlanjut, hubungi administrator.</p>
+                <h1>❌ Database Connection Failed</h1>
+                <p><strong>Error Message:</strong></p>
+                <div class='error-details'>" . htmlspecialchars($e->getMessage()) . "</div>
+                
+                <h3>🔧 Troubleshooting Steps:</h3>
+                <ul class='checklist'>
+                    <li>✓ Pastikan file <code>.env</code> sudah dibuat dan berisi credentials yang benar</li>
+                    <li>✓ Cek apakah MySQL service sedang berjalan</li>
+                    <li>✓ Verifikasi database name, username, dan password di cPanel</li>
+                    <li>✓ Pastikan database user sudah di-assign ke database</li>
+                    <li>✓ Cek apakah database sudah diimport</li>
+                </ul>
+                
+                <h3>📋 Current Configuration:</h3>
+                <div class='error-details'>
+                    Host: " . htmlspecialchars($db_config['host']) . "<br>
+                    Database: " . htmlspecialchars($db_config['name']) . "<br>
+                    User: " . htmlspecialchars($db_config['user']) . "<br>
+                    Password: " . (empty($db_config['pass']) ? '(empty)' : '***') . "
+                </div>
             </div>
         </body>
         </html>
@@ -84,7 +231,6 @@ try {
 // ============================================
 // DATABASE HELPER CLASS
 // ============================================
-
 class DatabaseHelper {
     private static $pdo;
     private static $transactionCount = 0;
@@ -100,7 +246,7 @@ class DatabaseHelper {
         if (self::$transactionCount === 0) {
             self::$pdo->beginTransaction();
         } else {
-            // Savepoint untuk nested transaction
+            // Savepoint for nested transaction
             self::$pdo->exec("SAVEPOINT trans" . self::$transactionCount);
         }
         self::$transactionCount++;
@@ -115,7 +261,6 @@ class DatabaseHelper {
         if (self::$transactionCount === 0) {
             self::$pdo->commit();
         } else {
-            // Release savepoint
             self::$pdo->exec("RELEASE SAVEPOINT trans" . self::$transactionCount);
         }
     }
@@ -129,7 +274,6 @@ class DatabaseHelper {
         if (self::$transactionCount === 0) {
             self::$pdo->rollBack();
         } else {
-            // Rollback to savepoint
             self::$pdo->exec("ROLLBACK TO SAVEPOINT trans" . self::$transactionCount);
         }
     }
@@ -149,7 +293,7 @@ class DatabaseHelper {
     }
     
     /**
-     * Execute query dengan retry logic untuk deadlock
+     * Execute query with retry logic for deadlock
      */
     public static function executeWithRetry($callback, $maxRetries = 3) {
         $attempt = 0;
@@ -158,7 +302,7 @@ class DatabaseHelper {
             try {
                 return $callback();
             } catch (PDOException $e) {
-                // Cek jika deadlock (error code 1213)
+                // Check if deadlock (error code 1213)
                 if ($e->getCode() == 1213 && $attempt < $maxRetries - 1) {
                     $attempt++;
                     usleep(100000); // Wait 100ms
@@ -170,17 +314,16 @@ class DatabaseHelper {
     }
 }
 
-// Inisialisasi helper
+// Initialize helper
 DatabaseHelper::init($pdo);
 
 // ============================================
-// QUERY CACHE SEDERHANA
+// QUERY CACHE (Simple in-memory cache)
 // ============================================
-
 class QueryCache {
     private static $cache = [];
     private static $enabled = true;
-    private static $ttl = 300; // 5 menit
+    private static $ttl = 300; // 5 minutes
     
     public static function get($key) {
         if (!self::$enabled) return null;
@@ -224,96 +367,13 @@ class QueryCache {
 }
 
 // ============================================
-// DATABASE BACKUP (OPSIONAL)
+// CONNECTION HEALTH CHECK
 // ============================================
-
-class DatabaseBackup {
-    
-    public static function create($outputPath = null) {
-        global $db_config;
-        
-        if (!$outputPath) {
-            $outputPath = 'backups/backup_' . date('Y-m-d_H-i-s') . '.sql';
-        }
-        
-        // Buat direktori jika belum ada
-        $dir = dirname($outputPath);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0755, true);
-        }
-        
-        // Gunakan mysqldump jika tersedia
-        $command = sprintf(
-            'mysqldump --user=%s --password=%s --host=%s %s > %s',
-            escapeshellarg($db_config['user']),
-            escapeshellarg($db_config['pass']),
-            escapeshellarg($db_config['host']),
-            escapeshellarg($db_config['name']),
-            escapeshellarg($outputPath)
-        );
-        
-        exec($command, $output, $returnVar);
-        
-        if ($returnVar === 0 && file_exists($outputPath)) {
-            return [
-                'success' => true,
-                'file' => $outputPath,
-                'size' => filesize($outputPath)
-            ];
-        }
-        
-        return [
-            'success' => false,
-            'error' => 'Backup failed'
-        ];
-    }
-    
-    /**
-     * Backup otomatis setiap hari (panggil via cron job)
-     */
-    public static function autoBackup() {
-        $backupDir = 'backups';
-        
-        // Buat backup
-        $result = self::create();
-        
-        if ($result['success']) {
-            // Hapus backup lebih dari 7 hari
-            self::cleanOldBackups($backupDir, 7);
-            
-            return $result;
-        }
-        
-        return $result;
-    }
-    
-    private static function cleanOldBackups($dir, $days) {
-        if (!is_dir($dir)) return;
-        
-        $files = glob($dir . '/backup_*.sql');
-        $now = time();
-        
-        foreach ($files as $file) {
-            if (is_file($file)) {
-                if ($now - filemtime($file) >= 60 * 60 * 24 * $days) {
-                    unlink($file);
-                }
-            }
-        }
-    }
-}
-
-// ============================================
-// HEALTH CHECK
-// ============================================
-
 class DatabaseHealth {
-    
     public static function check() {
         global $pdo;
         
         try {
-            // Test query
             $stmt = $pdo->query("SELECT 1");
             $result = $stmt->fetch();
             
@@ -333,4 +393,19 @@ class DatabaseHealth {
             ];
         }
     }
+}
+
+// ============================================
+// SUCCESS - CONNECTION ESTABLISHED
+// ============================================
+// Optionally log successful connection (only in development)
+if (!$isProduction && $isDebug) {
+    $logDir = __DIR__ . '/logs';
+    if (!is_dir($logDir)) {
+        @mkdir($logDir, 0755, true);
+    }
+    $logFile = $logDir . '/database_success.log';
+    $timestamp = date('Y-m-d H:i:s');
+    $successMsg = "[{$timestamp}] Database connected successfully\n";
+    @file_put_contents($logFile, $successMsg, FILE_APPEND);
 }
