@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 /**
+<<<<<<< HEAD
  * FUNCTIONS.PHP - NguliKuy Core Logic
  * * Urutan Load:
  * 1. db.php (Koneksi Database)
@@ -13,14 +14,34 @@ require_once 'db.php';
 require_once 'security_config.php';
 
 // --- SESSION START ---
+=======
+ * PERBAIKAN: Load db.php TERLEBIH DAHULU
+ */
+require_once 'db.php';
+
+/**
+ * Setelah db.php dimuat, baru load security_config.php
+ */
+require_once 'security_config.php';
+
+/**
+ * Utility Functions for NguliKuy Application (MySQL Version)
+ * FIXED: Added review validation functions
+ */
+
+// Mulai session
+>>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+<<<<<<< HEAD
 // ==========================================
 // 1. AUTHENTICATION & ROLE HELPERS
 // ==========================================
 
+=======
+>>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
 function isLoggedIn(): bool {
     return isset($_SESSION['user']) && isset($_SESSION['user_role']);
 }
@@ -71,6 +92,111 @@ function logout(): void {
     exit();
 }
 
+<<<<<<< HEAD
+=======
+// --- FUNGSI CSRF ---
+function getCsrfToken(): string {
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function validateCsrfToken(string $tokenFromForm): bool {
+    if (empty($_SESSION['csrf_token'])) {
+        return false;
+    }
+    return hash_equals($_SESSION['csrf_token'], $tokenFromForm);
+}
+
+function csrfInput(): string {
+    return '<input type="hidden" name="csrf_token" value="' . getCsrfToken() . '">';
+}
+
+// --- REVIEW VALIDATION FUNCTIONS (BARU) ---
+
+/**
+ * Cek apakah customer sudah memberikan review untuk job tertentu
+ * PERBAIKAN: Mencegah review berulang
+ */
+function hasCustomerReviewedJob(string $jobId, int $customerId): bool {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM reviews WHERE jobId = ? AND customerId = ?");
+        $stmt->execute([$jobId, $customerId]);
+        return $stmt->fetchColumn() > 0;
+    } catch (PDOException $e) {
+        SecurityLogger::logError('Error checking review status: ' . $e->getMessage());
+        return true; // Return true untuk mencegah submit jika ada error
+    }
+}
+
+/**
+ * Cek apakah job bisa di-review (harus completed dan milik customer)
+ */
+function canReviewJob(string $jobId, string $customerEmail): bool {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("SELECT status, customerEmail FROM jobs WHERE jobId = ?");
+        $stmt->execute([$jobId]);
+        $job = $stmt->fetch();
+        
+        if (!$job) {
+            return false;
+        }
+        
+        return $job['status'] === 'completed' && $job['customerEmail'] === $customerEmail;
+    } catch (PDOException $e) {
+        SecurityLogger::logError('Error checking job review permission: ' . $e->getMessage());
+        return false;
+    }
+}
+
+// --- FORMATTING FUNCTIONS ---
+
+function formatCurrency(int|float $amount): string {
+    return 'Rp ' . number_format($amount, 0, ',', '.');
+}
+
+function formatRating(int|float $rating): string {
+    $fullStars = floor($rating);
+    $halfStar = ($rating - $fullStars) >= 0.5;
+    $emptyStars = 5 - $fullStars - ($halfStar ? 1 : 0);
+    
+    $stars = str_repeat('★', (int)$fullStars);
+    $stars .= $halfStar ? '½' : '';
+    $stars .= str_repeat('☆', (int)$emptyStars);
+    
+    return $stars;
+}
+
+function handlePhotoUpload(array $file): array {
+    $validation = SecureFileUpload::validate($file);
+    
+    if (!$validation['valid']) {
+        return ['success' => false, 'error' => implode(', ', $validation['errors'])];
+    }
+    
+    $uploadDir = 'uploads/workers/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+    
+    $fileName = SecureFileUpload::generateSecureFilename($validation['extension']);
+    $filePath = $uploadDir . $fileName;
+    
+    if (move_uploaded_file($file['tmp_name'], $filePath)) {
+        chmod($filePath, 0644);
+        SecurityLogger::log('INFO', 'File uploaded: ' . $fileName);
+        return ['success' => true, 'file_path' => $filePath, 'file_name' => $fileName];
+    }
+    
+    return ['success' => false, 'error' => 'Gagal mengupload file.'];
+}
+
+// --- AUTHENTICATION ---
+
+>>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
 function authenticate(string $username, string $password): bool {
     global $pdo;
     
@@ -115,6 +241,7 @@ function authenticate(string $username, string $password): bool {
     }
 }
 
+<<<<<<< HEAD
 // ==========================================
 // 2. CSRF SECURITY
 // ==========================================
@@ -200,6 +327,9 @@ function generateJobId(): string {
     }
     return 'JOB' . str_pad((string)($lastId + 1), 3, '0', STR_PAD_LEFT);
 }
+=======
+// --- JOB FUNCTIONS ---
+>>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
 
 function getJobById(string $jobId): ?array {
     global $pdo;
@@ -242,6 +372,7 @@ function getCustomerOrders(string $customerEmail): array {
     return $stmt->fetchAll();
 }
 
+<<<<<<< HEAD
 function getWorkerJobs(string $workerProfileId): array {
     global $pdo;
     $stmt = $pdo->prepare("SELECT * FROM jobs WHERE workerId = ? ORDER BY createdAt DESC");
@@ -254,6 +385,18 @@ function getRecentJobs(int $limit = 5): array {
     $stmt = $pdo->prepare("SELECT * FROM jobs ORDER BY createdAt DESC LIMIT ?");
     $stmt->execute([$limit]);
     return $stmt->fetchAll();
+=======
+function generateJobId(): string {
+    global $pdo;
+    $stmt = $pdo->query("SELECT jobId FROM jobs ORDER BY CAST(SUBSTR(jobId, 4) AS UNSIGNED) DESC LIMIT 1");
+    $lastJob = $stmt->fetch();
+    
+    $lastId = 0;
+    if ($lastJob) {
+        $lastId = intval(substr($lastJob['jobId'], 3));
+    }
+    return 'JOB' . str_pad((string)($lastId + 1), 3, '0', STR_PAD_LEFT);
+>>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
 }
 
 function addJob(array $jobData): bool {
@@ -363,6 +506,7 @@ function deleteJob(string $jobId): bool {
     }
 }
 
+<<<<<<< HEAD
 // ==========================================
 // 5. WORKER MANAGEMENT FUNCTIONS
 // ==========================================
@@ -379,6 +523,24 @@ function generateWorkerId(): string {
     return 'KUL' . str_pad((string)($lastId + 1), 3, '0', STR_PAD_LEFT);
 }
 
+=======
+function getRecentJobs(int $limit = 5): array {
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT * FROM jobs ORDER BY createdAt DESC LIMIT ?");
+    $stmt->execute([$limit]);
+    return $stmt->fetchAll();
+}
+
+function getWorkerJobs(string $workerProfileId): array {
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT * FROM jobs WHERE workerId = ? ORDER BY createdAt DESC");
+    $stmt->execute([$workerProfileId]);
+    return $stmt->fetchAll();
+}
+
+// --- WORKER FUNCTIONS ---
+
+>>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
 function getWorkers(): array {
     global $pdo;
     
@@ -446,6 +608,7 @@ function getWorkerById(string $workerId): ?array {
     }
 }
 
+<<<<<<< HEAD
 function searchWorkers(array $criteria = []): array {
     global $pdo;
     
@@ -496,6 +659,18 @@ function searchWorkers(array $criteria = []): array {
         error_log($e->getMessage());
         return [];
     }
+=======
+function generateWorkerId(): string {
+    global $pdo;
+    $stmt = $pdo->query("SELECT id FROM workers ORDER BY CAST(SUBSTR(id, 4) AS UNSIGNED) DESC LIMIT 1");
+    $lastWorker = $stmt->fetch();
+    
+    $lastId = 0;
+    if ($lastWorker) {
+        $lastId = intval(substr($lastWorker['id'], 3));
+    }
+    return 'KUL' . str_pad((string)($lastId + 1), 3, '0', STR_PAD_LEFT);
+>>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
 }
 
 function addWorker(array $workerData): bool {
@@ -633,6 +808,7 @@ function deleteWorker(string $workerId): bool {
     }
 }
 
+<<<<<<< HEAD
 // ==========================================
 // 6. REVIEW & VALIDATION FUNCTIONS
 // ==========================================
@@ -673,6 +849,62 @@ function canReviewJob(string $jobId, string $customerEmail): bool {
     }
 }
 
+=======
+function searchWorkers(array $criteria = []): array {
+    global $pdo;
+    
+    $sql = "SELECT w.*, COUNT(r.id) as review_count
+            FROM workers w
+            LEFT JOIN reviews r ON w.id = r.workerId
+            WHERE w.status = 'Available'";
+    $params = [];
+    
+    if (!empty($criteria['skill'])) {
+        $sql .= " AND JSON_CONTAINS(skills, ?)";
+        $params[] = '"' . $criteria['skill'] . '"';
+    }
+    
+    if (!empty($criteria['location'])) {
+        $sql .= " AND location LIKE ?";
+        $params[] = '%' . $criteria['location'] . '%';
+    }
+    
+    if (!empty($criteria['min_price'])) {
+        $sql .= " AND rate >= ?";
+        $params[] = intval($criteria['min_price']);
+    }
+    
+    if (!empty($criteria['max_price'])) {
+        $sql .= " AND rate <= ?";
+        $params[] = intval($criteria['max_price']);
+    }
+    
+    if (!empty($criteria['min_rating'])) {
+        $sql .= " AND w.rating >= ?";
+        $params[] = floatval($criteria['min_rating']);
+    }
+    
+    $sql .= " GROUP BY w.id";
+
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $workers = $stmt->fetchAll();
+        
+        foreach ($workers as &$worker) {
+            $worker['skills'] = json_decode((string)$worker['skills'], true) ?: [];
+        }
+        return $workers;
+        
+    } catch (PDOException $e) {
+        error_log($e->getMessage());
+        return [];
+    }
+}
+
+// --- REVIEW FUNCTIONS ---
+
+>>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
 function getAllReviews(): array {
     global $pdo;
     try {
@@ -742,9 +974,13 @@ function deleteReview(int $reviewId): bool {
     }
 }
 
+<<<<<<< HEAD
 // ==========================================
 // 7. DASHBOARD & UTILITIES
 // ==========================================
+=======
+// --- STATS & DASHBOARD ---
+>>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
 
 function getDashboardStats(): array {
     global $pdo;
@@ -766,6 +1002,15 @@ function getDashboardStats(): array {
     }
 }
 
+<<<<<<< HEAD
+=======
+// --- UTILITY FUNCTIONS ---
+
+function getDefaultWorkerPhoto(): string {
+    return 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face';
+}
+
+>>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
 function getStatusClass(string $status, string $type = 'job'): string {
     if ($type === 'job') {
         $classes = [
