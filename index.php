@@ -164,7 +164,6 @@ if (isset($_GET['logout'])) {
             10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
             20%, 40%, 60%, 80% { transform: translateX(5px); }
         }
-<<<<<<< HEAD
 
         /* HAPUS ICON MATA BAWAAN BROWSER (Edge/Chrome) */
         input::-ms-reveal,
@@ -180,8 +179,6 @@ if (isset($_GET['logout'])) {
             display: none !important;
             -webkit-appearance: none;
         }
-=======
->>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center">
@@ -189,14 +186,10 @@ if (isset($_GET['logout'])) {
     
     <div class="w-full max-w-md mx-4 z-10">
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
-<<<<<<< HEAD
             <!-- HEADER: hanya di sini saya ubah agar menggunakan gambar sebagai background.
                  Saya mempertahankan overlay gradien (agar teks tetap kontras). 
                  Ganti path 'assets/images/header-bg.jpg' sesuai lokasi gambar Anda. -->
             <div class="p-6 text-center" style="background-image: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(99,102,241,0.85)), url('images/header-bg.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
-=======
-            <div class="gradient-bg p-6 text-center">
->>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
                 <div class="flex justify-center mb-4">
                     <div class="bg-white p-3 rounded-full">
                         <i data-feather="tool" class="text-blue-600 w-8 h-8"></i>
@@ -229,12 +222,8 @@ if (isset($_GET['logout'])) {
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <i data-feather="lock" class="text-gray-400"></i>
                         </div>
-<<<<<<< HEAD
                         <!-- ADDED pr-12 HERE to create space on the right for the eye icon -->
                         <input type="password" id="password" name="password" class="pl-10 pr-12 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="••••••••" required>
-=======
-                        <input type="password" id="password" name="password" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="••••••••" required>
->>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
                         <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" id="togglePassword">
                             <i data-feather="eye" class="text-gray-400" id="eyeIcon"></i>
                         </div>
@@ -341,8 +330,4 @@ if (isset($_GET['logout'])) {
         <?php endif; ?>
     </script>
 </body>
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> 129876e8c9e2037e93f044a24ed31c5b23d98a28
