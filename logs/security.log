@@ -1,0 +1,50 @@
+[2025-11-09 15:45:46] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-09 15:46:23] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-09 15:46:34] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-09 15:46:50] [WARNING] [IP: 127.0.0.1] [User: Guest] Failed login attempt: arvian@gmail.com
+[2025-11-09 15:46:54] [WARNING] [IP: 127.0.0.1] [User: Guest] Failed login attempt: arvian@gmail.com
+[2025-11-09 15:47:00] [SECURITY] [IP: 127.0.0.1] [User: Guest] Rate limit exceeded for login
+Context: {"ip":"127.0.0.1","username":"arvian@gmail.com"}
+[2025-11-09 16:17:43] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-09 16:36:22] [WARNING] [IP: 127.0.0.1] [User: Guest] Failed login attempt: arvian@gmail.com
+[2025-11-09 16:36:37] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-09 16:37:33] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-09 16:40:07] [INFO] [IP: 127.0.0.1] [User: admin] File uploaded: worker_10ac8fa252dfa5b36fad4a2b24110c9a.jpg
+[2025-11-09 16:41:03] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-09 16:41:23] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-15 05:43:42] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-15 05:58:46] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-15 05:59:49] [INFO] [IP: 127.0.0.1] [User: admin] File uploaded: worker_3bc49e9bba7eee59eddf570125a115b6.png
+[2025-11-15 06:00:00] [INFO] [IP: 127.0.0.1] [User: arvian@gmail.com] Successful login: arvian@gmail.com
+[2025-11-15 06:22:04] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-15 06:22:24] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-15 17:54:49] [INFO] [IP: ::1] [User: admin] Successful login: admin
+[2025-11-15 18:11:05] [INFO] [IP: ::1] [User: user2@gmail.com] Successful login: user2@gmail.com
+[2025-11-15 18:11:28] [WARNING] [IP: ::1] [User: Guest] Failed login attempt: admin
+[2025-11-15 18:11:34] [INFO] [IP: ::1] [User: admin] Successful login: admin
+[2025-11-16 05:47:13] [INFO] [IP: ::1] [User: admin] Successful login: admin
+[2025-11-16 09:00:41] [WARNING] [IP: ::1] [User: Guest] Failed login attempt: kuli
+[2025-11-16 09:04:10] [INFO] [IP: ::1] [User: admin] Successful login: admin
+[2025-11-16 09:14:04] [INFO] [IP: ::1] [User: admin] File uploaded: worker_44e096ba2ee88fa51c39d2ae7c62c112.jpg
+[2025-11-16 09:14:31] [INFO] [IP: ::1] [User: ashari@dev.com] Successful login: ashari@dev.com
+[2025-11-16 09:15:04] [INFO] [IP: ::1] [User: user2@gmail.com] Successful login: user2@gmail.com
+[2025-11-16 09:16:57] [INFO] [IP: ::1] [User: user2@gmail.com] Job created
+Context: {"customer":"user2@gmail.com","worker":"KUL011"}
+[2025-11-16 15:40:17] [INFO] [IP: ::1] [User: admin] Successful login: admin
+[2025-11-16 15:50:49] [INFO] [IP: ::1] [User: ashari@dev.com] Successful login: ashari@dev.com
+[2025-11-16 16:33:39] [INFO] [IP: ::1] [User: ashari@dev.com] Successful login: ashari@dev.com
+[2025-11-16 17:44:21] [INFO] [IP: ::1] [User: ashari@dev.com] Successful login: ashari@dev.com
+[2025-11-16 18:25:54] [INFO] [IP: ::1] [User: admin] Successful login: admin
+[2025-11-16 18:27:20] [INFO] [IP: ::1] [User: ashari@dev.com] Successful login: ashari@dev.com
+[2025-11-16 18:31:24] [WARNING] [IP: ::1] [User: Guest] Failed login attempt: ashari@dev.com
+[2025-11-16 18:31:38] [INFO] [IP: ::1] [User: ashari@dev.com] Successful login: ashari@dev.com
+[2025-11-16 18:33:23] [INFO] [IP: ::1] [User: ashari@dev.com] Successful login: ashari@dev.com
+[2025-11-16 17:50:27] [INFO] [IP: 180.252.81.16] [User: ashari@dev.com] Successful login: ashari@dev.com
+[2025-11-16 17:50:38] [INFO] [IP: 180.252.81.16] [User: admin] Successful login: admin
+[2025-11-16 19:06:11] [INFO] [IP: ::1] [User: admin] Successful login: admin
+[2025-11-16 19:06:53] [INFO] [IP: ::1] [User: ashari@dev.com] Successful login: ashari@dev.com
+[2025-11-18 12:47:00] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-18 12:47:21] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-18 14:45:57] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-18 14:47:05] [INFO] [IP: 127.0.0.1] [User: arvian@gmail.com] Successful login: arvian@gmail.com
+[2025-11-18 14:47:22] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
