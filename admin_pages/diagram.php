@@ -1,12 +1,15 @@
 <?php
 // admin_pages/diagram.php
-// Letakkan file ini di folder admin_pages
-// Mengasumsikan project Anda memiliki functions.php dengan getDashboardStats() dan redirectIfNotAdmin()
+// Place this file in the admin_pages folder
+// This file now uses REAL data from the 'jobs' table
 
 require_once __DIR__ . '/../functions.php';
-redirectIfNotAdmin(); // pastikan akses admin
+redirectIfNotAdmin(); // Ensure admin access
 
-// Ambil statistik dasar dari fungsi yang ada (fallback ke nol bila tidak tersedia)
+// Ensure we access the global PDO object defined in db.php
+global $pdo;
+
+// 1. Get basic dashboard stats (for the top cards)
 $stats = function_exists('getDashboardStats') ? getDashboardStats() : [];
 $total_workers     = isset($stats['total_workers'])     ? (int)$stats['total_workers']     : 0;
 $available_workers = isset($stats['available_workers']) ? (int)$stats['available_workers'] : 0;
@@ -15,21 +18,42 @@ $active_jobs       = isset($stats['active_jobs'])       ? (int)$stats['active_jo
 $completed_jobs    = isset($stats['completed_jobs'])    ? (int)$stats['completed_jobs']    : 0;
 $pending_jobs      = isset($stats['pending_jobs'])      ? (int)$stats['pending_jobs']      : 0;
 
-// Untuk diagram garis, kita buat data synthetic 6 bulan berdasar total pekerjaan
-$base_jobs = max(1, $active_jobs + $completed_jobs + $pending_jobs);
+// 2. LOGIC FIX: Get REAL data for the Line Chart (Last 6 Months)
+$months = [];
 $line_values = [];
-for ($i = 5; $i >= 0; $i--) {
-    // distribusi sinusoida kecil agar terlihat ada tren; tetap integer
-    $val = round($base_jobs * (0.4 + 0.6 * sin((6 - $i) / 6 * M_PI)));
-    $line_values[] = max(0, $val);
+$db_data = [];
+
+try {
+    // Query to count jobs per month for the last 6 months
+    // uses DATE_FORMAT to group by 'YYYY-MM'
+    $sql = "SELECT 
+                DATE_FORMAT(createdAt, '%Y-%m') as month_year, 
+                COUNT(*) as total 
+            FROM jobs 
+            WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            GROUP BY month_year";
+            
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    
+    // Fetch into an associative array ['2025-11' => 5, '2025-10' => 3, etc]
+    $db_data = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+} catch (PDOException $e) {
+    // Silent fail or log error, allow page to load with 0s
+    error_log("Chart Data Error: " . $e->getMessage());
 }
 
-// Nama bulan (short) untuk 6 bulan terakhir
-$months = [];
+// 3. Build the arrays for Chart.js ensuring we have exactly 6 points
+// (filling 0 for months with no jobs)
 for ($i = 5; $i >= 0; $i--) {
-    $ts = strtotime("first day of -{$i} months");
-    $months[] = date('M Y', $ts);
+    $timestamp = strtotime("first day of -$i months");
+    $key = date('Y-m', $timestamp); // Key to match DB result
+    
+    $months[] = date('M Y', $timestamp); // Label: "Nov 2025"
+    $line_values[] = isset($db_data[$key]) ? (int)$db_data[$key] : 0;
 }
+
 ?>
 <!doctype html>
 <html lang="id">
@@ -38,15 +62,12 @@ for ($i = 5; $i >= 0; $i--) {
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Diagram — Admin</title>
 
-  <!-- Tailwind CDN (sesuaikan jika Anda sudah punya bundling sendiri) -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Feather icons -->
   <script src="https://unpkg.com/feather-icons"></script>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
   <style>
-    /* Small custom styling to make cards look modern */
+    /* Custom styling for modern cards */
     .card {
       background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,250,250,0.9));
       border-radius: 12px;
@@ -57,7 +78,6 @@ for ($i = 5; $i >= 0; $i--) {
     @media (min-width: 768px) {
       .chart-wrap { height: 360px; }
     }
-    /* subtle axis text */
     .axis-muted { color: rgba(55,65,81,0.6); font-size: .92rem; }
   </style>
 </head>
@@ -65,18 +85,17 @@ for ($i = 5; $i >= 0; $i--) {
   <div class="max-w-7xl mx-auto p-4">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">Diagram</h1>
-        <p class="text-sm text-gray-600">Visualisasi cepat untuk metrik penting — responsif dan modern.</p>
+        <h1 class="text-2xl font-semibold">Diagram Statistik</h1>
+        <p class="text-sm text-gray-600">Visualisasi data real-time dari database.</p>
       </div>
       <div class="flex items-center gap-2">
-        <a href="../admin_dashboard.php" class="inline-flex items-center gap-2 px-3 py-2 rounded-md border shadow-sm bg-white hover:bg-gray-50">
+        <a href="?tab=dashboard" class="inline-flex items-center gap-2 px-3 py-2 rounded-md border shadow-sm bg-white hover:bg-gray-50">
           <i data-feather="chevrons-left"></i>
           <span class="text-sm">Kembali</span>
         </a>
       </div>
     </div>
 
-    <!-- stats summary -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <div class="card flex flex-col">
         <div class="flex items-center justify-between">
@@ -127,19 +146,12 @@ for ($i = 5; $i >= 0; $i--) {
       </div>
     </div>
 
-    <!-- charts -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Line Chart Card -->
       <div class="card">
         <div class="flex items-start justify-between mb-3">
           <div>
-            <h2 class="text-lg font-semibold">Trend Pekerjaan — 6 Bulan</h2>
-            <p class="text-sm text-gray-500">Grafik garis menunjukkan estimasi pekerjaan per bulan.</p>
-          </div>
-          <div class="text-sm axis-muted">
-            <div>Aktif: <strong><?= $active_jobs ?></strong></div>
-            <div>Selesai: <strong><?= $completed_jobs ?></strong></div>
-            <div>Tertunda: <strong><?= $pending_jobs ?></strong></div>
+            <h2 class="text-lg font-semibold">Trend Pekerjaan — 6 Bulan Terakhir</h2>
+            <p class="text-sm text-gray-500">Grafik jumlah pekerjaan baru berdasarkan tanggal pembuatan.</p>
           </div>
         </div>
         <div class="chart-wrap">
@@ -147,12 +159,11 @@ for ($i = 5; $i >= 0; $i--) {
         </div>
       </div>
 
-      <!-- Bar Chart Card -->
       <div class="card">
         <div class="flex items-start justify-between mb-3">
           <div>
-            <h2 class="text-lg font-semibold">Status Pekerjaan</h2>
-            <p class="text-sm text-gray-500">Perbandingan jumlah pekerjaan berdasarkan status saat ini.</p>
+            <h2 class="text-lg font-semibold">Status Pekerjaan Saat Ini</h2>
+            <p class="text-sm text-gray-500">Perbandingan jumlah pekerjaan berdasarkan status.</p>
           </div>
           <div class="text-sm axis-muted">
             <div>Total: <strong><?= $active_jobs + $completed_jobs + $pending_jobs ?></strong></div>
@@ -165,7 +176,7 @@ for ($i = 5; $i >= 0; $i--) {
     </div>
 
     <div class="mt-6 text-xs text-gray-500">
-      Sumber: fungsi <code>getDashboardStats()</code>. Jika Anda ingin grafik berdasar data riil per-bulan dari database, beri tahu — saya tambahkan query dan endpoint kecil untuk mengambilnya.
+      * Data grafik garis diambil dari tabel <code>jobs</code> kolom <code>createdAt</code>. Data status diambil dari fungsi statistik real-time.
     </div>
   </div>
 
@@ -173,123 +184,103 @@ for ($i = 5; $i >= 0; $i--) {
 document.addEventListener('DOMContentLoaded', () => {
   feather.replace();
 
-  // PHP-supplied data
-  const months = <?= json_encode($months, JSON_HEX_TAG) ?>;
-  const lineValues = <?= json_encode($line_values, JSON_HEX_TAG) ?>;
+  // Data from PHP (Real Database Data)
+  const months = <?= json_encode($months) ?>;
+  const lineValues = <?= json_encode($line_values) ?>;
+  
   const statusValues = {
     active: <?= (int)$active_jobs ?>,
     completed: <?= (int)$completed_jobs ?>,
     pending: <?= (int)$pending_jobs ?>
   };
 
-  // Utility to create gradient
-  function createGradient(ctx, area, colorStart, colorEnd) {
-    const gradient = ctx.createLinearGradient(0, 0, 0, area.height);
-    gradient.addColorStop(0, colorStart);
-    gradient.addColorStop(1, colorEnd);
-    return gradient;
-  }
-
-  // Line Chart
+  // 1. Line Chart Configuration
   const lineCtx = document.getElementById('lineChart').getContext('2d');
-  let lineGradient;
   const lineChart = new Chart(lineCtx, {
     type: 'line',
     data: {
       labels: months,
       datasets: [{
-        label: 'Pekerjaan per bulan',
+        label: 'Jumlah Pekerjaan',
         data: lineValues,
-        tension: 0.36,
-        pointRadius: 4,
-        borderWidth: 2.5,
-        // backgroundColor set in 'beforeRender' to access chart area for gradient
-        backgroundColor: 'rgba(59,130,246,0.12)',
-        borderColor: 'rgba(59,130,246,1)',
+        tension: 0.3, // curves the line slightly
+        pointRadius: 5,
+        borderWidth: 3,
+        backgroundColor: 'rgba(59,130,246,0.1)', // blue fill
+        borderColor: 'rgba(59,130,246,1)',      // blue line
         fill: true,
-        pointHoverRadius: 6,
+        pointHoverRadius: 7,
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      layout: { padding: { top: 6, right: 6, bottom: 6, left: 6 } },
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: ctx => `${ctx.dataset.label}: ${ctx.formattedValue}`
+            label: ctx => `Total: ${ctx.formattedValue} Jobs`
           }
         }
       },
       scales: {
         x: {
           grid: { display: false },
-          ticks: { color: '#475569' }
+          ticks: { color: '#64748b' }
         },
         y: {
           beginAtZero: true,
-          ticks: { color: '#475569', precision: 0 }
+          ticks: { color: '#64748b', precision: 0 }, // precision 0 for integers
+          grid: { borderDash: [2, 4] }
         }
       }
-    },
-    plugins: [{
-      id: 'lineGradientPlugin',
-      beforeDraw: (chart) => {
-        const ctx = chart.ctx;
-        const area = chart.chartArea;
-        if (!area) return;
-        // create gradient based on area height (so it scales)
-        const g = ctx.createLinearGradient(0, area.top, 0, area.bottom);
-        g.addColorStop(0, 'rgba(59,130,246,0.16)');
-        g.addColorStop(1, 'rgba(59,130,246,0.02)');
-        chart.data.datasets[0].backgroundColor = g;
-      }
-    }]
+    }
   });
 
-  // Bar Chart
+  // 2. Bar Chart Configuration
   const barCtx = document.getElementById('barChart').getContext('2d');
   const barChart = new Chart(barCtx, {
     type: 'bar',
     data: {
-      labels: ['Active', 'Completed', 'Pending'],
+      labels: ['Active / In Progress', 'Completed', 'Pending'],
       datasets: [{
         label: 'Jumlah',
         data: [statusValues.active, statusValues.completed, statusValues.pending],
-        borderRadius: 8,
-        barPercentage: 0.6,
-        categoryPercentage: 0.7,
+        borderRadius: 6,
+        barPercentage: 0.5,
         backgroundColor: [
-          'rgba(59,130,246,0.95)',
-          'rgba(16,185,129,0.95)',
-          'rgba(249,115,22,0.95)'
-        ]
+          'rgba(59,130,246,0.8)',  // blue
+          'rgba(16,185,129,0.8)', // green
+          'rgba(249,115,22,0.8)'  // orange
+        ],
+        borderWidth: 0
       }]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: { label: ctx => ` ${ctx.label}: ${ctx.formattedValue}` }
-        }
+        legend: { display: false }
       },
       scales: {
-        x: { grid: { display: false }, ticks: { color: '#475569' } },
-        y: { beginAtZero: true, ticks: { color: '#475569', precision: 0 } }
+        x: {
+          grid: { display: false },
+          ticks: { color: '#64748b' }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#64748b', precision: 0 }
+        }
       }
     }
   });
 
-  // Ensure charts resize nicely with container
-  function resizeCharts() {
+  // Resize listener
+  window.addEventListener('resize', () => {
     lineChart.resize();
     barChart.resize();
-  }
-  window.addEventListener('resize', resizeCharts);
+  });
 });
 </script>
 </body>
