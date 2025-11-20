@@ -1,9 +1,8 @@
 <?php
 /**
  * Customer Dashboard - Production Ready
- * IMPROVED: Fully responsive design with mobile-first approach
- * FIXED: Rating star hover effect with smooth gradient
- * FIXED: Logout button disappearing issue (Fixed JS Selector collision)
+ * FIX APPLIED: Fixed PHP "Dangling Reference" bug causing duplicate job cards.
+ * FIX APPLIED: Added Post-Redirect-Get pattern to prevent form resubmission.
  */
 
 require_once 'functions.php';
@@ -25,6 +24,20 @@ $stmt->execute([$customer_email]);
 $customer = $stmt->fetch();
 $customer_id = $customer ? $customer['id'] : null;
 
+// Initialize variables for messages
+$success_message = '';
+$error_message = '';
+
+// Check for Flash Messages (from Redirects)
+if (isset($_SESSION['flash_success'])) {
+    $success_message = $_SESSION['flash_success'];
+    unset($_SESSION['flash_success']);
+}
+if (isset($_SESSION['flash_error'])) {
+    $error_message = $_SESSION['flash_error'];
+    unset($_SESSION['flash_error']);
+}
+
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
@@ -38,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error_message = 'Sesi tidak valid. Silakan refresh halaman.';
     } else {
         
-        // Handle booking
+        // --- Handle booking ---
         if (isset($_POST['book_worker'])) {
             $worker_id = InputValidator::sanitizeString($_POST['worker_id'] ?? '');
             
@@ -75,7 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     
                     if (addJob($jobData)) {
                         SecurityLogger::log('INFO', 'Job created', ['customer' => $customer_email, 'worker' => $worker_id]);
-                        $success_message = 'Pesanan berhasil dibuat!';
+                        
+                        // REDIRECT to prevent duplicate submissions on refresh
+                        $_SESSION['flash_success'] = 'Pesanan berhasil dibuat!';
+                        header("Location: customer_dashboard.php?tab=orders");
+                        exit;
                     } else {
                         $error_message = 'Gagal membuat pesanan.';
                     }
@@ -85,7 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        // Handle review submission
+        // --- Handle review submission ---
         if (isset($_POST['submit_review'])) {
             $jobId = InputValidator::sanitizeString($_POST['job_id'] ?? '');
             $workerId = InputValidator::sanitizeString($_POST['worker_id'] ?? '');
@@ -125,7 +142,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         DatabaseHelper::commit();
                         
                         SecurityLogger::log('INFO', 'Review submitted', ['job' => $jobId, 'rating' => $rating]);
-                        $success_message = 'Terima kasih! Ulasan Anda telah berhasil dikirim.';
+                        
+                        // REDIRECT to prevent duplicate submissions
+                        $_SESSION['flash_success'] = 'Terima kasih! Ulasan Anda telah berhasil dikirim.';
+                        header("Location: customer_dashboard.php?tab=orders&status=completed");
+                        exit;
                     }
                     
                 } catch (PDOException $e) {
@@ -173,11 +194,13 @@ if ($active_tab === 'orders') {
     }
     
     // Check review status for each order
+    // BUG FIX: using &$order reference without unset caused array corruption in later loops
     foreach ($customerOrders as &$order) {
         $stmtReview = $pdo->prepare("SELECT COUNT(*) FROM reviews WHERE jobId = ? AND customerId = ?");
         $stmtReview->execute([$order['jobId'], $customer_id]);
         $order['has_review'] = $stmtReview->fetchColumn() > 0;
     }
+    unset($order); // CRITICAL FIX: Unlink the reference to prevent duplicate display issues
 }
 
 // Get top workers untuk homepage
@@ -485,7 +508,7 @@ $pendingOrderCount = count(array_filter(
                     </div>
                     <div class="flex items-center space-x-2 pl-3 border-l">
                         <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="User" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ring-2 ring-blue-100">
-                        <span class="text-sm font-semibold text-gray-700 hidden lg:inline"><?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
+                        <span class="text-sm font-semibold text-gray-700 hidden lg:inline"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></span>
                         <a href="index.php?logout=1" class="p-2 rounded-lg hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors" title="Logout">
                             <i data-feather="log-out" class="w-5 h-5"></i>
                         </a>
@@ -511,7 +534,7 @@ $pendingOrderCount = count(array_filter(
         </div>
     </nav>
 
-    <?php if (isset($success_message)): ?>
+    <?php if (!empty($success_message)): ?>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
             <div class="alert-notification p-3 sm:p-4 bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 text-green-800 rounded-lg shadow-md flex items-start">
                 <i data-feather="check-circle" class="w-5 h-5 mr-2 sm:mr-3 text-green-600 flex-shrink-0 mt-0.5"></i>
@@ -520,7 +543,7 @@ $pendingOrderCount = count(array_filter(
         </div>
     <?php endif; ?>
     
-    <?php if (isset($error_message)): ?>
+    <?php if (!empty($error_message)): ?>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
              <div class="alert-notification p-3 sm:p-4 bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 text-red-800 rounded-lg shadow-md flex items-start">
                 <i data-feather="alert-circle" class="w-5 h-5 mr-2 sm:mr-3 text-red-600 flex-shrink-0 mt-0.5"></i>
@@ -1134,8 +1157,7 @@ $pendingOrderCount = count(array_filter(
             });
         });
         
-        // FIXED: Auto-dismiss ONLY alert notifications (not buttons)
-        // Changed selector to target .alert-notification class only
+        // Auto-dismiss alert notifications
         const alerts = document.querySelectorAll('.alert-notification');
         alerts.forEach(alert => {
             setTimeout(() => {
@@ -1252,7 +1274,6 @@ $pendingOrderCount = count(array_filter(
         // Performance: Defer non-critical JavaScript
         if ('requestIdleCallback' in window) {
             requestIdleCallback(() => {
-                // Load analytics or other non-critical scripts here
                 console.log('App loaded successfully');
             });
         }

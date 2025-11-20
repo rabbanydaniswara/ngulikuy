@@ -72,3 +72,15 @@ Context: {"job":"JOB002","rating":5}
 [2025-11-20 14:06:09] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Job created
 Context: {"customer":"daniswara@gmail.com","worker":"KUL009"}
 [2025-11-20 14:06:47] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-20 14:11:29] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-20 14:18:24] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-20 14:18:41] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Job created
+Context: {"customer":"daniswara@gmail.com","worker":"KUL009"}
+[2025-11-20 14:18:50] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-20 14:19:04] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-20 14:19:16] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB001","rating":5}
+[2025-11-20 14:19:27] [WARNING] [IP: 127.0.0.1] [User: Guest] Failed login attempt: daniswara@gmail.com
+[2025-11-20 14:19:30] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-20 14:19:48] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Job created
+Context: {"customer":"daniswara@gmail.com","worker":"KUL010"}
