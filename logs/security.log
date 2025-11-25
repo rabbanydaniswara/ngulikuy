@@ -104,3 +104,70 @@ Context: {"job":"JOB001","rating":5}
 [2025-11-25 11:13:04] [INFO] [IP: 127.0.0.1] [User: arvian@gmail.com] Successful login: arvian@gmail.com
 [2025-11-25 11:13:17] [INFO] [IP: 127.0.0.1] [User: arvian@gmail.com] Successful login: arvian@gmail.com
 [2025-11-25 11:13:27] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 12:32:45] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 12:35:56] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Job created
+Context: {"customer":"daniswara@gmail.com","worker":"KUL009"}
+[2025-11-25 12:36:14] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 12:36:36] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 12:36:50] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB006","rating":5}
+[2025-11-25 13:02:23] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 13:03:44] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Posted job created
+Context: {"customer":"daniswara@gmail.com","title":"Renovasi ruangan gaming"}
+[2025-11-25 13:03:59] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 13:15:21] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 13:17:30] [ERROR] [IP: 127.0.0.1] [User: udin@gmail.com] Error taking posted job: There is already an active transaction
+[2025-11-25 13:17:35] [ERROR] [IP: 127.0.0.1] [User: udin@gmail.com] Error taking posted job: There is already an active transaction
+[2025-11-25 13:22:32] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 13:23:40] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 13:31:34] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 13:31:46] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 13:41:22] [INFO] [IP: 127.0.0.1] [User: arvian@gmail.com] Successful login: arvian@gmail.com
+[2025-11-25 13:41:43] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 13:41:59] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 13:47:38] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB007","rating":5}
+[2025-11-25 13:53:03] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 13:53:17] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 13:55:02] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Posted job created
+Context: {"customer":"daniswara@gmail.com","title":"renovasi atap"}
+[2025-11-25 13:55:32] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 13:55:45] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 13:56:00] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 13:56:15] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 13:59:39] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB008","rating":5}
+[2025-11-25 13:59:50] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB007","rating":5}
+[2025-11-25 14:00:13] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 14:00:52] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 14:01:10] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 14:02:39] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 14:03:18] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 14:03:36] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 14:15:34] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB006","rating":5}
+[2025-11-25 14:15:43] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 14:16:03] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 14:16:25] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Posted job created
+Context: {"customer":"daniswara@gmail.com","title":"Membuat ruangan gaming"}
+[2025-11-25 14:17:20] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 14:17:29] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 14:17:54] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 14:18:04] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 14:18:27] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB007","rating":5}
+[2025-11-25 14:18:50] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 14:19:07] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 14:24:33] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Posted job created
+Context: {"customer":"daniswara@gmail.com","title":"Pembuatan kebun di belakang rumah"}
+[2025-11-25 14:24:51] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 14:25:05] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 14:26:03] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-25 14:26:16] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 14:34:33] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB008","rating":5}
+[2025-11-25 14:34:40] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 14:35:10] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 14:36:10] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 14:36:41] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com

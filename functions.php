@@ -86,6 +86,7 @@ function authenticate(string $username, string $password): bool {
 
         if ($user && password_verify($password, $user['password'])) {
             
+            $_SESSION['user_id'] = $user['id']; // <-- ADD THIS
             $_SESSION['user'] = $user['username'];
             $_SESSION['user_role'] = $user['role'];
             $_SESSION['user_name'] = $user['name'];
@@ -251,11 +252,11 @@ function getRecentJobs(int $limit = 5): array {
 function addJob(array $jobData): bool {
     global $pdo;
     
-    $pdo->beginTransaction();
+    DatabaseHelper::beginTransaction();
 
     try {
-        $sql = "INSERT INTO jobs (jobId, workerId, workerName, jobType, startDate, endDate, customer, customerPhone, customerEmail, price, location, address, description, status, createdAt)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        $sql = "INSERT INTO jobs (jobId, posted_job_id, workerId, workerName, jobType, startDate, endDate, customer, customerPhone, customerEmail, price, location, address, description, status, createdAt)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 
         $stmt = $pdo->prepare($sql);
         
@@ -264,6 +265,7 @@ function addJob(array $jobData): bool {
         
         $stmt->execute([
             $jobId,
+            $jobData['posted_job_id'] ?? null,
             $jobData['workerId'] ?? null,
             $jobData['workerName'] ?? 'Unknown',
             $jobData['jobType'] ?? '',
@@ -284,11 +286,11 @@ function addJob(array $jobData): bool {
             updateWorkerStatus((string)$jobData['workerId'], 'Assigned');
         }
         
-        $pdo->commit();
+        DatabaseHelper::commit();
         return true;
 
     } catch (Exception $e) {
-        $pdo->rollBack();
+        DatabaseHelper::rollback();
         error_log("Error adding job: " . $e->getMessage());
         return false;
     }
@@ -296,7 +298,7 @@ function addJob(array $jobData): bool {
 
 function updateJobStatus(string $jobId, string $status): bool {
     global $pdo;
-    $pdo->beginTransaction();
+    DatabaseHelper::beginTransaction();
     
     try {
         $stmtJob = $pdo->prepare("SELECT workerId, status FROM jobs WHERE jobId = ? FOR UPDATE");
@@ -304,7 +306,7 @@ function updateJobStatus(string $jobId, string $status): bool {
         $job = $stmtJob->fetch();
 
         if (!$job) {
-            $pdo->rollBack();
+            DatabaseHelper::rollback();
             return false;
         }
 
@@ -316,11 +318,11 @@ function updateJobStatus(string $jobId, string $status): bool {
             updateWorkerStatus($job['workerId'], 'Available');
         }
         
-        $pdo->commit();
+        DatabaseHelper::commit();
         return true;
 
     } catch (Exception $e) {
-        $pdo->rollBack();
+        DatabaseHelper::rollback();
         error_log("Error updating job status: " . $e->getMessage());
         return false;
     }
@@ -329,7 +331,7 @@ function updateJobStatus(string $jobId, string $status): bool {
 function deleteJob(string $jobId): bool {
     global $pdo;
     
-    $pdo->beginTransaction();
+    DatabaseHelper::beginTransaction();
     
     try {
         $job = null;
@@ -345,11 +347,11 @@ function deleteJob(string $jobId): bool {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$jobId]);
         
-        $pdo->commit();
+        DatabaseHelper::commit();
         return true;
 
     } catch (Exception $e) {
-        $pdo->rollBack();
+        DatabaseHelper::rollback();
         error_log("Error deleting job: " . $e->getMessage());
         return false;
     }

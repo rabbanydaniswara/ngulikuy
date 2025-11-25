@@ -230,6 +230,38 @@ if ($action === 'update_job_status') {
     } else {
         $response['message'] = 'Gagal menghapus ulasan!';
     }
+} elseif ($action === 'customer_delete_posted_job') {
+    if (!isCustomer()) {
+        $response['message'] = 'Aksi ini hanya untuk customer.';
+        echo json_encode($response);
+        exit;
+    }
+
+    $jobId = $_POST['job_id'] ?? null;
+    $customerId = $_SESSION['user_id'] ?? null; // Use the correct session variable
+
+    if (!$jobId || !$customerId) {
+        $response['message'] = 'Data tidak valid untuk menghapus pekerjaan.';
+        echo json_encode($response);
+        exit;
+    }
+
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("DELETE FROM posted_jobs WHERE id = ? AND customer_id = ? AND worker_id IS NULL");
+        $stmt->execute([$jobId, $customerId]);
+
+        if ($stmt->rowCount() > 0) {
+            $response['success'] = true;
+            $response['message'] = 'Pekerjaan yang diposting berhasil dihapus.';
+        } else {
+            $response['message'] = 'Gagal menghapus pekerjaan. Mungkin sudah diambil oleh kuli atau tidak ditemukan.';
+        }
+    } catch (PDOException $e) {
+        SecurityLogger::logError('Error deleting posted job: ' . $e->getMessage());
+        $response['message'] = 'Terjadi error di database saat menghapus pekerjaan.';
+    }
+
 } elseif ($action === 'worker_accept_job' || $action === 'worker_reject_job' || $action === 'worker_complete_job') {
     
     // Pastikan hanya kuli yang bisa melakukan ini
@@ -272,6 +304,89 @@ if ($action === 'update_job_status') {
         $response['message'] = 'Status job berhasil diupdate!';
     } else {
         $response['message'] = 'Gagal mengupdate status job.';
+    }
+} elseif ($action === 'worker_take_posted_job') {
+    if (!isWorker()) {
+        $response['message'] = 'Aksi ini hanya untuk kuli.';
+        echo json_encode($response);
+        exit;
+    }
+
+    $jobId = $_POST['job_id'] ?? null;
+    $workerProfileId = $_SESSION['worker_profile_id'];
+
+    if (!$jobId) {
+        $response['message'] = 'Job ID tidak valid.';
+        echo json_encode($response);
+        exit;
+    }
+
+    global $pdo;
+    DatabaseHelper::beginTransaction();
+
+    try {
+        // Atomic update to claim the job
+        $sql = "UPDATE posted_jobs SET worker_id = ?, status = 'assigned' WHERE id = ? AND status = 'open'";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$workerProfileId, $jobId]);
+
+        if ($stmt->rowCount() > 0) {
+            // Successfully claimed the job, now get its details
+            $stmtSelect = $pdo->prepare("
+                SELECT pj.*, u.username as customer_email, u.name as customer_name, u.phone as customer_phone, u.alamat 
+                FROM posted_jobs pj 
+                JOIN users u ON pj.customer_id = u.id 
+                WHERE pj.id = ?
+            ");
+            $stmtSelect->execute([$jobId]);
+            $postedJob = $stmtSelect->fetch();
+
+            if ($postedJob) {
+                // Now, create a new job in the main `jobs` table
+                $worker = getWorkerById($workerProfileId);
+
+                // Create a synthetic date range (e.g., 1 day) as this is not in posted_jobs
+                $startDate = date('Y-m-d');
+                $endDate = date('Y-m-d');
+
+                $jobData = [
+                    'posted_job_id' => $jobId,
+                    'workerId' => $workerProfileId,
+                    'workerName' => $worker['name'],
+                    'jobType' => $postedJob['job_type'],
+                    'startDate' => $startDate,
+                    'endDate' => $endDate,
+                    'customer' => $postedJob['customer_name'],
+                    'customerPhone' => $postedJob['customer_phone'],
+                    'customerEmail' => $postedJob['customer_email'],
+                    'price' => $postedJob['budget'] ?? 0,
+                    'location' => $postedJob['location'],
+                    'address' => $postedJob['alamat'],
+                    'description' => $postedJob['description'],
+                    'status' => 'in-progress' // Directly move to in-progress as requested
+                ];
+
+                if (addJob($jobData)) {
+                    DatabaseHelper::commit();
+                    $response['success'] = true;
+                    $response['message'] = 'Pekerjaan berhasil diambil dan telah dipindahkan ke tab "Sedang Berjalan".';
+                } else {
+                    DatabaseHelper::rollback();
+                    $response['message'] = 'Gagal membuat penugasan pekerjaan. Silakan coba lagi.';
+                }
+            } else {
+                DatabaseHelper::rollback();
+                $response['message'] = 'Tidak dapat menemukan detail pekerjaan setelah diklaim.';
+            }
+        } else {
+            // Job was already taken
+            DatabaseHelper::rollback();
+            $response['message'] = 'Pekerjaan ini sudah diambil oleh orang lain.';
+        }
+    } catch (PDOException $e) {
+        DatabaseHelper::rollback();
+        SecurityLogger::logError('Error taking posted job: ' . $e->getMessage());
+        $response['message'] = 'Terjadi error di database. Silakan coba lagi.';
     }
 }
 
