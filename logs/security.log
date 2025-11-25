@@ -171,3 +171,7 @@ Context: {"job":"JOB008","rating":5}
 [2025-11-25 14:35:10] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
 [2025-11-25 14:36:10] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
 [2025-11-25 14:36:41] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 15:03:03] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 15:03:15] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 15:03:50] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 15:04:03] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com

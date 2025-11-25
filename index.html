@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <base target="_self">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NguliKuy - Layanan Profesional Konstruksi</title>
+    <meta name="description" content="Jasa nguli bangunan profesional untuk berbagai kebutuhan konstruksi rumah, gedung, dan renovasi">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#1e40af",
+                        secondary: "#334155",
+                        accent: "#f59e0b"
+                    },
+                    fontFamily: {
+                        'sans': ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+@keyframes fadeUp {
+0% { opacity: 0; transform: translateY(30px); }
+100% { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up { animation: fadeUp 1.1s ease-out forwards; }
+.animate-textFadeDelay { animation: fadeUp 1s ease-out forwards; animation-delay: 0.3s; }
+.animate-textFadeDelay2 { animation: fadeUp 1s ease-out forwards; animation-delay: 0.6s; }
+.animate-textFadeDelay3 { animation: fadeUp 1s ease-out forwards; animation-delay: 0.9s; }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+body { font-family: 'Inter', sans-serif; }
+</style>
+</head>
+<body class="min-h-screen bg-gray-50 font-sans">
+    <!-- Header & Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+<div class="w-10 h-10 flex items-center justify-center">
+    <img src="images/logo.png" alt="Logo" class="w-full h-full object-contain">
+</div>
+                    <span class="text-xl font-bold text-gray-800">NGULIKUY</span>
+                </div>
+                
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Beranda</a>
+                    <a href="#services" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Layanan</a>
+                    <a href="#projects" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Proyek</a>
+                    <a href="#about" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Tentang Kami</a>
+                    <a href="#contact" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">Kontak</a>
+                </div>
+                
+<div class="flex items-center space-x-4">
+    <a href="./login.php" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+        Login | Daftar
+    </a>
+    <button class="md:hidden text-gray-700">
+        <i class="fas fa-bars text-xl"></i>
+    </button>
+</div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <main>
+        <section id="home" class="relative w-full h-[600px] overflow-hidden">
+<div id="slideshow" class="absolute inset-0 w-full h-full">
+<img src="images/slide5.jpg" class="slide w-full h-full object-cover opacity-100 transition-opacity duration-700" />
+<img src="images/slide2.jpg" class="slide w-full h-full object-cover opacity-0 transition-opacity duration-700 absolute inset-0" />
+<img src="images/slide3.jpg" class="slide w-full h-full object-cover opacity-0 transition-opacity duration-700 absolute inset-0" />
+</div>
+
+
+<!-- Watermark kiri tengah -->
+<div class="absolute left-4 top-1/2 -translate-y-1/2 text-white opacity-30 text-4xl font-bold select-none">
+Property By Ngulikuy
+</div>
+
+
+<!-- Overlay gelap -->
+<div class="absolute inset-0 bg-blue-700/40"></div>
+
+
+<!-- Hero Content + Animasi -->
+<div class="relative z-10 container mx-auto px-4 flex flex-col items-center justify-center h-full text-center text-white animate-fade-up">
+<h1 class="text-4xl md:text-6xl font-bold mb-6 opacity-0 animate-textFadeDelay">Jasa Nguli Bangunan Profesional</h1>
+<p class="text-xl md:text-2xl mb-8 text-blue-100 opacity-0 animate-textFadeDelay2">Layanan konstruksi terpercaya untuk rumah, gedung, dan renovasi dengan hasil maksimal</p>
+<div class="flex flex-col sm:flex-row gap-4 justify-center opacity-0 animate-textFadeDelay3">
+<a href="#contact" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">Konsultasi Gratis</a>
+<a href="#projects" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">Lihat Proyek</a>
+</div>
+</div>
+</section>
+
+        <!-- Services Section -->
+        <section id="services" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Layanan Kami</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        Kami menyediakan berbagai layanan konstruksi bangunan dengan tim profesional yang berpengalaman
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="service-card bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-200">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-home text-blue-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Bangun Rumah</h3>
+                        <p class="text-gray-600 mb-4">
+                            Pembangunan rumah dari nol dengan desain modern dan material berkualitas
+                        </p>
+                        <ul class="text-gray-600 space-y-2">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Desain custom
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Material premium
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Garansi hasil
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="service-card bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-200">
+                        <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-tools text-orange-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Renovasi</h3>
+                        <p class="text-gray-600 mb-4">
+                            Perbaikan dan pembaruan bangunan lama menjadi lebih modern dan fungsional
+                        </p>
+                        <ul class="text-gray-600 space-y-2">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Perbaikan struktur
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Upgrade fasilitas
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Efisien waktu
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    <div class="service-card bg-gray-50 p-6 rounded-xl shadow-sm hover:shadow-md border border-gray-200">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-building text-green-600 text-xl"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-3">Konstruksi Gedung</h3>
+                        <p class="text-gray-600 mb-4">
+                            Pembangunan gedung komersial dan industri dengan standar keamanan tinggi
+                        </p>
+                        <ul class="text-gray-600 space-y-2">
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Standar SNI
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Tim ahli
+                            </li>
+                            <li class="flex items-center">
+                                <i class="fas fa-check text-green-500 mr-2"></i>
+                                Pengawasan ketat
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projects Section -->
+        <section id="projects" class="py-16 bg-gray-50">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Proyek Terbaru</h2>
+                    <p class="text-gray-600 max-w-2xl mx-auto">
+                        Beberapa hasil kerja kami yang membanggakan dalam berbagai jenis konstruksi
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <img 
+                            src="images/ngulikuy3.jpg" 
+                            alt="Proyek rumah modern minimalis" 
+                            class="w-full h-48 object-cover"
+                            loading="lazy"
+                        />
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Rumah Modern Minimalis</h3>
+                            <p class="text-gray-600 text-sm mb-4">Desain rumah modern dengan konsep minimalis di area perkotaan</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-600 font-medium">Selesai</span>
+                                <span class="text-gray-500 text-sm">5 Bulan</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <img 
+                            src="images/ngulikuy2.jpeg" 
+                            alt="Renovasi rumah klasik" 
+                            class="w-full h-48 object-cover"
+                            loading="lazy"
+                        />
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Renovasi Rumah Klasik</h3>
+                            <p class="text-gray-600 text-sm mb-4">Transformasi rumah tua menjadi hunian modern yang nyaman</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-600 font-medium">Selesai</span>
+                                <span class="text-gray-500 text-sm">2 Bulan</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                        <img 
+                            src="images/ngulikuy5.jpeg" 
+                            alt="Konstruksi ruko komersial" 
+                            class="w-full h-48 object-cover"
+                            loading="lazy"
+                        />
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Perumahan</h3>
+                            <p class="text-gray-600 text-sm mb-4">Pembangunan perumahan untuk keluarga.</p>
+                            <div class="flex justify-between items-center">
+                                <span class="text-blue-600 font-medium">Selesai</span>
+                                <span class="text-gray-500 text-sm">4 Bulan</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-16 bg-white">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <img 
+                            src="images/ngulikuy7.jpg" 
+                            alt="Tim Jasa Nguli Bangunan profesional" 
+                            class="w-full rounded-xl shadow-md"
+                            loading="lazy"
+                        />
+                    </div>
+                    <div>
+                        <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Tentang Kami</h2>
+                        <p class="text-gray-600 mb-6">
+                            Ngulikuy adalah penyedia jasa konstruksi bangunan yang telah berpengalaman lebih dari 1 day 
+                            dalam membangun dan merenovasi berbagai jenis properti.
+                        </p>
+                        <p class="text-gray-600 mb-8">
+                            Kami memiliki tim profesional yang terampil dan berpengalaman dalam menangani proyek 
+                            konstruksi dari skala kecil hingga besar dengan standar kualitas terbaik.
+                        </p>
+                        
+                        <div class="grid grid-cols-2 gap-6">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-blue-600 mb-2">50+</div>
+                                <div class="text-gray-600">Proyek Selesai</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-blue-600 mb-2">-0</div>
+                                <div class="text-gray-600">Tahun Pengalaman</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-blue-600 mb-2">100%</div>
+                                <div class="text-gray-600">Kepuasan Klien</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold text-blue-600 mb-2">24/7</div>
+                                <div class="text-gray-600">Layanan Support</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-16 bg-gray-900 text-white">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4">Hubungi Kami</h2>
+                    <p class="text-gray-300 max-w-2xl mx-auto">
+                        Konsultasikan kebutuhan konstruksi Anda dengan tim profesional kami
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div>
+                        <h3 class="text-2xl font-semibold mb-6">Informasi Kontak</h3>
+                        
+                        <div class="space-y-6">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-1">Alamat</h4>
+                                    <p class="text-gray-300">Jl. Bahlil No. 123, Pamulang - Tangerang</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-4">
+                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-1">Telepon</h4>
+                                    <p class="text-gray-300">+62 812-3456-7890</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-4">
+                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-1">Email</h4>
+                                    <p class="text-gray-300">requitment@ngulikuy.my.id</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-start space-x-4">
+                                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-1">Jam Operasional</h4>
+                                    <p class="text-gray-300">Senin - Minggu: 07:00 - 17:00 WIB</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <form class="space-y-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label for="name" class="block text-sm font-medium mb-2">Nama Lengkap</label>
+                                    <input 
+                                        type="text" 
+                                        id="name" 
+                                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                                        placeholder="Masukkan nama lengkap"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="phone" class="block text-sm font-medium mb-2">Nomor Telepon</label>
+                                    <input 
+                                        type="tel" 
+                                        id="phone" 
+                                        class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                                        placeholder="Masukkan nomor telepon"
+                                    >
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label for="email" class="block text-sm font-medium mb-2">Email</label>
+                                <input 
+                                    type="email" 
+                                    id="email" 
+                                    class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                                    placeholder="Masukkan email"
+                                >
+                            </div>
+                            
+                            <div>
+                                <label for="service" class="block text-sm font-medium mb-2">Jenis Layanan</label>
+                                <select 
+                                    id="service" 
+                                    class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                                >
+                                    <option value="">Pilih layanan</option>
+                                    <option value="bangun-rumah">Bangun Rumah</option>
+                                    <option value="renovasi">Renovasi</option>
+                                    <option value="konstruksi-gedung">Konstruksi Gedung</option>
+                                    <option value="lainnya">Lainnya</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label for="message" class="block text-sm font-medium mb-2">Pesan</label>
+                                <textarea 
+                                    id="message" 
+                                    rows="4" 
+                                    class="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-white resize-none"
+                                    placeholder="Jelaskan kebutuhan proyek Anda"
+                                ></textarea>
+                            </div>
+                            
+                            <button 
+                                type="submit" 
+                                class="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                            >
+                                Kirim Pesan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                            <i class="fas fa-hammer text-white"></i>
+                        </div>
+                        <span class="text-xl font-bold">Ngulikuy</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">
+                        Penyedia jasa konstruksi bangunan profesional dengan pengalaman lebih dari 1 day.
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Layanan</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Bangun Rumah</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Renovasi</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Konstruksi Gedung</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Perbaikan Struktur</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Tautan Cepat</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#home" class="hover:text-white transition-colors">Beranda</a></li>
+                        <li><a href="#services" class="hover:text-white transition-colors">Layanan</a></li>
+                        <li><a href="#projects" class="hover:text-white transition-colors">Proyek</a></li>
+                        <li><a href="#about" class="hover:text-white transition-colors">Tentang Kami</a></li>
+                        <li><a href="#contact" class="hover:text-white transition-colors">Kontak</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-semibold mb-4">Sosial Media</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-blue-400 transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-pink-600 transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center hover:bg-red-600 transition-colors">
+                            <i class="fab fa-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 1946 Ngulikuy. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Floating Chatbot -->
+<div id="chatbot-button" class="fixed bottom-6 right-6 bg-blue-600 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg cursor-pointer text-2xl">
+    <i class="fas fa-comments"></i>
+</div>
+
+<!-- Chat Window -->
+<div id="chatbot-window" class="hidden fixed bottom-24 right-6 w-80 bg-white rounded-xl shadow-2xl border border-gray-300 overflow-hidden">
+    <div class="bg-blue-600 text-white px-4 py-3 flex justify-between items-center">
+        <span class="font-semibold">Chat NguliKuy</span>
+        <button id="close-chat" class="text-white">&times;</button>
+    </div>
+
+    <div id="chat-content" class="max-h-64 overflow-y-auto p-4 space-y-3 text-sm"></div>
+
+    <div class="p-4 border-t">
+        <label class="text-gray-600 text-xs font-medium">Pilih pertanyaan:</label>
+        <select id="chat-select" class="w-full px-3 py-2 mt-2 border rounded-lg text-sm">
+            <option value="">Pilih pertanyaan</option>
+            <option value="konsultasi">Apa boleh konsultasi terlebih dahulu?</option>
+            <option value="harga">Apa harga terjangkau?</option>
+            <option value="pembayaran">Bagaimana sistem pembayarannya?</option>
+            <option value="home">apa itu ngulikuy ?</option>
+        </select>
+    </div>
+</div>
+    
+    <script>
+        // Smooth scroll for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Form submission handler
+        document.querySelector('form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            alert('Terima kasih! Pesan Anda telah berhasil dikirim. Tim kami akan menghubungi Anda segera.');
+            this.reset();
+        });
+
+        // Mobile menu toggle (simplified)
+        document.querySelector('button.md\\:hidden').addEventListener('click', function() {
+            const nav = document.querySelector('.hidden.md\\:flex');
+            nav.classList.toggle('hidden');
+            nav.classList.toggle('flex');
+            nav.classList.toggle('flex-col');
+            nav.classList.toggle('absolute');
+            nav.classList.toggle('top-16');
+            nav.classList.toggle('left-0');
+            nav.classList.toggle('right-0');
+            nav.classList.toggle('bg-white');
+            nav.classList.toggle('p-4');
+            nav.classList.toggle('shadow-lg');
+        });
+        
+        const chatbotBtn = document.getElementById("chatbot-button");
+const chatbotWindow = document.getElementById("chatbot-window");
+const closeChat = document.getElementById("close-chat");
+const chatSelect = document.getElementById("chat-select");
+const chatContent = document.getElementById("chat-content");
+
+// buka chatbot
+chatbotBtn.addEventListener("click", () => {
+    chatbotWindow.classList.toggle("hidden");
+});
+
+// tutup chatbot
+closeChat.addEventListener("click", () => {
+    chatbotWindow.classList.add("hidden");
+});
+
+// respon otomatis
+chatSelect.addEventListener("change", function () {
+    let pesanUser = this.options[this.selectedIndex].text;
+    let botReply = "";
+
+    if (this.value === "konsultasi") {
+        botReply = "Tentu, Anda bisa konsultasi kapan saja. Tim kami siap bantu.";
+    } else if (this.value === "harga") {
+        botReply = "Kami menawarkan harga yang fleksibel dan menyesuaikan kebutuhan Anda.";
+    } else if (this.value === "pembayaran") {
+        botReply = "Pembayaran bisa bertahap sesuai progress pekerjaan.";
+    } else if (this.value === "home") {
+        botReply = "penyedia jasa konstruksi bangunan yang telah berpengalaman lebih dari 1 day dalam membangun dan merenovasi berbagai jenis properti.";
+    }
+
+    chatContent.innerHTML += `
+        <div class="text-right">
+            <p class="bg-blue-600 text-white inline-block px-3 py-2 rounded-lg mb-2">${pesanUser}</p>
+        </div>
+        <div>
+            <p class="bg-gray-200 inline-block px-3 py-2 rounded-lg mb-2">${botReply}</p>
+        </div>
+    `;
+
+    chatSelect.value = "";
+    chatContent.scrollTop = chatContent.scrollHeight;
+});
+    </script>
+</body>
+</html>
