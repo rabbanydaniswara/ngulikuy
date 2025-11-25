@@ -574,6 +574,8 @@ function addWorker(array $workerData): bool {
 function updateWorker(string $workerId, array $updatedData): bool {
     global $pdo;
     
+    DatabaseHelper::beginTransaction(); // Start transaction
+
     try {
         $params = [
             'name' => $updatedData['name'] ?? '',
@@ -602,8 +604,43 @@ function updateWorker(string $workerId, array $updatedData): bool {
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         
+        // Also update the 'users' table if the worker's name or email changed
+        if (isset($updatedData['name']) || isset($updatedData['email'])) {
+            $updateUserSql = "UPDATE users SET ";
+            $userUpdateParams = [];
+            
+            if (isset($updatedData['name'])) {
+                $updateUserSql .= "name = :name_user, ";
+                $userUpdateParams['name_user'] = $updatedData['name'];
+            }
+            if (isset($updatedData['email'])) { 
+                $updateUserSql .= "username = :username_user, ";
+                $userUpdateParams['username_user'] = $updatedData['email'];
+            }
+            
+            // Remove trailing comma and space
+            $updateUserSql = rtrim($updateUserSql, ', ');
+            $updateUserSql .= " WHERE worker_profile_id = :worker_profile_id";
+            $userUpdateParams['worker_profile_id'] = $workerId;
+
+            $stmtUser = $pdo->prepare($updateUserSql);
+            $stmtUser->execute($userUpdateParams);
+        }
+
+        // Also update workerName in the 'jobs' table for consistency
+        if (isset($updatedData['name'])) {
+            $updateJobsSql = "UPDATE jobs SET workerName = :new_worker_name WHERE workerId = :worker_id";
+            $stmtJobs = $pdo->prepare($updateJobsSql);
+            $stmtJobs->execute([
+                'new_worker_name' => $updatedData['name'],
+                'worker_id' => $workerId
+            ]);
+        }
+
+        DatabaseHelper::commit(); // Commit transaction
         return true;
     } catch (PDOException $e) {
+        DatabaseHelper::rollback(); // Rollback on error
         error_log($e->getMessage());
         return false;
     }
