@@ -20,27 +20,28 @@ if (!defined('IS_ADMIN_PAGE')) {
     <div class="w-full">
         <!-- TABLE: tampil di md ke atas (fixed layout supaya tidak melebar) -->
         <div class="hidden md:block overflow-x-auto">
-            <table class="w-full table-fixed divide-y divide-gray-200">
+            <table class="w-full divide-y divide-gray-200">
                 <thead>
                     <tr>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Job ID</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-44">Worker</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-28">Job Type</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-40">Customer</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-36">Dates</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-28">Location</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Job Type</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Dates</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Alamat</th>
 
                         <!-- price + status + actions : align right so they don't touch text -->
-                        <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase w-24">Price</th>
-                        <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase w-28">Status</th>
-                        <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase w-20">Actions</th>
+                        <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Price</th>
+                        <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                 </thead>
 
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php if (empty($jobs)): ?>
                         <tr>
-                            <td colspan="9" class="px-3 py-4 text-center text-gray-500">Belum ada data pekerjaan.</td>
+                            <td colspan="10" class="px-3 py-4 text-center text-gray-500">Belum ada data pekerjaan.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($jobs as $job): ?>
@@ -85,6 +86,11 @@ if (!defined('IS_ADMIN_PAGE')) {
                                 <!-- Location -->
                                 <td class="px-3 py-3 text-sm text-gray-700 truncate max-w-[120px]" title="<?php echo htmlspecialchars($job['location']); ?>">
                                     <?php echo htmlspecialchars($job['location']); ?>
+                                </td>
+
+                                <!-- Alamat -->
+                                <td class="px-3 py-3 text-sm text-gray-700 truncate max-w-[150px]" title="<?php echo htmlspecialchars($job['address']); ?>">
+                                    <?php echo htmlspecialchars($job['address']); ?>
                                 </td>
 
                                 <!-- Price (right aligned, beri spacing agar tidak nempel) -->
@@ -162,6 +168,9 @@ if (!defined('IS_ADMIN_PAGE')) {
 
                             <div class="mt-2 text-sm text-gray-500 truncate" title="<?php echo htmlspecialchars($job['location']); ?>">
                                 <?php echo htmlspecialchars($job['location']); ?>
+                            </div>
+                            <div class="mt-2 text-sm text-gray-500 truncate" title="<?php echo htmlspecialchars($job['address']); ?>">
+                                <?php echo htmlspecialchars($job['address']); ?>
                             </div>
                         </div>
 

@@ -74,14 +74,6 @@ function logout(): void {
 function authenticate(string $username, string $password): bool {
     global $pdo;
     
-    $rateLimiter = new RateLimiter($pdo);
-    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    
-    if (!$rateLimiter->isAllowed($ip, 'login', 5, 300)) {
-        SecurityLogger::logSecurityEvent('Rate limit exceeded for login', ['ip' => $ip, 'username' => $username]);
-        return false;
-    }
-    
     if (!InputValidator::validateEmail($username) && strlen($username) < 3) {
         SecurityLogger::logLoginAttempt($username, false);
         return false;
@@ -93,12 +85,12 @@ function authenticate(string $username, string $password): bool {
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password'])) {
-            $rateLimiter->reset($ip, 'login');
             
             $_SESSION['user'] = $user['username'];
             $_SESSION['user_role'] = $user['role'];
             $_SESSION['user_name'] = $user['name'];
             $_SESSION['user_phone'] = $user['phone'] ?? '';
+            $_SESSION['user_address'] = $user['alamat'] ?? '';
             $_SESSION['worker_profile_id'] = $user['worker_profile_id'] ?? null;
             $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
             
@@ -399,7 +391,15 @@ function getWorkers(): array {
 
 function getAvailableWorkers(): array {
     global $pdo;
-    $stmt = $pdo->query("SELECT * FROM workers WHERE status = 'Available'");
+    
+    $sql = "SELECT w.*, COUNT(r.id) as review_count
+            FROM workers w
+            LEFT JOIN reviews r ON w.id = r.workerId
+            WHERE w.status = 'Available'
+            GROUP BY w.id
+            ORDER BY w.name ASC";
+            
+    $stmt = $pdo->query($sql);
     $workers = $stmt->fetchAll();
     
     foreach ($workers as &$worker) {

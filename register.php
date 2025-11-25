@@ -20,11 +20,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $name = InputValidator::sanitizeString($_POST['name'] ?? '');
         $username = $_POST['username'] ?? '';
         $phone = $_POST['phone'] ?? '';
+        $alamat = InputValidator::sanitizeString($_POST['alamat'] ?? '');
         $password = $_POST['password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
         
         // Validasi dasar
-        if (empty($name) || empty($username) || empty($phone) || empty($password)) {
+        if (empty($name) || empty($username) || empty($phone) || empty($alamat) || empty($password)) {
             $error_message = 'Semua field harus diisi!';
         } 
         // Validasi email
@@ -53,9 +54,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     } else {
                         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                         
-                        $sql = "INSERT INTO users (username, password, role, name, phone) VALUES (?, ?, ?, ?, ?)";
+                        $sql = "INSERT INTO users (username, password, role, name, phone, alamat) VALUES (?, ?, ?, ?, ?, ?)";
                         $stmt = $pdo->prepare($sql);
-                        $stmt->execute([$username, $hashedPassword, 'customer', $name, $phone]);
+                        $stmt->execute([$username, $hashedPassword, 'customer', $name, $phone, $alamat]);
                         
                         SecurityLogger::log('INFO', 'New user registered: ' . $username);
                         $success_message = 'Registrasi berhasil!';
@@ -91,6 +92,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .input-focus:focus {
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
         }
+        input::-ms-reveal,
+        input::-ms-clear {
+            display: none !important;
+        }
+        input[type="password"]::-webkit-textfield-decoration-container {
+            display: none !important;
+        }
+        input[type="password"]::-webkit-credentials-auto-fill-button {
+            display: none !important;
+            -webkit-appearance: none;
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center">
@@ -98,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     <div class="w-full max-w-md mx-4 z-10">
         <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
-            <div class="gradient-bg p-6 text-center">
+            <div class="p-6 text-center" style="background-image: linear-gradient(135deg, rgba(59,130,246,0.85), rgba(99,102,241,0.85)), url('images/header-bg.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
                 <div class="flex justify-center mb-4">
                     <div class="bg-white p-3 rounded-full">
                         <i data-feather="tool" class="text-blue-600 w-8 h-8"></i>
@@ -111,23 +123,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="p-8">
                 <?php if ($error_message): ?>
                     <div class="mb-4 p-3 bg-red-100 text-red-700 rounded-lg">
-                        <?php echo htmlspecialchars($error_message); // Perbaikan XSS ?>
+                        <?php echo htmlspecialchars($error_message); ?>
                     </div>
                 <?php endif; ?>
                 
                 <?php if ($success_message): ?>
                     <div class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg">
-                        <?php echo htmlspecialchars($success_message); // <-- Selalu escape ?>
+                        <?php echo htmlspecialchars($success_message); ?>
                         Silakan <a href="index.php" class="font-bold text-green-700 hover:underline">login di sini</a>.
                     </div>
-                <?php else: // Sembunyikan form jika registrasi sudah sukses ?>
+                <?php else: ?>
                 
                 <form method="POST">
-                    <?php echo csrfInput(); ?> <div class="mb-4">
+                    <?php echo csrfInput(); ?>
+                    <div class="mb-4">
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Nama Lengkap</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-feather="user" class="text-gray-400"></i>
+                                <i data-feather="user" class="text-gray-400 w-5 h-5"></i>
                             </div>
                             <input type="text" id="name" name="name" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="Nama Anda" required>
                         </div>
@@ -137,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-feather="mail" class="text-gray-400"></i>
+                                <i data-feather="mail" class="text-gray-400 w-5 h-5"></i>
                             </div>
                             <input type="email" id="email" name="username" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="email@example.com" required>
                         </div>
@@ -147,9 +160,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-feather="phone" class="text-gray-400"></i>
+                                <i data-feather="phone" class="text-gray-400 w-5 h-5"></i>
                             </div>
                             <input type="tel" id="phone" name="phone" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="08123456789" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 pt-3 flex items-start pointer-events-none">
+                                <i data-feather="home" class="text-gray-400 w-5 h-5"></i>
+                            </div>
+                            <textarea id="alamat" name="alamat" rows="3" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="Alamat lengkap Anda" required></textarea>
                         </div>
                     </div>
 
@@ -157,9 +180,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-feather="lock" class="text-gray-400"></i>
+                                <i data-feather="lock" class="text-gray-400 w-5 h-5"></i>
                             </div>
-                            <input type="password" id="password" name="password" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="••••••••" required>
+                            <input type="password" id="password" name="password" class="pl-10 pr-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="••••••••" required>
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" onclick="togglePassword('password', 'eyeIconPassword')">
+                                <i data-feather="eye" id="eyeIconPassword" class="text-gray-400 w-5 h-5"></i>
+                            </div>
                         </div>
                     </div>
                     
@@ -167,15 +193,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password</label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-feather="lock" class="text-gray-400"></i>
+                                <i data-feather="lock" class="text-gray-400 w-5 h-5"></i>
                             </div>
-                            <input type="password" id="confirm_password" name="confirm_password" class="pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="••••••••" required>
+                            <input type="password" id="confirm_password" name="confirm_password" class="pl-10 pr-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent input-focus" placeholder="••••••••" required>
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" onclick="togglePassword('confirm_password', 'eyeIconConfirmPassword')">
+                                <i data-feather="eye" id="eyeIconConfirmPassword" class="text-gray-400 w-5 h-5"></i>
+                            </div>
                         </div>
                     </div>
 
                     <button type="submit" class="gradient-bg w-full py-3 px-4 rounded-lg text-white font-medium hover:opacity-90 transition duration-200 flex items-center justify-center">
                         <i data-feather="user-plus" class="mr-2"></i>
-                        Daftar
+                        Register
                     </button>
                 </form>
                 <?php endif; ?>
@@ -188,8 +217,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 
     <script>
-        // Initialize feather icons
         feather.replace();
+
+        function togglePassword(inputId, iconId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(iconId);
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.setAttribute('data-feather', 'eye-off');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.setAttribute('data-feather', 'eye');
+            }
+            feather.replace();
+        }
     </script>
 </body>
 </html>

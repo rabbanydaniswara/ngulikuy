@@ -84,3 +84,23 @@ Context: {"job":"JOB001","rating":5}
 [2025-11-20 14:19:30] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
 [2025-11-20 14:19:48] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Job created
 Context: {"customer":"daniswara@gmail.com","worker":"KUL010"}
+[2025-11-25 10:54:54] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 10:55:09] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 10:55:18] [INFO] [IP: 127.0.0.1] [User: admin] File uploaded: worker_e2b8c1bcdfd7b7edbaa5b98596a7a313.png
+[2025-11-25 10:56:19] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 11:00:12] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 11:05:57] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 11:06:14] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB001","rating":5}
+[2025-11-25 11:09:13] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 11:09:18] [WARNING] [IP: 127.0.0.1] [User: Guest] Failed login attempt: daniswara@gmail.com
+[2025-11-25 11:09:26] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 11:09:30] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 11:09:34] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 11:09:38] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 11:09:42] [WARNING] [IP: 127.0.0.1] [User: Guest] Failed login attempt: daniswara@gmail.com
+[2025-11-25 11:09:44] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 11:10:03] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 11:13:04] [INFO] [IP: 127.0.0.1] [User: arvian@gmail.com] Successful login: arvian@gmail.com
+[2025-11-25 11:13:17] [INFO] [IP: 127.0.0.1] [User: arvian@gmail.com] Successful login: arvian@gmail.com
+[2025-11-25 11:13:27] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin

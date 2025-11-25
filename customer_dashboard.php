@@ -17,12 +17,13 @@ redirectIfNotCustomer();
 $customer_email = $_SESSION['user'];
 $customer_id = null;
 
-// Get customer ID
+// Get customer ID and address
 global $pdo;
-$stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
+$stmt = $pdo->prepare("SELECT id, alamat FROM users WHERE username = ?");
 $stmt->execute([$customer_email]);
 $customer = $stmt->fetch();
 $customer_id = $customer ? $customer['id'] : null;
+$customer_address = $customer ? $customer['alamat'] : 'Alamat tidak tersedia';
 
 // Initialize variables for messages
 $success_message = '';
@@ -41,13 +42,7 @@ if (isset($_SESSION['flash_error'])) {
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // Rate limiting
-    $rateLimiter = new RateLimiter($pdo);
-    $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-    
-    if (!$rateLimiter->isAllowed($ip, 'form_submit', 10, 60)) {
-        $error_message = 'Terlalu banyak permintaan. Silakan tunggu sebentar.';
-    } elseif (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
+    if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
         $error_message = 'Sesi tidak valid. Silakan refresh halaman.';
     } else {
         
@@ -569,7 +564,7 @@ $pendingOrderCount = count(array_filter(
                 </div>
             </div>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
                 <div class="bg-white rounded-xl shadow-lg p-5 sm:p-6 card-hover border-t-4 border-blue-500">
                     <div class="flex items-center">
                         <div class="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 text-blue-600 mr-3 sm:mr-4">
@@ -596,7 +591,7 @@ $pendingOrderCount = count(array_filter(
                         </div>
                     </div>
                 </div>
-                <div class="bg-white rounded-xl shadow-lg p-5 sm:p-6 card-hover border-t-4 border-yellow-500 sm:col-span-2 lg:col-span-1">
+                <div class="bg-white rounded-xl shadow-lg p-5 sm:p-6 card-hover border-t-4 border-yellow-500">
                     <div class="flex items-center">
                         <div class="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-yellow-100 to-yellow-200 text-yellow-600 mr-3 sm:mr-4">
                             <i data-feather="clock" class="w-5 h-5 sm:w-6 sm:h-6"></i>
@@ -604,6 +599,17 @@ $pendingOrderCount = count(array_filter(
                         <div>
                             <p class="text-xs sm:text-sm text-gray-500 font-medium">Pesanan Pending</p>
                             <h3 class="text-2xl sm:text-3xl font-bold text-gray-800"><?php echo $pendingOrderCount; ?></h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-5 sm:p-6 card-hover border-t-4 border-purple-500">
+                    <div class="flex items-center">
+                        <div class="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 mr-3 sm:mr-4">
+                            <i data-feather="home" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs sm:text-sm text-gray-500 font-medium">Alamat Anda</p>
+                            <h3 class="text-base sm:text-lg font-bold text-gray-800 truncate"><?php echo htmlspecialchars($customer_address); ?></h3>
                         </div>
                     </div>
                 </div>

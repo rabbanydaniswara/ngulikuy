@@ -13,17 +13,17 @@ if (!defined('IS_ADMIN_PAGE')) {
     <div class="w-full">
         <!-- TABLE: tampil di md ke atas -->
         <div class="hidden md:block overflow-x-auto">
-            <table class="w-full table-fixed divide-y divide-gray-200">
+            <table class="w-full divide-y divide-gray-200">
                 <thead>
                     <tr>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-16">ID</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-28">Tanggal</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-40">Customer</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-40">Worker</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-36">Job</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-28">Rating</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Job</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Komentar</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-20">Aksi</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
                     </tr>
                 </thead>
 

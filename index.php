@@ -7,10 +7,6 @@ SecureHeaders::set();
 // Start secure session
 SecureSession::start();
 
-// Rate limiting untuk login page
-$rateLimiter = new RateLimiter($pdo);
-$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
@@ -22,111 +18,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $login_error = 'Sesi tidak valid. Silakan coba lagi.';
         }
     } else {
-    // --- AKHIR VALIDASI CSRF ---
-
-        // --- CEK RATE LIMIT ---
-        // Ambil IP client (fallback jika tidak tersedia)
-        $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
-
-        // Asumsi: $rateLimiter sudah diinisialisasi sebelumnya.
-        // isAllowed($key, $action, $maxAttempts, $decaySeconds)
-        if (isset($rateLimiter) && method_exists($rateLimiter, 'isAllowed')) {
-            if (!$rateLimiter->isAllowed($ip, 'login', 5, 300)) {
-                $msg = 'Terlalu banyak percobaan login. Silakan tunggu beberapa menit sebelum mencoba lagi.';
-                if (isset($_POST['admin_login'])) {
-                    $admin_error = $msg;
-                } else {
-                    $login_error = $msg;
-                }
-                // Stop further processing karena rate-limit aktif
+        // Cek apakah ini login admin
+        if (isset($_POST['admin_login'])) {
+            $username = $_POST['admin_username'] ?? '';
+            $password = $_POST['admin_password'] ?? '';
+            
+            if (authenticate($username, $password) && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+                session_regenerate_id(true);
+                header('Location: admin_dashboard.php');
+                exit();
             } else {
-                // Rate limit OK -> lanjut ke proses login di bawah
-                // Cek apakah ini login admin
-                if (isset($_POST['admin_login'])) {
-                    $username = $_POST['admin_username'] ?? '';
-                    $password = $_POST['admin_password'] ?? '';
-                    
-                    if (authenticate($username, $password) && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
-                        session_regenerate_id(true);
-                        header('Location: admin_dashboard.php');
-                        exit();
-                    } else {
-                        $admin_error = 'Username atau Password Admin salah';
-                    }
-                    
-                // Jika bukan, berarti ini login customer
-                } else {
-                    $email = $_POST['email'] ?? '';
-                    $password = $_POST['password'] ?? '';
-                    
-                    if (authenticate($email, $password)) {
-                        // Cek role SETELAH authenticate berhasil
-                        if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'customer') {
-                            session_regenerate_id(true);
-                            header('Location: customer_dashboard.php');
-                            exit();
-                        } elseif (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'worker') {
-                            session_regenerate_id(true);
-                            header('Location: worker_dashboard.php'); // <-- HALAMAN BARU
-                            exit();
-                        } else {
-                            // Jika role-nya admin tapi login via form customer
-                            $login_error = 'Email atau Password salah';
-                            // Pastikan tidak ada session admin yang tertinggal
-                            if (function_exists('logout')) {
-                                logout();
-                            } else {
-                                // fallback: hapus beberapa variabel session jika perlu
-                                unset($_SESSION['user_role']);
-                            }
-                        }
-                    } else {
-                        $login_error = 'Email atau Password salah';
-                    }
-                }
-            } // end else rateLimiter->isAllowed
+                $admin_error = 'Username atau Password Admin salah';
+            }
+            
+        // Jika bukan, berarti ini login customer
         } else {
-            // Jika $rateLimiter tidak tersedia, tetap lanjutkan proses login tanpa rate limit
-            if (isset($_POST['admin_login'])) {
-                $username = $_POST['admin_username'] ?? '';
-                $password = $_POST['admin_password'] ?? '';
-                
-                if (authenticate($username, $password) && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') {
+            $email = $_POST['email'] ?? '';
+            $password = $_POST['password'] ?? '';
+            
+            if (authenticate($email, $password)) {
+                // Cek role SETELAH authenticate berhasil
+                if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'customer') {
                     session_regenerate_id(true);
-                    header('Location: admin_dashboard.php');
+                    header('Location: customer_dashboard.php');
+                    exit();
+                } elseif (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'worker') {
+                    session_regenerate_id(true);
+                    header('Location: worker_dashboard.php'); // <-- HALAMAN BARU
                     exit();
                 } else {
-                    $admin_error = 'Username atau Password Admin salah';
-                }
-                
-            } else {
-                $email = $_POST['email'] ?? '';
-                $password = $_POST['password'] ?? '';
-                
-                if (authenticate($email, $password)) {
-                    if (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'customer') {
-                        session_regenerate_id(true);
-                        header('Location: customer_dashboard.php');
-                        exit();
-                    } elseif (isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'worker') {
-                        session_regenerate_id(true);
-                        header('Location: worker_dashboard.php');
-                        exit();
-                    } else {
-                        $login_error = 'Email atau Password salah';
-                        if (function_exists('logout')) {
-                            logout();
-                        } else {
-                            unset($_SESSION['user_role']);
-                        }
-                    }
-                } else {
+                    // Jika role-nya admin tapi login via form customer
                     $login_error = 'Email atau Password salah';
+                    // Pastikan tidak ada session admin yang tertinggal
+                    if (function_exists('logout')) {
+                        logout();
+                    } else {
+                        // fallback: hapus beberapa variabel session jika perlu
+                        unset($_SESSION['user_role']);
+                    }
                 }
+            } else {
+                $login_error = 'Email atau Password salah';
             }
         }
-
-    } // <-- Penutup blok 'else' dari validasi CSRF
+    }
 }
 
 

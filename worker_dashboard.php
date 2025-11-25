@@ -245,6 +245,7 @@ td.price { font-weight: 600; }
             <td class="px-3 py-3 align-top">
               <div class="font-medium"><?php echo $customer; ?></div>
               <div class="text-sm text-gray-500"><?php echo $customerPhone; ?></div>
+              <div class="text-sm text-gray-500"><?php echo htmlspecialchars($job['address'] ?? ''); ?></div>
             </td>
 
             <td class="px-3 py-3 text-sm whitespace-nowrap align-top"><?php echo $startDate; ?></td>
@@ -320,6 +321,7 @@ td.price { font-weight: 600; }
                                         <div class="min-w-0 pr-3">
                                             <div class="text-base font-semibold truncate"><?php echo $jobType; ?></div>
                                             <div class="text-sm text-gray-700 truncate"><?php echo $location; ?></div>
+                                            <div class="text-sm text-gray-700 truncate"><?php echo htmlspecialchars($job['address'] ?? ''); ?></div>
                                             <div class="mt-1 text-sm text-gray-600 truncate"><?php echo $customer; ?> • <?php echo $customerPhone; ?></div>
                                             <div class="mt-2 text-sm text-gray-500"><?php echo $startDate; ?></div>
                                             <div class="mt-2 text-sm text-gray-600 break-words"><strong>Catatan:</strong> <?php echo $notes; ?></div>

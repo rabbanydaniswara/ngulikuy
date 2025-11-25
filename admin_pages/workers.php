@@ -20,19 +20,19 @@ if (!defined('IS_ADMIN_PAGE')) {
     <div class="w-full">
         <!-- TABLE: tampil di md ke atas (fixed layout supaya tidak melebar) -->
         <div class="hidden md:block overflow-x-auto">
-            <table class="w-full table-fixed divide-y divide-gray-200">
+            <table class="w-full divide-y divide-gray-200">
 
                 <thead>
                     <tr>
                         <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-40">Worker</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-40">Contact</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-40">Skills</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-28">Location</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-20">Status</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-28">Rating</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-24">Rate</th>
-                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase w-20">Actions</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Skills</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rate</th>
+                        <th class="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                 </thead>
 
