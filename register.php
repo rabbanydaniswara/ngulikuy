@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php if ($success_message): ?>
                     <div class="mb-4 p-3 bg-green-100 text-green-700 rounded-lg">
                         <?php echo htmlspecialchars($success_message); ?>
-                        Silakan <a href="index.php" class="font-bold text-green-700 hover:underline">login di sini</a>.
+                        Silakan <a href="login.php" class="font-bold text-green-700 hover:underline">login di sini</a>.
                     </div>
                 <?php else: ?>
                 
@@ -210,7 +210,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <?php endif; ?>
                 
                 <div class="mt-6 text-center">
-                    <p class="text-sm text-gray-600">Sudah punya akun? <a href="index.php" class="text-blue-600 font-medium hover:underline">Login di sini</a></p>
+                    <p class="text-sm text-gray-600">Sudah punya akun? <a href="login.php" class="text-blue-600 font-medium hover:underline">Login di sini</a></p>
                 </div>
             </div>
         </div>

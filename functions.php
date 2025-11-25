@@ -39,35 +39,35 @@ function isWorker(): bool {
 
 function redirectIfNotLoggedIn(): void {
     if (!isLoggedIn()) {
-        header('Location: index.php');
+        header('Location: login.php');
         exit();
     }
 }
 
 function redirectIfNotAdmin(): void {
     if (!isAdmin()) {
-        header('Location: index.php');
+        header('Location: login.php');
         exit();
     }
 }
 
 function redirectIfNotCustomer(): void {
     if (!isCustomer()) {
-        header('Location: index.php');
+        header('Location: login.php');
         exit();
     }
 }
 
 function redirectIfNotWorker(): void {
     if (!isWorker()) {
-        header('Location: index.php');
+        header('Location: login.php');
         exit();
     }
 }
 
 function logout(): void {
     session_destroy();
-    header('Location: index.php');
+    header('Location: login.php');
     exit();
 }
 

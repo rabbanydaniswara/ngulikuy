@@ -84,7 +84,7 @@ if (!$jobId) {
                         <div class="flex items-center space-x-2">
                             <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="User" class="w-8 h-8 rounded-full">
                             <span class="text-sm font-medium"><?php echo $_SESSION['user_name']; ?></span>
-                            <a href="index.php?logout=1" class="text-gray-500 hover:text-blue-600">
+                            <a href="login.php?logout=1" class="text-gray-500 hover:text-blue-600">
                                 <i data-feather="log-out" class="w-4 h-4"></i>
                             </a>
                         </div>

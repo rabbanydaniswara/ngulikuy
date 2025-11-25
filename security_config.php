@@ -413,7 +413,7 @@ class SecureSession {
             // Session hijacking detected
             SecurityLogger::logSecurityEvent('Session hijacking attempt detected');
             self::destroy();
-            header('Location: index.php?error=session_invalid');
+            header('Location: login.php?error=session_invalid');
             exit;
         }
         
@@ -425,7 +425,7 @@ class SecureSession {
         } elseif ($_SESSION['ip_address'] !== ($_SERVER['REMOTE_ADDR'] ?? '')) {
             SecurityLogger::logSecurityEvent('IP address mismatch detected');
             self::destroy();
-            header('Location: index.php?error=session_invalid');
+            header('Location: login.php?error=session_invalid');
             exit;
         }
         */

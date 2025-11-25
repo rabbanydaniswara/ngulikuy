@@ -110,7 +110,7 @@ if ($active_tab === 'reviews') {
             <a href="?tab=add_job" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'add_job' ? 'active-tab' : ''; ?>"><i data-feather="plus-circle" class="mr-3"></i>Tambah Pekerjaan</a>
         </div>
         <div class="absolute bottom-0 w-full p-4 border-t">
-            <a href="index.php?logout=1" class="flex items-center text-gray-700 hover:text-blue-600"><i data-feather="log-out" class="mr-2"></i>Logout</a></div>
+            <a href="login.php?logout=1" class="flex items-center text-gray-700 hover:text-blue-600"><i data-feather="log-out" class="mr-2"></i>Logout</a></div>
     </div>
 
     <div class="flex-1 ml-0 md:ml-64 transition-all duration-300 ease-in-out">

@@ -8,7 +8,7 @@ if (!isCustomer() && !isWorker()) {
 
 $job_id = $_GET['id'] ?? null;
 if (!$job_id) {
-    header("Location: index.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -34,7 +34,7 @@ $job = $stmt->fetch();
 
 if (!$job) {
     // Or show a 'not found' page
-    header("Location: index.php");
+    header("Location: login.php");
     exit;
 }
 
@@ -60,7 +60,7 @@ if ($final_status === 'dihapus') {
 }
 
 // Determine back link
-$back_link = 'index.php';
+$back_link = 'index.html';
 if (isCustomer()) {
     $back_link = 'customer_dashboard.php?tab=my_jobs';
 } elseif (isWorker()) {

@@ -127,7 +127,7 @@
                     <div class="ml-3 relative">
                         <div class="flex items-center space-x-3">
                             <span class="text-sm font-medium">Halo, <?php echo htmlspecialchars($worker_name); ?></span>
-                            <a href="index.php?logout=1" class="text-gray-500 hover:text-blue-600" title="Logout">
+                            <a href="login.php?logout=1" class="text-gray-500 hover:text-blue-600" title="Logout">
                                 <i data-feather="log-out" class="w-4 h-4"></i>
                             </a>
                         </div>

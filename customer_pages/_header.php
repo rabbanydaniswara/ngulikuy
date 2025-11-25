@@ -299,7 +299,7 @@
                     <div class="flex items-center space-x-2 pl-3 border-l">
                         <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="User" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ring-2 ring-blue-100">
                         <span class="text-sm font-semibold text-gray-700 hidden lg:inline"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></span>
-                        <a href="index.php?logout=1" class="p-2 rounded-lg hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors" title="Logout">
+                        <a href="login.php?logout=1" class="p-2 rounded-lg hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors" title="Logout"> title="Logout">
                             <i data-feather="log-out" class="w-5 h-5"></i>
                         </a>
                     </div>
@@ -316,7 +316,7 @@
                             <?php endif; ?>
                         </button>
                     </div>
-                    <a href="index.php?logout=1" class="p-2 rounded-lg hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors">
+                    <a href="login.php?logout=1" class="p-2 rounded-lg hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors" title="Logout">>
                         <i data-feather="log-out" class="w-5 h-5"></i>
                     </a>
                 </div>
