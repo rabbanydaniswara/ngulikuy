@@ -15,7 +15,15 @@ redirectIfNotCustomer();
 // Get customer info
 $customer_email = $_SESSION['user'];
 $customer_id = $_SESSION['user_id'] ?? null;
-$customer_address = $_SESSION['user_address'] ?? 'Alamat tidak tersedia';
+
+// Fetch up-to-date customer data from the database
+$customer_data = getCustomerDataById($customer_id);
+$customer_address = $customer_data['alamat'] ?? 'Alamat tidak tersedia';
+
+// Also update session with fresh data to avoid inconsistencies in other parts of the application
+$_SESSION['user_name'] = $customer_data['name'] ?? $_SESSION['user_name'];
+$_SESSION['user_phone'] = $customer_data['phone'] ?? $_SESSION['user_phone'];
+$_SESSION['user_address'] = $customer_data['alamat'] ?? 'Alamat tidak tersedia';
 
 
 // Initialize variables for messages

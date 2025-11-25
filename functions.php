@@ -108,6 +108,19 @@ function authenticate(string $username, string $password): bool {
     }
 }
 
+function getCustomerDataById(int $customer_id): ?array {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("SELECT id, username, name, phone, alamat FROM users WHERE id = ?");
+        $stmt->execute([$customer_id]);
+        $customerData = $stmt->fetch();
+        return $customerData ?: null;
+    } catch (PDOException $e) {
+        error_log("Error fetching customer data by ID ($customer_id): " . $e->getMessage());
+        return null;
+    }
+}
+
 // ==========================================
 // 2. CSRF SECURITY
 // ==========================================
