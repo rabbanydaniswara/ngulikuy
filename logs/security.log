@@ -175,3 +175,12 @@ Context: {"job":"JOB008","rating":5}
 [2025-11-25 15:03:15] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
 [2025-11-25 15:03:50] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
 [2025-11-25 15:04:03] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 15:20:51] [WARNING] [IP: 127.0.0.1] [User: Guest] Failed login attempt: daniswara@gmail.com
+[2025-11-25 15:20:55] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 15:21:07] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-25 15:22:34] [INFO] [IP: 127.0.0.1] [User: admin] File uploaded: worker_4a4ac9a351695ad242681a13dd986132.jpg
+[2025-11-25 15:22:48] [INFO] [IP: 127.0.0.1] [User: edi@gmail.com] Successful login: edi@gmail.com
+[2025-11-25 15:23:01] [WARNING] [IP: 127.0.0.1] [User: Guest] Failed login attempt: daniswara@gmail.com
+[2025-11-25 15:23:04] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 15:30:30] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-25 15:30:47] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
