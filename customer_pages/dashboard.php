@@ -59,7 +59,7 @@
             <div class="p-3 sm:p-4 rounded-xl bg-gradient-to-br from-purple-100 to-purple-200 text-purple-600 mr-3 sm:mr-4">
                 <i data-feather="home" class="w-5 h-5 sm:w-6 sm:h-6"></i>
             </div>
-            <div>
+            <div class="w-full overflow-hidden">
                 <p class="text-xs sm:text-sm text-gray-500 font-medium">Alamat Anda</p>
                 <h3 class="text-base sm:text-lg font-bold text-gray-800 truncate"><?php echo htmlspecialchars($customer_address); ?></h3>
             </div>
