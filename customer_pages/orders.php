@@ -43,7 +43,7 @@
             <i data-feather="clipboard" class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400"></i>
         </div>
         <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">Belum ada pesanan</h3>
-        <p class="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">Mulai pesan tukang untuk pekerjaan Anda</p>
+        <p class="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">Mulai pesan pekerja untuk pekerjaan Anda</p>
         <a href="?tab=search" class="inline-flex items-center px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-indigo-700 font-semibold shadow-md hover:shadow-lg transition-all text-sm sm:text-base">
             <i data-feather="plus" class="w-4 h-4 sm:w-5 sm:h-5 mr-2"></i>
             Buat Pesanan
@@ -79,7 +79,7 @@
                             <div class="flex items-start">
                                 <i data-feather="user" class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 mr-2 sm:mr-3 mt-0.5 flex-shrink-0"></i>
                                 <div>
-                                    <p class="text-xs text-gray-500 font-medium">Tukang</p>
+                                    <p class="text-xs text-gray-500 font-medium">Pekerja</p>
                                     <p class="text-sm font-semibold text-gray-800"><?php echo htmlspecialchars($order['workerName']); ?></p>
                                 </div>
                             </div>

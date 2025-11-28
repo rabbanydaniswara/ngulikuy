@@ -7,7 +7,7 @@ if (!defined('IS_ADMIN_PAGE')) {
 
 <div class="bg-white rounded-lg shadow p-6 mb-8">
     <div class="flex justify-between items-center mb-6">
-        <h3 class="text-lg font-semibold">Ulasan Pelanggan</h3>
+        <h3 class="text-lg font-semibold">Ulasan Pekerja</h3>
     </div>
 
     <div class="w-full">

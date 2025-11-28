@@ -76,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NguliKuy - Registrasi</title>
+    <title>Ngulikuy - Registrasi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
@@ -117,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                 </div>
                 <h1 class="text-2xl font-bold text-white">Buat Akun Baru</h1>
-                <p class="text-blue-100 mt-1">NguliKuy</p>
+                <p class="text-blue-100 mt-1">Ngulikuy</p>
             </div>
 
             <div class="p-8">

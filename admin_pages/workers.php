@@ -7,12 +7,12 @@ if (!defined('IS_ADMIN_PAGE')) {
 
 <div class="bg-white rounded-lg shadow p-6 mb-8">
     <div class="flex justify-between items-center mb-6">
-        <h3 class="text-lg font-semibold">Data Kuli</h3>
+        <h3 class="text-lg font-semibold">Data Pekerja</h3>
         <div class="flex space-x-4">
             <a href="?tab=add_worker"
                class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                 <i data-feather="user-plus" class="w-4 h-4 mr-2"></i>
-                Tambah Kuli
+                Tambah Pekerja
             </a>
         </div>
     </div>
@@ -39,7 +39,7 @@ if (!defined('IS_ADMIN_PAGE')) {
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php if (empty($workers)): ?>
                         <tr>
-                            <td colspan="9" class="px-3 py-4 text-center text-gray-500">Belum ada data kuli.</td>
+                            <td colspan="9" class="px-3 py-4 text-center text-gray-500">Belum ada data pekerja.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($workers as $worker): ?>
@@ -57,7 +57,9 @@ if (!defined('IS_ADMIN_PAGE')) {
                                              class="w-8 h-8 rounded-full object-cover flex-shrink-0">
 
                                         <div class="min-w-0">
-                                            <div class="text-sm font-medium truncate max-w-[120px]" title="<?php echo htmlspecialchars($worker['name']); ?>">
+                                            <div class="text-sm font-medium truncate max-w-[120px] view-worker-btn cursor-pointer hover:underline" 
+                                                 title="<?php echo htmlspecialchars($worker['name']); ?>"
+                                                 data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>">
                                                 <?php echo htmlspecialchars($worker['name']); ?>
                                             </div>
                                             <div class="text-xs text-gray-500 truncate max-w-[120px]" title="<?php echo htmlspecialchars($worker['experience'] ?? 'No experience'); ?>">
@@ -128,7 +130,7 @@ if (!defined('IS_ADMIN_PAGE')) {
                                             class="delete-worker-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition duration-200"
                                             data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"
                                             data-worker-name="<?php echo htmlspecialchars($worker['name']); ?>"
-                                            title="Delete Worker">
+                                            title="Hapus Pekerja">
                                             <i data-feather="trash-2" class="w-4 h-4"></i>
                                         </button>
                                     </div>
@@ -144,7 +146,7 @@ if (!defined('IS_ADMIN_PAGE')) {
         <!-- MOBILE: card list (md:hidden) -->
         <div class="md:hidden space-y-4">
             <?php if (empty($workers)): ?>
-                <div class="px-6 py-4 text-center text-gray-500">Belum ada data kuli.</div>
+                <div class="px-6 py-4 text-center text-gray-500">Belum ada data pekerja.</div>
             <?php else: ?>
                 <?php foreach ($workers as $worker): ?>
                     <?php $statusClass = getStatusClass($worker['status'], 'worker'); ?>
@@ -157,7 +159,11 @@ if (!defined('IS_ADMIN_PAGE')) {
                             <div class="flex-1 min-w-0">
                                 <div class="flex justify-between items-start">
                                     <div>
-                                        <div class="font-medium text-sm truncate" title="<?php echo htmlspecialchars($worker['name']); ?>"><?php echo htmlspecialchars($worker['name']); ?></div>
+                                        <div class="font-medium text-sm truncate view-worker-btn cursor-pointer hover:underline" 
+                                             title="<?php echo htmlspecialchars($worker['name']); ?>"
+                                             data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>">
+                                            <?php echo htmlspecialchars($worker['name']); ?>
+                                        </div>
                                         <div class="text-xs text-gray-500 truncate" title="<?php echo htmlspecialchars($worker['experience'] ?? 'No experience'); ?>"><?php echo htmlspecialchars($worker['experience'] ?? 'No experience'); ?></div>
                                     </div>
 
@@ -175,7 +181,7 @@ if (!defined('IS_ADMIN_PAGE')) {
                                     <?php foreach ($worker['skills'] as $skill): ?>
                                         <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded" title="<?php echo htmlspecialchars($skill); ?>"><?php echo htmlspecialchars($skill); ?></span>
                                     <?php endforeach; ?>
-                                </div>
+                                 </div>
 
                                 <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
                                     <div class="truncate max-w-xs" title="<?php echo htmlspecialchars($worker['location']); ?>"><?php echo htmlspecialchars($worker['location']); ?></div>
@@ -199,10 +205,10 @@ if (!defined('IS_ADMIN_PAGE')) {
                                         class="delete-worker-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition duration-200"
                                         data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"
                                         data-worker-name="<?php echo htmlspecialchars($worker['name']); ?>"
-                                        title="Delete Worker">
-                                        <i data-feather="trash-2" class="w-4 h-4"></i>
+                                        title="Hapus Pekerja">
+                                        <i data-feather="trash-2" class="w-5 h-5"></i>
                                     </button>
-                                </div>
+                                 </div>
                             </div>
                         </div>
                     </div>

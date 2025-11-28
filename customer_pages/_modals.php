@@ -34,13 +34,12 @@
                     </label>
                     <select name="job_type" required class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-sm sm:text-base">
                         <option value="">Pilih Jenis Pekerjaan</option>
-                        <option value="Construction">Construction</option>
-                        <option value="Moving">Moving</option>
-                        <option value="Cleaning">Cleaning</option>
-                        <option value="Gardening">Gardening</option>
-                        <option value="Plumbing">Plumbing</option>
-                        <option value="Electrical">Electrical</option>
-                        <option value="Painting">Painting</option>
+                        <?php 
+                            $skills = get_construction_skills();
+                            foreach ($skills as $skill_option) {
+                                echo "<option value=\"{$skill_option}\">{$skill_option}</option>";
+                            }
+                        ?>
                     </select>
                 </div>
                 

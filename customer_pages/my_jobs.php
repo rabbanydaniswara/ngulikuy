@@ -10,7 +10,7 @@
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
         <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center">
             <i data-feather="briefcase" class="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-blue-600"></i>
-            Pekerjaan yang Saya Posting
+            Pekerja yang Saya Posting
         </h2>
         <a href="?tab=post_job" class="mt-3 sm:mt-0 inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 font-semibold shadow-md hover:shadow-lg transition-all text-sm">
             <i data-feather="plus" class="w-4 h-4 mr-2"></i>
@@ -51,11 +51,11 @@
             <div class="inline-block p-4 sm:p-6 bg-gray-100 rounded-full mb-3 sm:mb-4">
                 <i data-feather="briefcase" class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400"></i>
             </div>
-            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">Anda belum memposting pekerjaan</h3>
-            <p class="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">Posting pekerjaan baru dan dapatkan penawaran dari para tukang.</p>
+            <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">Anda belum memposting pekerja</h3>
+            <p class="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">Posting pekerjaan baru dan dapatkan penawaran dari para pekerja.</p>
             <a href="?tab=post_job" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-semibold shadow-md hover:shadow-lg transition-all text-base">
                 <i data-feather="plus" class="w-5 h-5 mr-2"></i>
-                Posting Pekerjaan Pertama Anda
+                Posting Pekerja Pertama Anda
             </a>
         </div>
     <?php else: ?>

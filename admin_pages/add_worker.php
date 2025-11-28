@@ -6,7 +6,7 @@ if (!defined('IS_ADMIN_PAGE')) {
 ?>
 
 <div class="bg-white rounded-lg shadow p-6">
-    <h3 class="text-lg font-semibold mb-6">Tambah Kuli Baru</h3>
+    <h3 class="text-lg font-semibold mb-6">Tambah Pekerja Baru</h3>
 
     <form method="POST" enctype="multipart/form-data">
         <input type="hidden" name="add_worker" value="1">
@@ -55,13 +55,12 @@ if (!defined('IS_ADMIN_PAGE')) {
                 <select multiple name="skills[]"
                     class="w-full px-4 py-2 rounded-lg border border-gray-300
                     focus:outline-none focus:ring-2 focus:ring-blue-500 h-24">
-                    <option value="Construction">Construction</option>
-                    <option value="Moving">Moving</option>
-                    <option value="Cleaning">Cleaning</option>
-                    <option value="Gardening">Gardening</option>
-                    <option value="Plumbing">Plumbing</option>
-                    <option value="Electrical">Electrical</option>
-                    <option value="Painting">Painting</option>
+                    <?php 
+                        $skills = get_construction_skills();
+                        foreach ($skills as $skill_option) {
+                            echo "<option value=\"{$skill_option}\">{$skill_option}</option>";
+                        }
+                    ?>
                 </select>
                 <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd untuk memilih beberapa skill</p>
             </div>
@@ -169,7 +168,7 @@ if (!defined('IS_ADMIN_PAGE')) {
             </a>
             <button type="submit" id="saveWorkerBtn"
                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
-                <i data-feather="save" class="w-4 h-4 mr-2"></i> Simpan Kuli
+                <i data-feather="save" class="w-4 h-4 mr-2"></i> Simpan Pekerja
             </button>
         </div>
     </form>

@@ -7,7 +7,7 @@ if (!defined('IS_ADMIN_PAGE')) {
 
 <div class="bg-white rounded-lg shadow p-6 mb-8">
     <div class="flex justify-between items-center mb-6">
-        <h3 class="text-lg font-semibold">Status Pengerjaan</h3>
+        <h3 class="text-lg font-semibold">Status Pekerja</h3>
         <div class="flex space-x-4">
             <a href="?tab=add_job"
                class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
@@ -41,7 +41,7 @@ if (!defined('IS_ADMIN_PAGE')) {
                 <tbody class="bg-white divide-y divide-gray-200">
                     <?php if (empty($jobs)): ?>
                         <tr>
-                            <td colspan="10" class="px-3 py-4 text-center text-gray-500">Belum ada data pekerjaan.</td>
+                            <td colspan="10" class="px-3 py-4 text-center text-gray-500">Belum ada data pekerja.</td>
                         </tr>
                     <?php else: ?>
                         <?php foreach ($jobs as $job): ?>
@@ -126,12 +126,11 @@ if (!defined('IS_ADMIN_PAGE')) {
                                     <div class="flex justify-end items-center space-x-2">
                                         <button
                                             type="button"
-                                            class="delete-job-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition duration-200"
+                                            class="delete-worker-from-job-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition duration-200"
                                             data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>"
-                                            data-job-type="<?php echo htmlspecialchars($job['jobType']); ?>"
-                                            data-job-customer="<?php echo htmlspecialchars($job['customer']); ?>"
-                                            title="Delete Job">
-                                            <i data-feather="trash-2" class="w-4 h-4"></i>
+                                            data-worker-name="<?php echo htmlspecialchars($job['workerName']); ?>"
+                                            title="Delete Worker from Job">
+                                            <i data-feather="user-x" class="w-4 h-4"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -146,7 +145,7 @@ if (!defined('IS_ADMIN_PAGE')) {
         <!-- NOTE: Wallet-friendly mobile layout: info first, then bottom bar with price / status / actions -->
         <div class="md:hidden space-y-4">
             <?php if (empty($jobs)): ?>
-                <div class="px-4 py-4 text-center text-gray-500">Belum ada data pekerjaan.</div>
+                <div class="px-4 py-4 text-center text-gray-500">Belum ada data pekerja.</div>
             <?php else: ?>
                 <?php foreach ($jobs as $job): ?>
                     <?php $statusClass = getStatusClass($job['status'], 'job'); ?>
@@ -206,12 +205,11 @@ if (!defined('IS_ADMIN_PAGE')) {
                             <div class="flex justify-end items-center">
                                 <button
                                     type="button"
-                                    class="delete-job-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition duration-200"
+                                    class="delete-worker-from-job-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition duration-200"
                                     data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>"
-                                    data-job-type="<?php echo htmlspecialchars($job['jobType']); ?>"
-                                    data-job-customer="<?php echo htmlspecialchars($job['customer']); ?>"
-                                    title="Delete Job">
-                                    <i data-feather="trash-2" class="w-5 h-5"></i>
+                                    data-worker-name="<?php echo htmlspecialchars($job['workerName']); ?>"
+                                    title="Delete Worker from Job">
+                                    <i data-feather="user-x" class="w-5 h-5"></i>
                                 </button>
                             </div>
                         </div>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NguliKuy - Platform booking tukang harian terpercaya">
     <meta name="theme-color" content="#3b82f6">
-    <title><?php echo $active_tab === 'home' ? 'Dashboard' : ucfirst($active_tab); ?> - NguliKuy</title>
+    <title><?php echo $active_tab === 'home' ? 'Dashboard' : ucfirst($active_tab); ?> - Ngulikuy</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
@@ -258,7 +258,7 @@
                         <div class="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
                             <i data-feather="tool" class="text-blue-600 w-5 h-5 sm:w-6 sm:h-6"></i>
                         </div>
-                        <span class="ml-2 sm:ml-3 font-bold text-lg sm:text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">NguliKuy</span>
+                        <span class="ml-2 sm:ml-3 font-bold text-lg sm:text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Ngulikuy</span>
                     </a>
                     
                     <div class="hidden md:ml-8 md:flex md:space-x-4">
@@ -268,7 +268,7 @@
                         </a>
                         <a href="?tab=search" class="<?php echo $active_tab === 'search' ? 'nav-active' : 'text-gray-600 hover:text-gray-900'; ?> inline-flex items-center px-3 pt-1 pb-1 text-sm font-medium transition-colors">
                             <i data-feather="search" class="w-4 h-4 mr-2"></i>
-                            Cari Tukang
+                            Cari Pekerja
                         </a>
                         <a href="?tab=orders" class="<?php echo $active_tab === 'orders' ? 'nav-active' : 'text-gray-600 hover:text-gray-900'; ?> inline-flex items-center px-3 pt-1 pb-1 text-sm font-medium transition-colors">
                             <i data-feather="clipboard" class="w-4 h-4 mr-2"></i>
@@ -276,11 +276,11 @@
                         </a>
                         <a href="?tab=my_jobs" class="<?php echo $active_tab === 'my_jobs' ? 'nav-active' : 'text-gray-600 hover:text-gray-900'; ?> inline-flex items-center px-3 pt-1 pb-1 text-sm font-medium transition-colors">
                             <i data-feather="briefcase" class="w-4 h-4 mr-2"></i>
-                            Pekerjaan Saya
+                            Pekerja Saya
                         </a>
                         <a href="?tab=post_job" class="<?php echo $active_tab === 'post_job' ? 'nav-active' : 'text-gray-600 hover:text-gray-900'; ?> inline-flex items-center px-3 pt-1 pb-1 text-sm font-medium transition-colors">
                             <i data-feather="plus-circle" class="w-4 h-4 mr-2"></i>
-                            Buat Pekerjaan
+                            Buat Pekerja
                         </a>
                     </div>
                 </div>

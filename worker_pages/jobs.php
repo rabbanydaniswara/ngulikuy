@@ -6,6 +6,9 @@
 <div class="bg-white rounded-xl shadow overflow-hidden">
     <div class="border-b border-gray-200">
         <nav class="flex -mb-px overflow-x-auto">
+            <a href="?tab=find_jobs" class="flex-shrink-0 <?php echo $active_tab === 'find_jobs' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
+                Cari Pekerjaan
+            </a>
             <a href="?tab=pending" class="flex-shrink-0 <?php echo $active_tab === 'pending' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
                 Tawaran Baru (Pending)
             </a>
@@ -14,9 +17,6 @@
             </a>
             <a href="?tab=completed" class="flex-shrink-0 <?php echo $active_tab === 'completed' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
                 Riwayat (Selesai/Batal)
-            </a>
-            <a href="?tab=find_jobs" class="flex-shrink-0 <?php echo $active_tab === 'find_jobs' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
-                Cari Pekerjaan
             </a>
         </nav>
     </div>

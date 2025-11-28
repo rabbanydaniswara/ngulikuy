@@ -213,6 +213,16 @@ class InputValidator {
         
         return $intValue;
     }
+
+    /**
+     * Validasi float
+     */
+    public static function validateFloat($value) {
+        if (!is_numeric($value)) {
+            return false;
+        }
+        return (float)$value;
+    }
 }
 
 // ============================================
@@ -365,7 +375,7 @@ class SecureFileUpload {
     }
     
     public static function generateSecureFilename($extension) {
-        return 'worker_' . bin2hex(random_bytes(16)) . '.' . $extension;
+        return 'pekerja_' . bin2hex(random_bytes(16)) . '.' . $extension;
     }
 }
 

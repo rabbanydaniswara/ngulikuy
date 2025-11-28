@@ -15,10 +15,10 @@ if (!defined('IS_ADMIN_PAGE')) {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <!-- Pilih Kuli -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Kuli</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Pekerja</label>
                 <select name="worker_id" class="w-full px-4 py-2 rounded-lg border border-gray-300 
                        focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    <option value="">Pilih Kuli</option>
+                    <option value="">Pilih Pekerja</option>
                     <?php foreach ($availableWorkers as $worker): ?>
                         <option value="<?php echo htmlspecialchars($worker['id']); ?>">
                             <?php echo htmlspecialchars(
@@ -37,13 +37,12 @@ if (!defined('IS_ADMIN_PAGE')) {
                 <select name="job_type" class="w-full px-4 py-2 rounded-lg border border-gray-300 
                        focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     <option value="">Pilih Jenis Pekerjaan</option>
-                    <option value="Construction">Construction</option>
-                    <option value="Moving">Moving</option>
-                    <option value="Cleaning">Cleaning</option>
-                    <option value="Gardening">Gardening</option>
-                    <option value="Plumbing">Plumbing</option>
-                    <option value="Electrical">Electrical</option>
-                    <option value="Painting">Painting</option>
+                    <?php 
+                        $skills = get_construction_skills();
+                        foreach ($skills as $skill_option) {
+                            echo "<option value=\"{$skill_option}\">{$skill_option}</option>";
+                        }
+                    ?>
                 </select>
             </div>
 
@@ -102,7 +101,7 @@ if (!defined('IS_ADMIN_PAGE')) {
 
             <!-- Deskripsi -->
             <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Pekerjaan</label>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Deskripsi Pekerja</label>
                 <textarea name="description" rows="3" class="w-full px-4 py-2 rounded-lg border border-gray-300 
                           focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
             </div>
@@ -127,7 +126,7 @@ if (!defined('IS_ADMIN_PAGE')) {
             <button type="submit" id="saveJobBtn" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
                 <span class="btn-text flex items-center">
                     <i data-feather="save" class="w-4 h-4 mr-2"></i>
-                    Simpan Pekerjaan
+                    Simpan Pekerja
                 </span>
                 <span class="btn-loading hidden flex items-center">
                     <i data-feather="loader" class="animate-spin mr-2"></i>

@@ -1,4 +1,5 @@
 <?php
+ob_start(); // Start output buffering
 // ajax_handler.php
 require_once 'functions.php'; // functions.php sudah include db.php dan session_start()
 
@@ -6,10 +7,11 @@ require_once 'functions.php'; // functions.php sudah include db.php dan session_
 // Kita pindahkan header('Content-Type: application/json'); ke dalam blok if/case
 // karena add/edit worker mungkin mengembalikan pesan error non-JSON saat upload gagal
 
-// Keamanan: Pastikan hanya admin yang login bisa akses
-if (!isAdmin() && !isWorker()) { // <-- UBAH INI
+// Keamanan: Pastikan hanya pengguna yang login yang bisa akses (admin, worker, atau customer)
+if (!isAdmin() && !isWorker() && !isCustomer()) { // <-- FIX: Izinkan customer
     header('Content-Type: application/json');
-    echo json_encode(['success' => false, 'message' => 'Akses ditolak. Hanya admin atau kuli.']);
+    ob_clean(); // Discard any buffered output before sending JSON
+    echo json_encode(['success' => false, 'message' => 'Akses ditolak. Anda harus login.']);
     exit;
 }
 
@@ -17,6 +19,7 @@ if (!isAdmin() && !isWorker()) { // <-- UBAH INI
 // Untuk AJAX, kita terima token dari $_POST karena kita akan pakai FormData
 if (!isset($_POST['csrf_token']) || !validateCsrfToken($_POST['csrf_token'])) {
     header('Content-Type: application/json'); // Set header JSON untuk pesan error
+    ob_clean(); // Discard any buffered output before sending JSON
     echo json_encode(['success' => false, 'message' => 'Permintaan tidak valid atau sesi kedaluwarsa.']);
     exit;
 }
@@ -31,6 +34,7 @@ $response = ['success' => false, 'message' => 'Aksi tidak dikenal atau data tida
 // Pastikan aksi ada
 if (!$action) {
     header('Content-Type: application/json');
+    ob_clean(); // Discard any buffered output before sending JSON
     echo json_encode($response);
     exit;
 }
@@ -42,6 +46,7 @@ if ($action === 'update_job_status') {
     // Logika ini sekarang perlu membaca dari $_POST, bukan $input JSON
     if (!isAdmin()) {
         $response['message'] = 'Aksi ini hanya untuk admin.';
+        ob_clean(); // Discard any buffered output before sending JSON
         echo json_encode($response);
         exit;
     }
@@ -82,6 +87,7 @@ if ($action === 'update_job_status') {
     // Validasi dasar (bisa ditambahkan lebih detail)
     if (empty($workerData['name']) || empty($workerData['email']) || empty($workerData['phone'])) {
          $response['message'] = 'Nama, Email, dan Telepon wajib diisi.';
+         ob_clean(); // Discard any buffered output before sending JSON
          echo json_encode($response);
          exit;
     }
@@ -96,6 +102,7 @@ if ($action === 'update_job_status') {
         } else {
             // Jika upload gagal, kirim pesan error spesifik
             $response['message'] = 'Gagal upload foto: ' . $uploadResult['error'];
+            ob_clean(); // Discard any buffered output before sending JSON
             echo json_encode($response);
             exit; // Hentikan proses
         }
@@ -120,6 +127,7 @@ if ($action === 'update_job_status') {
 
     if (!$workerId) {
         $response['message'] = 'Worker ID tidak valid.';
+        ob_clean(); // Discard any buffered output before sending JSON
         echo json_encode($response);
         exit;
     }
@@ -141,6 +149,7 @@ if ($action === 'update_job_status') {
     // Validasi dasar
     if (empty($updatedData['name']) || empty($updatedData['email']) || empty($updatedData['phone'])) {
          $response['message'] = 'Nama, Email, dan Telepon wajib diisi.';
+         ob_clean(); // Discard any buffered output before sending JSON
          echo json_encode($response);
          exit;
     }
@@ -157,6 +166,7 @@ if ($action === 'update_job_status') {
             // }
         } else {
             $response['message'] = 'Gagal upload foto baru: ' . $uploadResult['error'];
+            ob_clean(); // Discard any buffered output before sending JSON
             echo json_encode($response);
             exit;
         }
@@ -175,6 +185,65 @@ if ($action === 'update_job_status') {
         // $response['updated_worker'] = getWorkerById($workerId);
     } else {
         $response['message'] = 'Gagal mengupdate data worker di database!';
+    }
+} elseif ($action === 'save_worker_profile') {
+    if (!isWorker()) {
+        $response['message'] = 'Aksi ini hanya untuk pekerja.';
+        ob_clean(); // Discard any buffered output before sending JSON
+        echo json_encode($response);
+        exit;
+    }
+
+    $workerId = $_SESSION['worker_profile_id'];
+    $updatedData = [
+        'name' => InputValidator::sanitizeString($_POST['name'] ?? ''),
+        'email' => InputValidator::sanitizeString($_POST['email'] ?? ''),
+        'phone' => InputValidator::sanitizeString($_POST['phone'] ?? ''),
+        'location' => InputValidator::sanitizeString($_POST['location'] ?? ''),
+        'skills' => $_POST['skills'] ?? [],
+        'description' => InputValidator::sanitizeString($_POST['description'] ?? ''),
+    ];
+
+    // Handle file upload
+    if (isset($_FILES['photo']) && $_FILES['photo']['error'] === UPLOAD_ERR_OK) {
+        $uploadResult = handlePhotoUpload($_FILES['photo']);
+        if ($uploadResult['success']) {
+            $updatedData['photo'] = $uploadResult['file_path'];
+        } else {
+            $response['message'] = 'Gagal upload foto: ' . $uploadResult['error'];
+            echo json_encode($response);
+            exit;
+        }
+    } elseif (!empty($_POST['photo_url'])) {
+        $updatedData['photo'] = filter_var($_POST['photo_url'], FILTER_VALIDATE_URL) ?: null;
+    }
+
+    if (updateWorker($workerId, $updatedData)) {
+        // also update password if provided
+        if (!empty($_POST['new_password'])) {
+            $current_password = $_POST['current_password'];
+            $new_password = $_POST['new_password'];
+
+            $user_stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
+            $user_stmt->execute([$_SESSION['user_id']]);
+            $user = $user_stmt->fetch();
+
+            if ($user && password_verify($current_password, $user['password'])) {
+                $hashedPassword = password_hash($new_password, PASSWORD_DEFAULT);
+                $update_pass_stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $update_pass_stmt->execute([$hashedPassword, $_SESSION['user_id']]);
+                $response['success'] = true;
+                $response['message'] = 'Profil dan password berhasil diperbarui!';
+            } else {
+                $response['success'] = false;
+                $response['message'] = 'Password saat ini salah.';
+            }
+        } else {
+            $response['success'] = true;
+            $response['message'] = 'Profil berhasil diperbarui!';
+        }
+    } else {
+        $response['message'] = 'Gagal memperbarui profil.';
     }
 } elseif ($action === 'add_job') {
     // Logika ini diambil dari admin_dashboard.php
@@ -213,13 +282,13 @@ if ($action === 'update_job_status') {
         $response['message'] = 'Gagal menghapus worker!';
     }
 
-} elseif ($action === 'delete_job') {
+} elseif ($action === 'delete_worker_from_job') {
     $jobId = $_POST['job_id_to_delete'] ?? null;
-    if ($jobId && deleteJob((string)$jobId)) {
+    if ($jobId && deleteWorkerFromJob((string)$jobId)) {
         $response['success'] = true;
-        $response['message'] = 'Job berhasil dihapus!';
+        $response['message'] = 'Pekerja berhasil dihapus dari pekerjaan!';
     } else {
-        $response['message'] = 'Gagal menghapus job!';
+        $response['message'] = 'Gagal menghapus pekerja dari pekerjaan!';
     }
 
 } elseif ($action === 'delete_review') {
@@ -233,6 +302,7 @@ if ($action === 'update_job_status') {
 } elseif ($action === 'customer_delete_posted_job') {
     if (!isCustomer()) {
         $response['message'] = 'Aksi ini hanya untuk customer.';
+        ob_clean(); // Discard any buffered output before sending JSON
         echo json_encode($response);
         exit;
     }
@@ -242,6 +312,7 @@ if ($action === 'update_job_status') {
 
     if (!$jobId || !$customerId) {
         $response['message'] = 'Data tidak valid untuk menghapus pekerjaan.';
+        ob_clean(); // Discard any buffered output before sending JSON
         echo json_encode($response);
         exit;
     }
@@ -255,7 +326,7 @@ if ($action === 'update_job_status') {
             $response['success'] = true;
             $response['message'] = 'Pekerjaan yang diposting berhasil dihapus.';
         } else {
-            $response['message'] = 'Gagal menghapus pekerjaan. Mungkin sudah diambil oleh kuli atau tidak ditemukan.';
+            $response['message'] = 'Gagal menghapus pekerjaan. Mungkin sudah diambil oleh pekerja atau tidak ditemukan.';
         }
     } catch (PDOException $e) {
         SecurityLogger::logError('Error deleting posted job: ' . $e->getMessage());
@@ -266,7 +337,8 @@ if ($action === 'update_job_status') {
     
     // Pastikan hanya kuli yang bisa melakukan ini
     if (!isWorker()) {
-        $response['message'] = 'Aksi ini hanya untuk kuli.';
+        $response['message'] = 'Aksi ini hanya untuk pekerja.';
+        ob_clean(); // Discard any buffered output before sending JSON
         echo json_encode($response);
         exit;
     }
@@ -276,6 +348,7 @@ if ($action === 'update_job_status') {
 
     if (!$jobId) {
         $response['message'] = 'Job ID tidak ada.';
+        ob_clean(); // Discard any buffered output before sending JSON
         echo json_encode($response);
         exit;
     }
@@ -284,6 +357,7 @@ if ($action === 'update_job_status') {
     $jobDetails = getJobById($jobId);
     if ($jobDetails['workerId'] !== $workerProfileId) {
         $response['message'] = 'Anda tidak berhak mengubah job ini.';
+        ob_clean(); // Discard any buffered output before sending JSON
         echo json_encode($response);
         exit;
     }
@@ -307,7 +381,8 @@ if ($action === 'update_job_status') {
     }
 } elseif ($action === 'worker_take_posted_job') {
     if (!isWorker()) {
-        $response['message'] = 'Aksi ini hanya untuk kuli.';
+        $response['message'] = 'Aksi ini hanya untuk pekerja.';
+        ob_clean(); // Discard any buffered output before sending JSON
         echo json_encode($response);
         exit;
     }
@@ -317,6 +392,7 @@ if ($action === 'update_job_status') {
 
     if (!$jobId) {
         $response['message'] = 'Job ID tidak valid.';
+        ob_clean(); // Discard any buffered output before sending JSON
         echo json_encode($response);
         exit;
     }
@@ -366,7 +442,7 @@ if ($action === 'update_job_status') {
                     'status' => 'in-progress' // Directly move to in-progress as requested
                 ];
 
-                if (addJob($jobData)) {
+                if (addWorkerToJob($jobData)) {
                     DatabaseHelper::commit();
                     $response['success'] = true;
                     $response['message'] = 'Pekerjaan berhasil diambil dan telah dipindahkan ke tab "Sedang Berjalan".';
@@ -391,5 +467,6 @@ if ($action === 'update_job_status') {
 }
 
 // Kirim response JSON final
+ob_clean(); // Discard any buffered output
 echo json_encode($response);
 exit;

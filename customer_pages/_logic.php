@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $days = $end->diff($start)->days + 1;
                     $jobData['price'] = $days > 0 ? $worker['rate'] * $days : 0;
                     
-                    if (addJob($jobData)) {
+                    if (addWorkerToJob($jobData)) {
                         SecurityLogger::log('INFO', 'Job created', ['customer' => $customer_email, 'worker' => $worker_id]);
                         
                         // REDIRECT to prevent duplicate submissions on refresh
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $comment = InputValidator::sanitizeString($_POST['comment'] ?? '');
             
             if (empty($workerId)) {
-                $error_message = 'Gagal mengirim ulasan: ID Kuli tidak ditemukan.';
+                $error_message = 'Gagal mengirim ulasan: ID Pekerja tidak ditemukan.';
             } elseif (!$rating) {
                 $error_message = 'Rating harus dipilih (1-5 bintang).';
             } else {
@@ -179,8 +179,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
 
                 } catch (PDOException $e) {
-                    SecurityLogger::logError('Job posting error: ' . $e->getMessage());
-                    $error_message = 'Gagal memposting pekerjaan. Silakan coba lagi.';
+                    // Log the detailed technical error for debugging
+                    SecurityLogger::logError('Database error while posting job: ' . $e->getMessage());
+
+                    // Provide a more specific, user-friendly error message
+                    if (str_contains($e->getMessage(), 'out of range')) {
+                        $error_message = 'Gagal memposting pekerjaan: Nilai anggaran terlalu besar. Harap periksa kembali nominal yang Anda masukkan.';
+                    } else {
+                        $error_message = 'Gagal memposting pekerjaan karena ada masalah teknis pada database. Silakan coba lagi nanti.';
+                    }
                 }
             }
         }
@@ -257,3 +264,33 @@ $pendingOrderCount = count(array_filter(
     getCustomerOrders($customer_email), 
     function($o) { return $o['status'] === 'pending'; }
 ));
+
+// --- Gabungkan semua data worker untuk modal ---
+$allWorkersForModal = [];
+$worker_data_sources = [$workers, $topWorkers];
+
+// Ambil data worker dari pesanan
+if (!empty($customerOrders)) {
+    $orderWorkerIds = array_filter(array_column($customerOrders, 'workerId'));
+    if(!empty($orderWorkerIds)) {
+        $placeholders = implode(',', array_fill(0, count($orderWorkerIds), '?'));
+        $stmt = $pdo->prepare("SELECT * FROM workers WHERE id IN ($placeholders)");
+        $stmt->execute($orderWorkerIds);
+        $orderWorkers = $stmt->fetchAll();
+        $worker_data_sources[] = $orderWorkers;
+    }
+}
+
+foreach ($worker_data_sources as $source) {
+    if (!empty($source)) {
+        foreach ($source as $worker) {
+            if (!isset($allWorkersForModal[$worker['id']])) {
+                 if (isset($worker['skills']) && !is_array($worker['skills'])) {
+                    $worker['skills'] = json_decode($worker['skills'], true) ?: [];
+                }
+                $allWorkersForModal[$worker['id']] = $worker;
+            }
+        }
+    }
+}
+

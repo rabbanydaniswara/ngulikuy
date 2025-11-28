@@ -6,7 +6,7 @@
 <div class="mb-6">
     <h2 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-800 flex items-center">
         <i data-feather="search" class="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-blue-600"></i>
-        Cari Tukang
+        Cari Pekerja
     </h2>
     
     <form method="GET" class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6">
@@ -19,13 +19,13 @@
                 </label>
                 <select name="skill" class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-sm sm:text-base">
                     <option value="">Semua Keahlian</option>
-                    <option value="Construction" <?php echo ($searchFilters['skill'] ?? '') === 'Construction' ? 'selected' : ''; ?>>Construction</option>
-                    <option value="Moving" <?php echo ($searchFilters['skill'] ?? '') === 'Moving' ? 'selected' : ''; ?>>Moving</option>
-                    <option value="Cleaning" <?php echo ($searchFilters['skill'] ?? '') === 'Cleaning' ? 'selected' : ''; ?>>Cleaning</option>
-                    <option value="Gardening" <?php echo ($searchFilters['skill'] ?? '') === 'Gardening' ? 'selected' : ''; ?>>Gardening</option>
-                    <option value="Plumbing" <?php echo ($searchFilters['skill'] ?? '') === 'Plumbing' ? 'selected' : ''; ?>>Plumbing</option>
-                    <option value="Electrical" <?php echo ($searchFilters['skill'] ?? '') === 'Electrical' ? 'selected' : ''; ?>>Electrical</option>
-                    <option value="Painting" <?php echo ($searchFilters['skill'] ?? '') === 'Painting' ? 'selected' : ''; ?>>Painting</option>
+                    <?php 
+                        $skills = get_construction_skills();
+                        foreach ($skills as $skill_option) {
+                            $selected = (($searchFilters['skill'] ?? '') === $skill_option) ? 'selected' : '';
+                            echo "<option value=\"{$skill_option}\" {$selected}>{$skill_option}</option>";
+                        }
+                    ?>
                 </select>
             </div>
             <div>
@@ -52,8 +52,8 @@
         <div class="inline-block p-4 sm:p-6 bg-gray-100 rounded-full mb-3 sm:mb-4">
             <i data-feather="search" class="w-12 h-12 sm:w-16 sm:h-16 text-gray-400"></i>
         </div>
-        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">Tidak ada tukang ditemukan</h3>
-        <p class="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">Coba ubah filter pencarian Anda atau lihat semua tukang</p>
+        <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">Tidak ada pekerja ditemukan</h3>
+        <p class="text-sm sm:text-base text-gray-500 mb-4 sm:mb-6">Coba ubah filter pencarian Anda atau lihat semua pekerja</p>
         <a href="?tab=search" class="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold text-sm sm:text-base">
             Reset Filter
             <i data-feather="refresh-cw" class="w-3 h-3 sm:w-4 sm:h-4 ml-2"></i>
@@ -74,7 +74,7 @@
                     </div>
                 </div>
                 <div class="p-4 sm:p-6">
-                    <h3 class="font-bold text-lg sm:text-xl mb-2 text-gray-800"><?php echo htmlspecialchars($worker['name']); ?></h3>
+                    <h3 class="font-bold text-lg sm:text-xl mb-2 text-gray-800 view-worker-btn cursor-pointer hover:underline" data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"><?php echo htmlspecialchars($worker['name']); ?></h3>
                     <div class="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3">
                         <?php foreach (array_slice($worker['skills'], 0, 2) as $skill): ?>
                             <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 sm:px-3 py-1 rounded-full">

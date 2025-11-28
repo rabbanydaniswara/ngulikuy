@@ -123,9 +123,9 @@
                 iconClass = 'text-blue-600';
                 iconContainerClass = 'bg-blue-100';
             } else if (action === 'worker_take_posted_job') {
-                title = 'Ambil Pekerjaan Ini?';
+                title = 'Ambil Pekerja Ini?';
                 description = `Anda akan mengambil pekerjaan <strong>"${jobTitle}"</strong>. Customer akan diinformasikan. Lanjutkan?`;
-                confirmText = 'Ya, Ambil Pekerjaan';
+                confirmText = 'Ya, Ambil Pekerja';
                 confirmClass = 'bg-green-600 hover:bg-green-700';
                 iconName = 'plus-circle';
                 iconClass = 'text-green-600';

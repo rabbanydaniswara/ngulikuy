@@ -131,7 +131,7 @@ if (isset($_GET['logout'])) {
                     </div>
                 </div>
                 <h1 class="text-2xl font-bold text-white">NguliKuy</h1>
-                <p class="text-blue-100 mt-1">Digital Kuli Ordering Platform</p>
+                <p class="text-blue-100 mt-1">Digital Pekerja Ordering Platform</p>
             </div>
 
             <form method="POST" class="p-8">

@@ -191,6 +191,21 @@ function getDefaultWorkerPhoto(): string {
     return 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face';
 }
 
+function get_construction_skills(): array {
+    return [
+        'Tukang Bangunan',
+        'Tukang Keramik / Lantai',
+        'Tukang Cat / Finishing',
+        'Tukang Kayu',
+        'Tukang Listrik',
+        'Tukang Pipa / Plumbing',
+        'Tukang Atap / Baja Ringan',
+        'Tukang Las / Besi',
+        'Tukang Gypsum / Plafon',
+        'Kebersihan Pasca Renovasi'
+    ];
+}
+
 // ==========================================
 // 4. JOB MANAGEMENT FUNCTIONS
 // ==========================================
@@ -255,14 +270,18 @@ function getWorkerJobs(string $workerProfileId): array {
     return $stmt->fetchAll();
 }
 
-function getRecentJobs(int $limit = 5): array {
+function getRecentWorkers(int $limit = 5): array {
     global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM jobs ORDER BY createdAt DESC LIMIT ?");
+    $stmt = $pdo->prepare("SELECT * FROM workers ORDER BY joinDate DESC LIMIT ?");
     $stmt->execute([$limit]);
-    return $stmt->fetchAll();
+    $workers = $stmt->fetchAll();
+    foreach ($workers as &$worker) {
+        $worker['skills'] = json_decode((string)$worker['skills'], true) ?: [];
+    }
+    return $workers;
 }
 
-function addJob(array $jobData): bool {
+function addWorkerToJob(array $jobData): bool {
     global $pdo;
     
     DatabaseHelper::beginTransaction();
@@ -304,7 +323,7 @@ function addJob(array $jobData): bool {
 
     } catch (Exception $e) {
         DatabaseHelper::rollback();
-        error_log("Error adding job: " . $e->getMessage());
+        error_log("Error adding worker to job: " . $e->getMessage());
         return false;
     }
 }
@@ -341,7 +360,7 @@ function updateJobStatus(string $jobId, string $status): bool {
     }
 }
 
-function deleteJob(string $jobId): bool {
+function deleteWorkerFromJob(string $jobId): bool {
     global $pdo;
     
     DatabaseHelper::beginTransaction();
@@ -356,7 +375,7 @@ function deleteJob(string $jobId): bool {
             updateWorkerStatus($job['workerId'], 'Available');
         }
 
-        $sql = "DELETE FROM jobs WHERE jobId = ?";
+        $sql = "UPDATE jobs SET workerId = NULL, workerName = 'Unassigned' WHERE jobId = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$jobId]);
         
@@ -365,7 +384,7 @@ function deleteJob(string $jobId): bool {
 
     } catch (Exception $e) {
         DatabaseHelper::rollback();
-        error_log("Error deleting job: " . $e->getMessage());
+        error_log("Error deleting worker from job: " . $e->getMessage());
         return false;
     }
 }
@@ -383,7 +402,7 @@ function generateWorkerId(): string {
     if ($lastWorker) {
         $lastId = intval(substr($lastWorker['id'], 3));
     }
-    return 'KUL' . str_pad((string)($lastId + 1), 3, '0', STR_PAD_LEFT);
+    return 'TUK' . str_pad((string)($lastId + 1), 3, '0', STR_PAD_LEFT);
 }
 
 function getWorkers(): array {
@@ -565,7 +584,7 @@ function addWorker(array $workerData): bool {
         $pdo->rollBack();
         error_log($e->getMessage());
         if (isset($e->errorInfo[1]) && $e->errorInfo[1] == 1062) {
-            throw new Exception("Gagal menambah kuli: Email '" . $workerData['email'] . "' sudah digunakan untuk akun lain.");
+            throw new Exception("Gagal menambah pekerja: Email '" . $workerData['email'] . "' sudah digunakan untuk akun lain.");
         }
         return false;
     }

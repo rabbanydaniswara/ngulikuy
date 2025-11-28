@@ -49,7 +49,7 @@ if ($active_tab === 'reviews') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - NguliKuy</title>
+    <title>Admin Dashboard - Ngulikuy</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
@@ -89,7 +89,7 @@ if ($active_tab === 'reviews') {
     <div id="sidebar" class="sidebar w-64 bg-white shadow-lg fixed h-screen z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
         <div class="p-4 gradient-bg text-white flex justify-between items-center">
             <div>
-                <h1 class="text-xl font-bold">NguliKuy</h1>
+                <h1 class="text-xl font-bold">Ngulikuy</h1>
                 <p class="text-sm opacity-80">Admin Dashboard</p>
             </div>
             <button id="closeSidebarBtn" class="md:hidden p-1 rounded-full hover:bg-white/20">
@@ -99,14 +99,14 @@ if ($active_tab === 'reviews') {
         <div class="mt-6">
         <a href="?tab=profile" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'Profile' ? 'active-tab' : ''; ?>"><i data-feather="home" class="mr-3"></i>Profil Admin</a>
              <a href="?tab=dashboard" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'dashboard' ? 'active-tab' : ''; ?>"><i data-feather="home" class="mr-3"></i>Dashboard</a>
-            <a href="?tab=diagram" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'diagram' ? 'active-tab' : ''; ?>"><i data-feather="users" class="mr-3"></i>Diagram Kuli</a>
-            <a href="?tab=workers" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'workers' ? 'active-tab' : ''; ?>"><i data-feather="users" class="mr-3"></i>Data Kuli</a>
+            <a href="?tab=diagram" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'diagram' ? 'active-tab' : ''; ?>"><i data-feather="users" class="mr-3"></i>Diagram Pekerja</a>
+            <a href="?tab=workers" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'workers' ? 'active-tab' : ''; ?>"><i data-feather="users" class="mr-3"></i>Data Pekerja</a>
             <a href="?tab=jobs" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'jobs' ? 'active-tab' : ''; ?>"><i data-feather="clipboard" class="mr-3"></i>Status Pengerjaan</a>
             <a href="?tab=reviews" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'reviews' ? 'active-tab' : ''; ?>">
                 <i data-feather="message-square" class="mr-3"></i>
                 Ulasan Pelanggan
             </a>
-            <a href="?tab=add_worker" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'add_worker' ? 'active-tab' : ''; ?>"><i data-feather="user-plus" class="mr-3"></i>Tambah Kuli</a>
+            <a href="?tab=add_worker" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'add_worker' ? 'active-tab' : ''; ?>"><i data-feather="user-plus" class="mr-3"></i>Tambah Pekerja</a>
             <a href="?tab=add_job" class="flex items-center px-6 py-3 text-gray-700 hover:bg-gray-100 <?php echo $active_tab === 'add_job' ? 'active-tab' : ''; ?>"><i data-feather="plus-circle" class="mr-3"></i>Tambah Pekerjaan</a>
         </div>
         <div class="absolute bottom-0 w-full p-4 border-t">
@@ -119,7 +119,7 @@ if ($active_tab === 'reviews') {
                 <button id="openSidebarBtn" class="md:hidden mr-4 text-gray-600 hover:text-blue-600">
                     <i data-feather="menu" class="w-6 h-6"></i>
                 </button>
-                <h2 class="text-xl font-semibold text-gray-800"><?php $titles = ['dashboard' => 'Dashboard', 'workers' => 'Data Kuli', 'jobs' => 'Status Pengerjaan', 'reviews' => 'Ulasan Pelanggan', 'add_worker' => 'Tambah Kuli', 'add_job' => 'Tambah Pekerjaan']; echo $titles[$active_tab] ?? 'Dashboard'; // Tambahkan title 'reviews' ?></h2>
+                <h2 class="text-xl font-semibold text-gray-800"><?php $titles = ['dashboard' => 'Dashboard', 'workers' => 'Data Pekerja', 'jobs' => 'Status Pengerjaan', 'reviews' => 'Ulasan Pelanggan', 'add_worker' => 'Tambah Pekerja', 'add_job' => 'Tambah Pekerjaan']; echo $titles[$active_tab] ?? 'Dashboard'; // Tambahkan title 'reviews' ?></h2>
             </div>
             <div class="flex items-center space-x-4">
                 <div class="relative"><i data-feather="bell" class="text-gray-500 hover:text-blue-600 cursor-pointer"></i><span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center"><?php echo $stats['pending_jobs'] ?? 0; ?></span></div>
@@ -160,7 +160,7 @@ if ($active_tab === 'reviews') {
 
             <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
                 <div class="gradient-bg p-6 text-center text-white rounded-t-lg relative">
-                    <h2 class="text-xl font-bold">Edit Data Kuli</h2>
+                    <h2 class="text-xl font-bold">Edit Data Pekerja</h2>
                     <p id="editWorkerTitle" class="text-blue-100 mt-1"></p>
                     
                     <button type="button" id="closeEditWorkerModalX" class="absolute top-4 right-4 text-blue-100 hover:text-white transition p-1 rounded-full hover:bg-white/10">
@@ -192,13 +192,12 @@ if ($active_tab === 'reviews') {
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Skills</label>
                                 <select multiple id="editWorkerSkills" name="skills[]" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 h-24">
-                                    <option value="Construction">Construction</option>
-                                    <option value="Moving">Moving</option>
-                                    <option value="Cleaning">Cleaning</option>
-                                    <option value="Gardening">Gardening</option>
-                                    <option value="Plumbing">Plumbing</option>
-                                    <option value="Electrical">Electrical</option>
-                                    <option value="Painting">Painting</option>
+                                    <?php 
+                                        $skills = get_construction_skills();
+                                        foreach ($skills as $skill_option) {
+                                            echo "<option value=\"{$skill_option}\">{$skill_option}</option>";
+                                        }
+                                    ?>
                                 </select>
                                 <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd to select multiple skills</p>
                             </div>
@@ -248,7 +247,7 @@ if ($active_tab === 'reviews') {
                     </div>
                     <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-lg">
                         <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 gradient-bg text-base font-medium text-white hover:opacity-90 sm:ml-3 sm:w-auto sm:text-sm">
-                            <span class="btn-text">Update Data Kuli</span>
+                            <span class="btn-text">Update Data Pekerja</span>
                             <span class="btn-loading hidden"><i data-feather="loader" class="animate-spin mr-2"></i>Updating...</span>
                         </button>
                         <button type="button" id="cancelEditWorker" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Batal</button>
@@ -273,9 +272,9 @@ if ($active_tab === 'reviews') {
                             <i data-feather="alert-triangle" class="h-6 w-6 text-red-600"></i>
                         </div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                            <h3 class="text-lg leading-6 font-medium text-gray-900">Hapus Kuli</h3>
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Hapus Pekerja</h3>
                             <div class="mt-2">
-                                <p class="text-sm text-gray-500">Apakah Anda yakin ingin menghapus kuli bernama <strong id="deleteWorkerName" class="font-medium text-gray-700"></strong>?</p>
+                                <p class="text-sm text-gray-500">Apakah Anda yakin ingin menghapus pekerja bernama <strong id="deleteWorkerName" class="font-medium text-gray-700"></strong>?</p>
                                 <p class="text-sm text-gray-500 mt-1">Tindakan ini tidak dapat dibatalkan.</p>
                             </div>
                         </div>
@@ -366,6 +365,103 @@ if ($active_tab === 'reviews') {
         </div>
     </div>
 
+    <div id="deleteWorkerFromJobModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white p-6">
+                    <div class="sm:flex sm:items-start">
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
+                            <i data-feather="user-x" class="h-6 w-6 text-yellow-600"></i>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900">Hapus Pekerja dari Pekerjaan</h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">Apakah Anda yakin ingin menghapus pekerja <strong id="deleteWorkerFromJobName" class="font-medium text-gray-700"></strong> dari pekerjaan ini?</p>
+                                <p class="text-sm text-gray-500 mt-1">Pekerjaan akan menjadi "unassigned".</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <form id="deleteWorkerFromJobForm" class="inline"> <?php echo csrfInput(); ?>
+                        <input type="hidden" name="job_id_to_delete" id="deleteWorkerFromJobIdInput">
+                        <button type="submit" name="delete_worker_from_job_post" value="1" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-600 text-base font-medium text-white hover:bg-yellow-700 sm:ml-3 sm:w-auto sm:text-sm">
+                            Ya, Hapus Pekerja
+                        </button>
+                    </form>
+                    <button type="button" id="cancelDeleteWorkerFromJob" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Batal</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewWorkerModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <div class="gradient-bg p-6 text-center text-white rounded-t-lg relative">
+                    <h2 class="text-xl font-bold">Detail Data Pekerja</h2>
+                    <p id="viewWorkerTitle" class="text-blue-100 mt-1"></p>
+                    <button type="button" id="closeViewWorkerModalX" class="absolute top-4 right-4 text-blue-100 hover:text-white transition p-1 rounded-full hover:bg-white/10">
+                        <i data-feather="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="p-6 modal-content">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="md:col-span-1 flex justify-center">
+                            <img id="viewWorkerPhoto" class="photo-preview rounded-full w-40 h-40 object-cover border-4 border-white shadow-lg">
+                        </div>
+                        <div class="md:col-span-2">
+                            <h3 id="viewWorkerName" class="text-2xl font-bold text-gray-800"></h3>
+                            <p id="viewWorkerEmail" class="text-sm text-gray-500"></p>
+                            <p id="viewWorkerPhone" class="text-sm text-gray-500"></p>
+                            <div class="mt-4">
+                                <span id="viewWorkerStatus" class="px-3 py-1 text-sm rounded-full"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 border-t pt-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Lokasi</label>
+                            <p id="viewWorkerLocation" class="text-base text-gray-800"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Rate per Hari</label>
+                            <p id="viewWorkerRate" class="text-base text-gray-800"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Pengalaman</label>
+                            <p id="viewWorkerExperience" class="text-base text-gray-800"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Bergabung pada</label>
+                            <p id="viewWorkerJoinDate" class="text-base text-gray-800"></p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Keahlian</label>
+                            <div id="viewWorkerSkills" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Deskripsi</label>
+                            <p id="viewWorkerDescription" class="text-base text-gray-800"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-lg">
+                    <button type="button" id="closeViewWorkerModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         // Initialize feather icons
         feather.replace();
@@ -489,9 +585,10 @@ if ($active_tab === 'reviews') {
                         redirectTab = 'workers';
                         closeEditWorkerModal(); // Tutup modal edit
                         closeDeleteWorkerModal(); // Tutup modal delete
-                    } else if (action === 'add_job' || action === 'delete_job') {
+                    } else if (action === 'add_job' || action === 'delete_job' || action === 'delete_worker_from_job') {
                         redirectTab = 'jobs';
                         closeDeleteJobModal(); // Tutup modal delete
+                        closeDeleteWorkerFromJobModal();
                     } else if (action === 'delete_review') {
                         redirectTab = 'reviews';
                         closeDeleteReviewModal(); // Tutup modal delete
@@ -534,7 +631,7 @@ if ($active_tab === 'reviews') {
             addWorkerForm.addEventListener('submit', (event) => handleFormSubmit(event, 'add_worker'));
             const addWorkerBtn = document.getElementById('saveWorkerBtn');
             if(addWorkerBtn) {
-                 addWorkerBtn.innerHTML = `<span class="btn-text flex items-center"><i data-feather="save" class="w-4 h-4 mr-2"></i> Simpan Kuli</span><span class="btn-loading hidden items-center"><i data-feather="loader" class="animate-spin mr-2"></i>Menyimpan...</span>`;
+                 addWorkerBtn.innerHTML = `<span class="btn-text flex items-center"><i data-feather="save" class="w-4 h-4 mr-2"></i> Simpan Pekerja</span><span class="btn-loading hidden items-center"><i data-feather="loader" class="animate-spin mr-2"></i>Menyimpan...</span>`;
                  feather.replace();
             }
         }
@@ -553,7 +650,7 @@ if ($active_tab === 'reviews') {
             editWorkerForm.addEventListener('submit', (event) => handleFormSubmit(event, 'edit_worker'));
              const editWorkerSubmitBtn = editWorkerForm.querySelector('button[type="submit"]');
              if(editWorkerSubmitBtn) {
-                 editWorkerSubmitBtn.innerHTML = `<span class="btn-text">Update Data Kuli</span><span class="btn-loading hidden items-center"><i data-feather="loader" class="animate-spin mr-2"></i>Updating...</span>`;
+                 editWorkerSubmitBtn.innerHTML = `<span class="btn-text">Update Data Pekerja</span><span class="btn-loading hidden items-center"><i data-feather="loader" class="animate-spin mr-2"></i>Updating...</span>`;
                  feather.replace();
              }
         }
@@ -573,6 +670,11 @@ if ($active_tab === 'reviews') {
         if (deleteReviewForm) {
             deleteReviewForm.addEventListener('submit', (event) => handleFormSubmit(event, 'delete_review'));
         }
+
+        const deleteWorkerFromJobForm = document.getElementById('deleteWorkerFromJobForm');
+        if (deleteWorkerFromJobForm) {
+            deleteWorkerFromJobForm.addEventListener('submit', (event) => handleFormSubmit(event, 'delete_worker_from_job'));
+        }
         
         // --- AKHIR LOGIKA AJAX FORM SUBMIT ---
 
@@ -590,8 +692,70 @@ if ($active_tab === 'reviews') {
         const deleteReviewIdSpan = document.getElementById('deleteReviewId');
         const deleteReviewCustomerSpan = document.getElementById('deleteReviewCustomer');
 
+        const deleteWorkerFromJobModal = document.getElementById('deleteWorkerFromJobModal');
+        const deleteWorkerFromJobBtns = document.querySelectorAll('.delete-worker-from-job-btn');
+        const cancelDeleteWorkerFromJobBtn = document.getElementById('cancelDeleteWorkerFromJob');
+        const deleteWorkerFromJobNameSpan = document.getElementById('deleteWorkerFromJobName');
+
         // PERBAIKAN: Menambahkan tombol close X
         const closeEditWorkerModalXBtn = document.getElementById('closeEditWorkerModalX');
+
+        // View Worker Modal
+        const viewWorkerModal = document.getElementById('viewWorkerModal');
+        const viewWorkerBtns = document.querySelectorAll('.view-worker-btn');
+        const closeViewWorkerModalXBtn = document.getElementById('closeViewWorkerModalX');
+        const closeViewWorkerModalBtn = document.getElementById('closeViewWorkerModal');
+
+        function openViewWorkerModal(workerId) {
+            const workers = <?php echo json_encode($workers); ?>;
+            const worker = workers.find(w => w.id === workerId);
+            if (worker) {
+                document.getElementById('viewWorkerName').textContent = worker.name;
+                document.getElementById('viewWorkerTitle').textContent = 'ID: ' + worker.id;
+                document.getElementById('viewWorkerEmail').textContent = worker.email;
+                document.getElementById('viewWorkerPhone').textContent = worker.phone;
+                document.getElementById('viewWorkerLocation').textContent = worker.location;
+                document.getElementById('viewWorkerRate').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(worker.rate) + '/hari';
+                document.getElementById('viewWorkerExperience').textContent = worker.experience || '-';
+                document.getElementById('viewWorkerJoinDate').textContent = new Date(worker.joinDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                document.getElementById('viewWorkerDescription').textContent = worker.description || '-';
+                document.getElementById('viewWorkerPhoto').src = worker.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face';
+                
+                const statusSpan = document.getElementById('viewWorkerStatus');
+                statusSpan.textContent = worker.status;
+                statusSpan.className = 'px-3 py-1 text-sm rounded-full ' + (worker.status === 'Available' ? 'status-available' : (worker.status === 'Assigned' ? 'status-assigned' : 'status-on-leave'));
+
+                const skillsContainer = document.getElementById('viewWorkerSkills');
+                skillsContainer.innerHTML = '';
+                if (worker.skills && worker.skills.length > 0) {
+                    worker.skills.forEach(skill => {
+                        const skillBadge = document.createElement('span');
+                        skillBadge.className = 'bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full';
+                        skillBadge.textContent = skill;
+                        skillsContainer.appendChild(skillBadge);
+                    });
+                } else {
+                    skillsContainer.textContent = '-';
+                }
+
+                viewWorkerModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeViewWorkerModal() {
+            if(viewWorkerModal) viewWorkerModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        viewWorkerBtns.forEach(btn => btn.addEventListener('click', function() { // Logika sama
+            const workerId = this.dataset.workerId;
+            openViewWorkerModal(workerId);
+        }));
+
+        if(closeViewWorkerModalXBtn) closeViewWorkerModalXBtn.addEventListener('click', closeViewWorkerModal);
+        if(closeViewWorkerModalBtn) closeViewWorkerModalBtn.addEventListener('click', closeViewWorkerModal);
+
 
         // Edit Worker
         editWorkerBtns.forEach(btn => btn.addEventListener('click', function() { /* ... (Logika sama) ... */ const workerId = this.dataset.workerId; const workers = <?php echo json_encode($workers); ?>; const worker = workers.find(w => w.id === workerId); if (worker) { document.getElementById('editWorkerId').value = worker.id; document.getElementById('editWorkerName').value = worker.name; document.getElementById('editWorkerEmail').value = worker.email; document.getElementById('editWorkerPhone').value = worker.phone; document.getElementById('editWorkerLocation').value = worker.location; document.getElementById('editWorkerRate').value = worker.rate; document.getElementById('editWorkerExperience').value = worker.experience || ''; document.getElementById('editWorkerDescription').value = worker.description || ''; document.getElementById('editWorkerStatus').value = worker.status; document.getElementById('currentWorkerPhoto').src = worker.photo; document.getElementById('currentPhotoUrl').textContent = worker.photo; document.getElementById('editWorkerTitle').textContent = 'Edit: ' + worker.name; const skillsSelect = document.getElementById('editWorkerSkills'); Array.from(skillsSelect.options).forEach(option => { option.selected = Array.isArray(worker.skills) && worker.skills.includes(option.value); }); editWorkerModal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; } }));
@@ -604,6 +768,19 @@ if ($active_tab === 'reviews') {
 
         // Delete Review (Sama)
         deleteReviewBtns.forEach(btn => { btn.addEventListener('click', function() { const reviewId = this.dataset.reviewId; const customerName = this.dataset.customerName; deleteReviewIdSpan.textContent = reviewId; deleteReviewCustomerSpan.textContent = customerName; document.getElementById('deleteReviewIdInput').value = reviewId; deleteReviewModal.classList.remove('hidden'); document.body.style.overflow = 'hidden'; }); });
+        
+        deleteWorkerFromJobBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const jobId = this.dataset.jobId;
+                const workerName = this.dataset.workerName;
+                if(deleteWorkerFromJobNameSpan) {
+                    deleteWorkerFromJobNameSpan.textContent = workerName;
+                }
+                document.getElementById('deleteWorkerFromJobIdInput').value = jobId;
+                deleteWorkerFromJobModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            });
+        });
 
         // Close Modals (Sama)
         function closeEditWorkerModal() { if(editWorkerModal) editWorkerModal.classList.add('hidden'); document.body.style.overflow = 'auto'; }
@@ -620,6 +797,9 @@ if ($active_tab === 'reviews') {
         function closeDeleteReviewModal() { if(deleteReviewModal) deleteReviewModal.classList.add('hidden'); document.body.style.overflow = 'auto'; }
         if(cancelDeleteReviewBtn) cancelDeleteReviewBtn.addEventListener('click', closeDeleteReviewModal);
 
+        function closeDeleteWorkerFromJobModal() { if(deleteWorkerFromJobModal) deleteWorkerFromJobModal.classList.add('hidden'); document.body.style.overflow = 'auto'; }
+        if(cancelDeleteWorkerFromJobBtn) cancelDeleteWorkerFromJobBtn.addEventListener('click', closeDeleteWorkerFromJobModal);
+
         // Close modal on overlay click (Sama)
         // PERBAIKAN: Logika ini sudah benar dan akan berfungsi untuk semua modal
         document.addEventListener('click', function(e) { 
@@ -628,6 +808,7 @@ if ($active_tab === 'reviews') {
                 closeDeleteWorkerModal(); 
                 closeDeleteJobModal(); 
                 closeDeleteReviewModal(); 
+                closeDeleteWorkerFromJobModal();
             } 
         });
         
@@ -638,6 +819,7 @@ if ($active_tab === 'reviews') {
                 closeDeleteWorkerModal(); 
                 closeDeleteJobModal(); 
                 closeDeleteReviewModal(); 
+                closeDeleteWorkerFromJobModal();
             } 
         });
 

@@ -6,6 +6,9 @@
 <div class="bg-white rounded-xl shadow overflow-hidden">
     <div class="border-b border-gray-200">
         <nav class="flex -mb-px overflow-x-auto">
+            <a href="?tab=find_jobs" class="flex-shrink-0 <?php echo $active_tab === 'find_jobs' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
+                Cari Pekerjaan
+            </a>
             <a href="?tab=pending" class="flex-shrink-0 <?php echo $active_tab === 'pending' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
                 Tawaran Baru (Pending)
             </a>
@@ -15,18 +18,24 @@
             <a href="?tab=completed" class="flex-shrink-0 <?php echo $active_tab === 'completed' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
                 Riwayat (Selesai/Batal)
             </a>
-            <a href="?tab=find_jobs" class="flex-shrink-0 <?php echo $active_tab === 'find_jobs' ? 'nav-active' : 'border-transparent text-gray-500 hover:border-gray-300'; ?> px-6 py-4 text-sm font-medium">
-                Cari Pekerjaan
-            </a>
         </nav>
     </div>
 
     <div class="p-4 sm:p-6">
-        <?php if (empty($openPostedJobs)): ?>
+        <?php if (empty($worker_skills)): ?>
+            <div class="text-center py-12">
+                <i data-feather="alert-triangle" class="w-16 h-16 mx-auto text-orange-400"></i>
+                <h3 class="mt-4 text-lg font-medium text-gray-800">Lengkapi Keahlian Anda</h3>
+                <p class="mt-1 text-sm text-gray-500">Anda belum memiliki keahlian. Tambahkan keahlian di profil Anda untuk melihat pekerjaan yang sesuai.</p>
+                <a href="?tab=profile" class="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    Lengkapi Profil
+                </a>
+            </div>
+        <?php elseif (empty($openPostedJobs)): ?>
             <div class="text-center py-12">
                 <i data-feather="search" class="w-16 h-16 mx-auto text-gray-300"></i>
-                <h3 class="mt-4 text-lg font-medium text-gray-800">Tidak Ada Pekerjaan Terbuka</h3>
-                <p class="mt-1 text-sm text-gray-500">Saat ini tidak ada pekerjaan yang tersedia untuk diambil. Silakan cek kembali nanti.</p>
+                <h3 class="mt-4 text-lg font-medium text-gray-800">Tidak Ada Pekerjaan yang Sesuai</h3>
+                <p class="mt-1 text-sm text-gray-500">Saat ini tidak ada pekerjaan yang cocok dengan keahlian Anda. Silakan cek kembali nanti.</p>
             </div>
         <?php else: ?>
             <div class="space-y-4">

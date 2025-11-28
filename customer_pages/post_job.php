@@ -6,7 +6,7 @@
 <div class="mb-6">
     <h2 class="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6 text-gray-800 flex items-center">
         <i data-feather="plus-circle" class="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-blue-600"></i>
-        Buat Pekerjaan Baru
+        Buat Pekerja Baru
     </h2>
     
     <form method="POST" class="bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-8">
@@ -31,14 +31,12 @@
                 </label>
                 <select id="job_type" name="job_type" required class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-colors text-sm sm:text-base">
                     <option value="">Pilih Jenis Pekerjaan</option>
-                    <option value="Construction">Construction</option>
-                    <option value="Moving">Moving</option>
-                    <option value="Cleaning">Cleaning</option>
-                    <option value="Gardening">Gardening</option>
-                    <option value="Plumbing">Plumbing</option>
-                    <option value="Electrical">Electrical</option>
-                    <option value="Painting">Painting</option>
-                    <option value="Other">Lainnya</option>
+                    <?php 
+                        $skills = get_construction_skills();
+                        foreach ($skills as $skill_option) {
+                            echo "<option value=\"{$skill_option}\">{$skill_option}</option>";
+                        }
+                    ?>
                 </select>
             </div>
 
@@ -78,7 +76,7 @@
             <button type="submit" 
                     class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-indigo-700 font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all text-base flex items-center justify-center">
                 <i data-feather="send" class="w-5 h-5 mr-2"></i>
-                Posting Pekerjaan
+                Posting Pekerja
             </button>
         </div>
     </form>

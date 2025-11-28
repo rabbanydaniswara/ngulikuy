@@ -85,7 +85,7 @@ for ($i = 5; $i >= 0; $i--) {
   <div class="max-w-7xl mx-auto p-4">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold">Diagram Statistik</h1>
+        <h1 class="text-2xl font-semibold">Diagram Statistik Pekerja</h1>
         <p class="text-sm text-gray-600">Visualisasi data real-time dari database.</p>
       </div>
       <div class="flex items-center gap-2">
@@ -162,7 +162,7 @@ for ($i = 5; $i >= 0; $i--) {
       <div class="card">
         <div class="flex items-start justify-between mb-3">
           <div>
-            <h2 class="text-lg font-semibold">Status Pekerjaan Saat Ini</h2>
+            <h2 class="text-lg font-semibold">Status Pekerja Saat Ini</h2>
             <p class="text-sm text-gray-500">Perbandingan jumlah pekerjaan berdasarkan status.</p>
           </div>
           <div class="text-sm axis-muted">

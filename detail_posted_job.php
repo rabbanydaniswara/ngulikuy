@@ -73,7 +73,7 @@ if (isCustomer()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Pekerjaan - <?php echo htmlspecialchars($job['title']); ?></title>
+    <title>Detail Pekerja - <?php echo htmlspecialchars($job['title']); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
@@ -111,7 +111,7 @@ if (isCustomer()) {
 
                 <!-- Job Description -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">Deskripsi Pekerjaan</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Deskripsi Pekerja</h2>
                     <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
                         <?php echo nl2br(htmlspecialchars($job['description'])); ?>
                     </div>
@@ -122,7 +122,7 @@ if (isCustomer()) {
             <div class="space-y-6">
                 <!-- Status & Action Card -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-                    <h3 class="text-xl font-bold text-gray-800 mb-4">Status Pekerjaan</h3>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Status Pekerja</h3>
                     <?php 
                         $statusClass = 'bg-gray-100 text-gray-800';
                         if ($final_status === 'open') $statusClass = 'bg-green-100 text-green-700';
@@ -139,7 +139,7 @@ if (isCustomer()) {
                             data-action="worker_take_posted_job" data-job-id="<?php echo $job['id']; ?>"
                             data-job-title="<?php echo htmlspecialchars($job['title']); ?>">
                             <i data-feather="plus-circle" class="w-5 h-5"></i>
-                            Ambil Pekerjaan Ini
+                            Ambil Pekerja Ini
                         </button>
                     <?php endif; ?>
                 </div>
@@ -183,7 +183,7 @@ if (isCustomer()) {
         </div>
     </div>
 
-    <!-- The modals and JS needed for the 'Ambil Pekerjaan' button -->
+    <!-- The modals and JS needed for the 'Ambil Pekerja' button -->
     <?php if(isWorker()): ?>
         <?php include 'worker_pages/_footer.php'; ?>
     <?php else: ?>

@@ -7,11 +7,11 @@
     <div class="absolute top-0 right-0 w-32 sm:w-64 h-32 sm:h-64 bg-white/10 rounded-full -mr-16 sm:-mr-32 -mt-16 sm:-mt-32"></div>
     <div class="absolute bottom-0 left-0 w-24 sm:w-48 h-24 sm:h-48 bg-white/10 rounded-full -ml-12 sm:-ml-24 -mb-12 sm:-mb-24"></div>
     <div class="relative z-10">
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">Solusi Cepat untuk Kebutuhan Tukang Harian</h1>
-        <p class="text-base sm:text-lg mb-4 sm:mb-6 text-blue-100">Temukan tukang berpengalaman dengan mudah dan transparan</p>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4">Solusi Cepat untuk Kebutuhan Pekerja Harian</h1>
+        <p class="text-base sm:text-lg mb-4 sm:mb-6 text-blue-100">Temukan pekerja berpengalaman dengan mudah dan transparan</p>
         <a href="?tab=search" class="inline-flex items-center bg-white text-blue-600 px-6 sm:px-8 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-semibold hover:bg-blue-50 transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-sm sm:text-base">
             <i data-feather="search" class="w-4 h-4 sm:w-5 sm:h-5 mr-2"></i>
-            Cari Tukang Sekarang
+            Cari Pekerja Sekarang
         </a>
     </div>
 </div>
@@ -23,7 +23,7 @@
                 <i data-feather="users" class="w-5 h-5 sm:w-6 sm:h-6"></i>
             </div>
             <div>
-                <p class="text-xs sm:text-sm text-gray-500 font-medium">Total Tukang</p>
+                <p class="text-xs sm:text-sm text-gray-500 font-medium">Total Pekerja</p>
                 <h3 class="text-2xl sm:text-3xl font-bold text-gray-800"><?php echo count(getWorkers()); ?></h3>
             </div>
         </div>
@@ -71,7 +71,7 @@
     <div class="flex justify-between items-center mb-4 sm:mb-6">
         <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 flex items-center">
             <i data-feather="star" class="w-6 h-6 sm:w-8 sm:h-8 mr-2 sm:mr-3 text-yellow-500"></i>
-            Tukang Terbaik
+            Pekerja Terbaik
         </h2>
         <a href="?tab=search" class="text-blue-600 hover:text-blue-700 font-semibold flex items-center group text-sm sm:text-base">
             Lihat Semua
@@ -90,9 +90,9 @@
                     </div>
                 </div>
                 <div class="pt-12 sm:pt-16 pb-4 sm:pb-6 px-4 sm:px-6 text-center">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-1"><?php echo htmlspecialchars($worker['name']); ?></h3>
+                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-1 view-worker-btn cursor-pointer hover:underline" data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"><?php echo htmlspecialchars($worker['name']); ?></h3>
                     <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
-                        <?php echo htmlspecialchars($worker['skills'][0] ?? ''); ?>
+                        <?php echo htmlspecialchars($worker['skills'][0] ?? 'Tidak ada keahlian'); ?>
                     </p>
                     <div class="flex justify-center items-center mb-2 sm:mb-3">
                         <div class="flex text-yellow-400 text-sm sm:text-base">

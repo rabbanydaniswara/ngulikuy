@@ -8,7 +8,7 @@
             </a>
             <a href="?tab=search" class="mobile-nav-item <?php echo $active_tab === 'search' ? 'active' : ''; ?>">
                 <i data-feather="search"></i>
-                <span>Cari</span>
+                <span>Cari Pekerja</span>
             </a>
             <a href="?tab=post_job" class="mobile-nav-item <?php echo $active_tab === 'post_job' ? 'active' : ''; ?>">
                 <i data-feather="plus-circle"></i>
@@ -16,7 +16,7 @@
             </a>
             <a href="?tab=my_jobs" class="mobile-nav-item <?php echo $active_tab === 'my_jobs' ? 'active' : ''; ?>">
                 <i data-feather="briefcase"></i>
-                <span>My Jobs</span>
+                <span>Pekerja Saya</span>
             </a>
             <a href="?tab=orders" class="mobile-nav-item <?php echo $active_tab === 'orders' ? 'active' : ''; ?>">
                 <i data-feather="clipboard"></i>
@@ -26,6 +26,68 @@
     </nav>
 
     <?php include __DIR__ . '/_modals.php'; ?>
+
+    <div id="viewWorkerModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <div class="gradient-bg p-6 text-center text-white rounded-t-lg relative">
+                    <h2 class="text-xl font-bold">Detail Data Pekerja</h2>
+                    <p id="viewWorkerTitle" class="text-blue-100 mt-1"></p>
+                    <button type="button" id="closeViewWorkerModalX" class="absolute top-4 right-4 text-blue-100 hover:text-white transition p-1 rounded-full hover:bg-white/10">
+                        <i data-feather="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="p-6 modal-content">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                        <div class="md:col-span-1 flex justify-center">
+                            <img id="viewWorkerPhoto" class="photo-preview rounded-full w-40 h-40 object-cover border-4 border-white shadow-lg">
+                        </div>
+                        <div class="md:col-span-2">
+                            <h3 id="viewWorkerName" class="text-2xl font-bold text-gray-800"></h3>
+                            <p id="viewWorkerEmail" class="text-sm text-gray-500"></p>
+                            <p id="viewWorkerPhone" class="text-sm text-gray-500"></p>
+                            <div class="mt-4">
+                                <span id="viewWorkerStatus" class="px-3 py-1 text-sm rounded-full"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 border-t pt-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Lokasi</label>
+                            <p id="viewWorkerLocation" class="text-base text-gray-800"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Rate per Hari</label>
+                            <p id="viewWorkerRate" class="text-base text-gray-800"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Pengalaman</label>
+                            <p id="viewWorkerExperience" class="text-base text-gray-800"></p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Bergabung pada</label>
+                            <p id="viewWorkerJoinDate" class="text-base text-gray-800"></p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Keahlian</label>
+                            <div id="viewWorkerSkills" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-500 mb-1">Deskripsi</label>
+                            <p id="viewWorkerDescription" class="text-base text-gray-800"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-lg">
+                    <button type="button" id="closeViewWorkerModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Initialize feather icons
@@ -61,6 +123,61 @@
             document.getElementById('reviewModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
         }
+
+        const viewWorkerModal = document.getElementById('viewWorkerModal');
+        const viewWorkerBtns = document.querySelectorAll('.view-worker-btn');
+        const closeViewWorkerModalXBtn = document.getElementById('closeViewWorkerModalX');
+        const closeViewWorkerModalBtn = document.getElementById('closeViewWorkerModal');
+
+        function openViewWorkerModal(workerId) {
+            const workers = <?php echo json_encode($allWorkersForModal); ?>;
+            const worker = workers[workerId];
+            if (worker) {
+                document.getElementById('viewWorkerName').textContent = worker.name;
+                document.getElementById('viewWorkerTitle').textContent = 'ID: ' + worker.id;
+                document.getElementById('viewWorkerEmail').textContent = worker.email;
+                document.getElementById('viewWorkerPhone').textContent = worker.phone;
+                document.getElementById('viewWorkerLocation').textContent = worker.location;
+                document.getElementById('viewWorkerRate').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(worker.rate) + '/hari';
+                document.getElementById('viewWorkerExperience').textContent = worker.experience || '-';
+                document.getElementById('viewWorkerJoinDate').textContent = new Date(worker.joinDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                document.getElementById('viewWorkerDescription').textContent = worker.description || '-';
+                document.getElementById('viewWorkerPhoto').src = worker.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face';
+                
+                const statusSpan = document.getElementById('viewWorkerStatus');
+                statusSpan.textContent = worker.status;
+                statusSpan.className = 'px-3 py-1 text-sm rounded-full ' + (worker.status === 'Available' ? 'status-available' : (worker.status === 'Assigned' ? 'status-assigned' : 'status-on-leave'));
+
+                const skillsContainer = document.getElementById('viewWorkerSkills');
+                skillsContainer.innerHTML = '';
+                if (worker.skills && worker.skills.length > 0) {
+                    worker.skills.forEach(skill => {
+                        const skillBadge = document.createElement('span');
+                        skillBadge.className = 'bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full';
+                        skillBadge.textContent = skill;
+                        skillsContainer.appendChild(skillBadge);
+                    });
+                } else {
+                    skillsContainer.textContent = '-';
+                }
+
+                viewWorkerModal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeViewWorkerModal() {
+            if(viewWorkerModal) viewWorkerModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        viewWorkerBtns.forEach(btn => btn.addEventListener('click', function() {
+            const workerId = this.dataset.workerId;
+            openViewWorkerModal(workerId);
+        }));
+
+        if(closeViewWorkerModalXBtn) closeViewWorkerModalXBtn.addEventListener('click', closeViewWorkerModal);
+        if(closeViewWorkerModalBtn) closeViewWorkerModalBtn.addEventListener('click', closeViewWorkerModal);
         
         // Close modals on overlay click
         document.getElementById('bookingModal').addEventListener('click', function(e) {
@@ -76,6 +193,7 @@
             if (e.key === 'Escape') {
                 closeBookingModal();
                 closeReviewModal();
+                closeViewWorkerModal();
             }
         });
         
@@ -224,7 +342,7 @@
         
         // Console welcome message
         console.log('%cNguliKuy Dashboard', 'color: #3b82f6; font-size: 24px; font-weight: bold;');
-        console.log('%cPlatform Booking Tukang Harian Terpercaya', 'color: #6b7280; font-size: 14px;');
+        console.log('%cPlatform Booking Pekerja Harian Terpercaya', 'color: #6b7280; font-size: 14px;');
 
         // --- Generic Action Modal & AJAX Logic ---
         const CSRF_TOKEN = '<?php echo getCsrfToken(); ?>';
@@ -289,7 +407,7 @@
                 let iconContainerClass = 'bg-blue-100';
 
                 if (action === 'customer_delete_posted_job') {
-                    title = 'Hapus Pekerjaan?';
+                    title = 'Hapus Pekerja?';
                     description = `Anda akan menghapus pekerjaan <strong>"${jobTitle}"</strong>. Tindakan ini tidak dapat dibatalkan.`;
                     confirmText = 'Ya, Hapus';
                     confirmClass = 'bg-red-600 hover:bg-red-700';

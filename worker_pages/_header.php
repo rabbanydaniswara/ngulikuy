@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Kuli - NguliKuy</title>
+    <title>Dashboard Pekerja - NguliKuy</title>
 
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -120,13 +120,16 @@
                 <div class="flex items-center">
                     <a href="?tab=pending" class="flex-shrink-0 flex items-center">
                         <i data-feather="tool" class="text-blue-600"></i>
-                        <span class="ml-3 font-bold text-xl">NguliKuy (Kuli)</span>
+                        <span class="ml-3 font-bold text-xl">NguliKuy (Pekerja)</span>
                     </a>
                 </div>
                 <div class="flex items-center">
                     <div class="ml-3 relative">
                         <div class="flex items-center space-x-3">
                             <span class="text-sm font-medium">Halo, <?php echo htmlspecialchars($worker_name); ?></span>
+                            <a href="?tab=profile" class="text-gray-500 hover:text-blue-600" title="Profile">
+                                <i data-feather="user" class="w-4 h-4"></i>
+                            </a>
                             <a href="login.php?logout=1" class="text-gray-500 hover:text-blue-600" title="Logout">
                                 <i data-feather="log-out" class="w-4 h-4"></i>
                             </a>
