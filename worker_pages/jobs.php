@@ -63,7 +63,7 @@
                 $startDate = !empty($job['tanggal_mulai']) ? date('d M Y', strtotime($job['tanggal_mulai'])) : '-';
                 $price = function_exists('formatCurrency') ? formatCurrency($job['harga'] ?? 0) : 'Rp ' . number_format($job['harga'] ?? 0,0,',','.');
                 $status = htmlspecialchars($job['status_pekerjaan'] ?? 'pending');
-                $notes = htmlspecialchars($job['deskripsi'] ?? '-');
+                $notes = htmlspecialchars(($active_tab === 'find_jobs' ? $job['deskripsi_lowongan'] : $job['deskripsi']) ?? '-');
             ?>
             <tr id="job-row-<?php echo $jobId; ?>">
             <td class="px-3 py-3 align-top">
@@ -143,7 +143,7 @@
                         $startDate = !empty($job['tanggal_mulai']) ? date('d M Y', strtotime($job['tanggal_mulai'])) : '-';
                         $price = function_exists('formatCurrency') ? formatCurrency($job['harga'] ?? 0) : 'Rp ' . number_format($job['harga'] ?? 0,0,',','.');
                         $status = htmlspecialchars($job['status_pekerjaan'] ?? 'pending');
-                        $notes = htmlspecialchars($job['deskripsi'] ?? '-');
+                        $notes = htmlspecialchars(($active_tab === 'find_jobs' ? $job['deskripsi_lowongan'] : $job['deskripsi']) ?? '-');
                     ?>
                         <div id="job-row-<?php echo $jobId; ?>" class="bg-white border rounded-lg p-4 shadow-sm">
                             <div class="flex items-start justify-between">

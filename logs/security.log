@@ -296,3 +296,24 @@ Context: {"customer":"daniswara@gmail.com","title":"test kerjaan"}
 Context: {"job":"JOB004","rating":5}
 [2025-11-28 16:38:23] [INFO] [IP: ::1] [User: daniswara@gmail.com] Posted job created
 Context: {"customer":"daniswara@gmail.com","title":"test aja"}
+[2025-11-28 16:44:34] [INFO] [IP: ::1] [User: daniswara@gmail.com] Posted job created
+Context: {"customer":"daniswara@gmail.com","title":"test"}
+[2025-11-28 16:49:45] [INFO] [IP: ::1] [User: daniswara@gmail.com] Posted job created
+Context: {"customer":"daniswara@gmail.com","title":"testpekerjaan"}
+[2025-11-28 16:51:44] [ERROR] [IP: ::1] [User: daniswara@gmail.com] Database error while posting job: SQLSTATE[22003]: Numeric value out of range: 1264 Out of range value for column 'anggaran' at row 1
+[2025-11-28 16:52:06] [INFO] [IP: ::1] [User: daniswara@gmail.com] Posted job created
+Context: {"customer":"daniswara@gmail.com","title":"testpekerjaan"}
+[2025-11-28 16:52:41] [INFO] [IP: ::1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB005","rating":5}
+[2025-11-28 16:52:45] [INFO] [IP: ::1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB006","rating":5}
+[2025-11-28 16:52:50] [INFO] [IP: ::1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB008","rating":5}
+[2025-11-28 16:53:51] [INFO] [IP: ::1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB007","rating":5}
+[2025-11-28 16:54:37] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-28 16:55:11] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-28 17:10:17] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-28 17:14:29] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-28 17:14:38] [ERROR] [IP: 127.0.0.1] [User: udin@gmail.com] Fatal error in ajax_handler: Call to undefined method InputValidator::validateInt() on line 207 in C:\laragon\www\ngulikuy\ajax_handler.php
+[2025-11-28 17:19:54] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin

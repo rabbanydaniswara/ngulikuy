@@ -82,6 +82,18 @@ $worker = getWorkerById($worker_id);
         </div>
 
         <div>
+            <label class="block text-sm text-gray-600">Pengalaman</label>
+            <input name="experience" type="text" value="<?php echo htmlspecialchars($worker['pengalaman']); ?>" 
+                   class="mt-1 block w-full rounded border-gray-200 p-2" placeholder="Cth: 5 Tahun / 6 Bulan" />
+        </div>
+
+        <div>
+            <label class="block text-sm text-gray-600">Tarif per Jam (Rp)</label>
+            <input name="rate" type="number" value="<?php echo htmlspecialchars($worker['tarif_per_jam']); ?>" 
+                   class="mt-1 block w-full rounded border-gray-200 p-2" placeholder="Cth: 50000" min="0" />
+        </div>
+
+        <div>
           <label class="block text-sm text-gray-600">Upload Foto Profil (jpg/png, max 2MB)</label>
           <input name="photo" id="photo-input" type="file" accept=".png,.jpg,.jpeg" class="mt-1" />
         </div>
@@ -130,7 +142,18 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+            // Log the raw response text before trying to parse as JSON
+            return response.text().then(text => {
+                console.log('Raw server response:', text);
+                try {
+                    return JSON.parse(text); // Try to parse it as JSON
+                } catch (e) {
+                    console.error('Failed to parse JSON:', e);
+                    throw new Error('Server did not return valid JSON: ' + text); // Re-throw with raw text
+                }
+            });
+        })
         .then(data => {
             notification.innerHTML = '';
             const alert = document.createElement('div');

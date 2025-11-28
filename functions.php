@@ -13,9 +13,7 @@ require_once 'db.php';
 require_once 'security_config.php';
 
 // --- SESSION START ---
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+SecureSession::start();
 
 // ==========================================
 // 1. AUTHENTICATION & ROLE HELPERS
@@ -713,8 +711,8 @@ function updateWorker(string $workerId, array $updatedData): bool {
         return true;
     } catch (PDOException $e) {
         DatabaseHelper::rollback(); // Rollback on error
-        error_log($e->getMessage());
-        return false;
+        error_log("Error in updateWorker: " . $e->getMessage()); // Keep logging for server-side debug
+        throw $e; // Re-throw the exception
     }
 }
 

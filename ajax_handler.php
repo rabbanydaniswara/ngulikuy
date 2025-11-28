@@ -41,6 +41,7 @@ if (!$action) {
 
 // --- Handle Aksi ---
 header('Content-Type: application/json'); // Set header JSON default untuk semua aksi
+try {
 
 if ($action === 'update_job_status') {
     // Logika ini sekarang perlu membaca dari $_POST, bukan $input JSON
@@ -202,6 +203,8 @@ if ($action === 'update_job_status') {
         'location' => InputValidator::sanitizeString($_POST['location'] ?? ''),
         'skills' => $_POST['skills'] ?? [],
         'description' => InputValidator::sanitizeString($_POST['description'] ?? ''),
+        'experience' => InputValidator::sanitizeString($_POST['experience'] ?? ''),
+        'rate' => InputValidator::validateIntRange($_POST['rate'] ?? 0)
     ];
 
     // Handle file upload
@@ -218,32 +221,44 @@ if ($action === 'update_job_status') {
         $updatedData['photo'] = filter_var($_POST['photo_url'], FILTER_VALIDATE_URL) ?: null;
     }
 
-    if (updateWorker($workerId, $updatedData)) {
-        // also update password if provided
-        if (!empty($_POST['new_password'])) {
-            $current_password = $_POST['current_password'];
-            $new_password = $_POST['new_password'];
+    try {
+        if (updateWorker($workerId, $updatedData)) {
+            // also update password if provided
+            if (!empty($_POST['new_password'])) {
+                $current_password = $_POST['current_password'];
+                $new_password = $_POST['new_password'];
 
-            $user_stmt = $pdo->prepare("SELECT kata_sandi FROM pengguna WHERE id_pengguna = ?");
-            $user_stmt->execute([$_SESSION['user_id']]);
-            $user = $user_stmt->fetch();
+                $user_stmt = $pdo->prepare("SELECT kata_sandi FROM pengguna WHERE id_pengguna = ?");
+                $user_stmt->execute([$_SESSION['user_id']]);
+                $user = $user_stmt->fetch();
 
-            if ($user && password_verify($current_password, $user['kata_sandi'])) {
-                $hashedPassword = password_hash($new_password, PASSWORD_DEFAULT);
-                $update_pass_stmt = $pdo->prepare("UPDATE pengguna SET kata_sandi = ? WHERE id_pengguna = ?");
-                $update_pass_stmt->execute([$hashedPassword, $_SESSION['user_id']]);
-                $response['success'] = true;
-                $response['message'] = 'Profil dan password berhasil diperbarui!';
+                if ($user && password_verify($current_password, $user['kata_sandi'])) {
+                    $hashedPassword = password_hash($new_password, PASSWORD_DEFAULT);
+                    $update_pass_stmt = $pdo->prepare("UPDATE pengguna SET kata_sandi = ? WHERE id_pengguna = ?");
+                    $update_pass_stmt->execute([$hashedPassword, $_SESSION['user_id']]);
+                    $response['success'] = true;
+                    $response['message'] = 'Profil dan password berhasil diperbarui!';
+                } else {
+                    $response['success'] = false;
+                    $response['message'] = 'Password saat ini salah.';
+                }
             } else {
-                $response['success'] = false;
-                $response['message'] = 'Password saat ini salah.';
+                $response['success'] = true;
+                $response['message'] = 'Profil berhasil diperbarui!';
             }
         } else {
-            $response['success'] = true;
-            $response['message'] = 'Profil berhasil diperbarui!';
+            // This 'else' path is for cases where updateWorker returns false
+            // without throwing an exception, which shouldn't happen after re-throwing.
+            // But it's good to keep it as a fallback if updateWorker is ever refactored
+            // to return false for non-PDO errors.
+            $response['message'] = 'Gagal memperbarui profil (non-exception).';
         }
-    } else {
-        $response['message'] = 'Gagal memperbarui profil.';
+    } catch (PDOException $e) {
+        $response['message'] = 'Database Error: ' . $e->getMessage();
+        SecurityLogger::logError('Error updating worker profile: ' . $e->getMessage());
+    } catch (Exception $e) { // Catch any other unexpected exceptions
+        $response['message'] = 'Error: ' . $e->getMessage();
+        SecurityLogger::logError('Unexpected error updating worker profile: ' . $e->getMessage());
     }
 } elseif ($action === 'add_job') {
     // Logika ini diambil dari admin_dashboard.php
@@ -438,7 +453,7 @@ if ($action === 'update_job_status') {
                     'harga' => $postedJob['anggaran'] ?? 0,
                     'lokasi' => $postedJob['lokasi'],
                     'alamat_lokasi' => $postedJob['alamat'],
-                    'deskripsi' => $postedJob['deskripsi'],
+                    'deskripsi' => $postedJob['deskripsi_lowongan'],
                     'status_pekerjaan' => 'in-progress'
                 ];
 
@@ -464,6 +479,20 @@ if ($action === 'update_job_status') {
         SecurityLogger::logError('Error taking posted job: ' . $e->getMessage());
         $response['message'] = 'Terjadi error di database. Silakan coba lagi.';
     }
+}
+
+} catch (Throwable $e) {
+    // Catch any unexpected PHP errors or exceptions
+    SecurityLogger::logError('Fatal error in ajax_handler: ' . $e->getMessage() . ' on line ' . $e->getLine() . ' in ' . $e->getFile());
+    $response = [
+        'success' => false,
+        'message' => 'Internal Server Error: ' . $e->getMessage() . ' (See logs for details)',
+        'debug' => [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
+        ]
+    ];
 }
 
 // Kirim response JSON final
