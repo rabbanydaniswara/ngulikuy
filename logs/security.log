@@ -317,3 +317,5 @@ Context: {"job":"JOB007","rating":5}
 [2025-11-28 17:14:29] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
 [2025-11-28 17:14:38] [ERROR] [IP: 127.0.0.1] [User: udin@gmail.com] Fatal error in ajax_handler: Call to undefined method InputValidator::validateInt() on line 207 in C:\laragon\www\ngulikuy\ajax_handler.php
 [2025-11-28 17:19:54] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
+[2025-11-28 23:11:07] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-28 23:11:28] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com

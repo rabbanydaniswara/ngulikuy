@@ -472,22 +472,7 @@ function getWorkers(): array {
 }
 
 function getAvailableWorkers(): array {
-    global $pdo;
-    
-    $sql = "SELECT w.*, COUNT(r.id_ulasan) as review_count
-            FROM pekerja w
-            LEFT JOIN ulasan r ON w.id_pekerja = r.id_pekerja
-            WHERE w.status_ketersediaan = 'Available'
-            GROUP BY w.id_pekerja
-            ORDER BY w.nama ASC";
-            
-    $stmt = $pdo->prepare($sql);
-    $workers = $stmt->fetchAll();
-    
-    foreach ($workers as &$worker) {
-        $worker['keahlian'] = json_decode((string)$worker['keahlian'], true) ?: [];
-    }
-    return $workers;
+    return searchWorkers(['status' => 'Available']);
 }
 
 function getTopRatedWorkers(int $limit = 4): array {
@@ -534,8 +519,14 @@ function searchWorkers(array $criteria = []): array {
     $sql = "SELECT w.*, COUNT(r.id_ulasan) as review_count
             FROM pekerja w
             LEFT JOIN ulasan r ON w.id_pekerja = r.id_pekerja
-            WHERE w.status_ketersediaan = 'Available'";
+            WHERE 1=1"; // Start with a true condition to easily append AND clauses
     $params = [];
+    
+    // Add status filter if provided in criteria
+    if (!empty($criteria['status'])) {
+        $sql .= " AND w.status_ketersediaan = ?";
+        $params[] = $criteria['status'];
+    }
     
     if (!empty($criteria['skill'])) {
         $sql .= " AND JSON_CONTAINS(keahlian, ?)";
