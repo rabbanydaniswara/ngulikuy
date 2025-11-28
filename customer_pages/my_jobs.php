@@ -23,7 +23,7 @@
     $displayable_jobs = [];
     if (!empty($postedJobs)) {
         foreach ($postedJobs as $job) {
-            $posted_status = $job['posted_job_status'];
+            $posted_status = $job['status_lowongan'];
             $job_status = $job['job_status'];
 
             $final_status = 'unknown';
@@ -69,19 +69,19 @@
                 if ($final_status === 'completed') $statusClass = 'bg-blue-100 text-blue-800';
                 if ($final_status === 'cancelled') $statusClass = 'bg-orange-100 text-orange-800';
             ?>
-                <div id="job-row-<?php echo $job['id']; ?>" class="bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all overflow-hidden">
+                <div id="job-row-<?php echo $job['id_lowongan']; ?>" class="bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all overflow-hidden">
                     <div class="p-4 sm:p-6">
                         <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start">
                             <div>
                                 <h3 class="text-base sm:text-xl font-bold text-gray-800 hover:text-blue-600 transition-colors">
-                                    <a href="detail_posted_job.php?id=<?php echo $job['id']; ?>"><?php echo htmlspecialchars($job['title']); ?></a>
+                                    <a href="detail_posted_job.php?id=<?php echo $job['id_lowongan']; ?>"><?php echo htmlspecialchars($job['judul_lowongan']); ?></a>
                                 </h3>
                                 <p class="text-xs sm:text-sm text-gray-500 mt-1">
-                                    <span class="font-semibold"><?php echo htmlspecialchars($job['job_type']); ?></span>
+                                    <span class="font-semibold"><?php echo htmlspecialchars($job['jenis_pekerjaan']); ?></span>
                                     <span class="mx-1 sm:mx-2">•</span>
-                                    <i data-feather="map-pin" class="w-3 h-3 inline"></i> <?php echo htmlspecialchars($job['location']); ?>
+                                    <i data-feather="map-pin" class="w-3 h-3 inline"></i> <?php echo htmlspecialchars($job['lokasi']); ?>
                                     <span class="mx-1 sm:mx-2">•</span>
-                                    Posted on <?php echo date('d M Y', strtotime($job['created_at'])); ?>
+                                    Posted on <?php echo date('d M Y', strtotime($job['dibuat_pada'])); ?>
                                 </p>
                             </div>
                             <span class="mt-2 sm:mt-0 px-3 py-1 text-xs sm:text-sm font-bold rounded-full <?php echo $statusClass; ?> inline-block w-fit">
@@ -90,15 +90,15 @@
                         </div>
                         
                         <p class="mt-3 text-sm text-gray-600">
-                            <?php echo nl2br(htmlspecialchars(substr($job['description'], 0, 150))); ?>
-                            <?php if (strlen($job['description']) > 150): ?>...<?php endif; ?>
+                            <?php echo nl2br(htmlspecialchars(substr($job['deskripsi_lowongan'], 0, 150))); ?>
+                            <?php if (strlen($job['deskripsi_lowongan']) > 150): ?>...<?php endif; ?>
                         </p>
 
                         <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pt-4 mt-4 border-t border-gray-100">
                             <div>
-                                <?php if (isset($job['budget']) && $job['budget'] > 0): ?>
+                                <?php if (isset($job['anggaran']) && $job['anggaran'] > 0): ?>
                                     <p class="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                                        <?php echo formatCurrency($job['budget']); ?>
+                                        <?php echo formatCurrency($job['anggaran']); ?>
                                     </p>
                                     <p class="text-xs text-gray-500">Anggaran</p>
                                 <?php else: ?>
@@ -106,13 +106,13 @@
                                 <?php endif; ?>
                             </div>
                             <div class="mt-3 sm:mt-0 flex items-center space-x-2">
-                                <a href="detail_posted_job.php?id=<?php echo $job['id']; ?>" class="inline-flex items-center px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-xs font-semibold transition-all">
+                                <a href="detail_posted_job.php?id=<?php echo $job['id_lowongan']; ?>" class="inline-flex items-center px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-xs font-semibold transition-all">
                                     <i data-feather="eye" class="w-4 h-4 mr-2"></i>
                                     Lihat Detail
                                 </a>
                                 <?php if ($final_status === 'open'): ?>
                                 <button type="button" class="job-modal-trigger inline-flex items-center px-3 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 text-xs font-semibold transition-all"
-                                    data-action="customer_delete_posted_job" data-job-id="<?php echo $job['id']; ?>" data-job-title="<?php echo htmlspecialchars($job['title']); ?>">
+                                    data-action="customer_delete_posted_job" data-job-id="<?php echo $job['id_lowongan']; ?>" data-job-title="<?php echo htmlspecialchars($job['judul_lowongan']); ?>">
                                     <i data-feather="trash-2" class="w-4 h-4 mr-2"></i>
                                     Hapus
                                 </button>

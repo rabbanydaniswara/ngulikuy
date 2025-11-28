@@ -180,32 +180,32 @@ class OptimizedQueries {
         
         $sql = "SELECT 
                     w.*,
-                    COUNT(DISTINCT r.id) as review_count,
+                    COUNT(DISTINCT r.id_ulasan) as review_count,
                     AVG(r.rating) as avg_rating
-                FROM workers w
-                LEFT JOIN reviews r ON w.id = r.workerId
+                FROM pekerja w
+                LEFT JOIN ulasan r ON w.id_pekerja = r.id_pekerja
                 WHERE 1=1";
         
         $params = [];
         
         // Apply filters
         if (!empty($filters['status'])) {
-            $sql .= " AND w.status = ?";
+            $sql .= " AND w.status_ketersediaan = ?";
             $params[] = $filters['status'];
         }
         
         if (!empty($filters['skill'])) {
-            $sql .= " AND JSON_CONTAINS(w.skills, ?)";
+            $sql .= " AND JSON_CONTAINS(w.keahlian, ?)";
             $params[] = '"' . $filters['skill'] . '"';
         }
         
         if (!empty($filters['location'])) {
-            $sql .= " AND w.location LIKE ?";
+            $sql .= " AND w.lokasi LIKE ?";
             $params[] = '%' . $filters['location'] . '%';
         }
         
-        $sql .= " GROUP BY w.id";
-        $sql .= " ORDER BY w.rating DESC, w.name ASC";
+        $sql .= " GROUP BY w.id_pekerja";
+        $sql .= " ORDER BY w.rating DESC, w.nama ASC";
         $sql .= " LIMIT ? OFFSET ?";
         
         $params[] = $perPage;
@@ -217,13 +217,13 @@ class OptimizedQueries {
         
         // Decode skills
         foreach ($workers as &$worker) {
-            $worker['skills'] = json_decode($worker['skills'], true) ?: [];
+            $worker['keahlian'] = json_decode($worker['keahlian'], true) ?: [];
         }
         
         // Get total count
-        $countSql = "SELECT COUNT(*) FROM workers WHERE 1=1";
+        $countSql = "SELECT COUNT(*) FROM pekerja WHERE 1=1";
         if (!empty($filters['status'])) {
-            $countSql .= " AND status = ?";
+            $countSql .= " AND status_ketersediaan = ?";
         }
         
         $countStmt = $this->pdo->prepare($countSql);
@@ -253,31 +253,31 @@ class OptimizedQueries {
     public function getJobsOptimized($filters = []) {
         $sql = "SELECT 
                     j.*,
-                    w.name as worker_name,
-                    w.phone as worker_phone,
-                    w.photo as worker_photo
-                FROM jobs j
-                LEFT JOIN workers w ON j.workerId = w.id
+                    w.nama as worker_name,
+                    w.telepon as worker_phone,
+                    w.url_foto as worker_photo
+                FROM pekerjaan j
+                LEFT JOIN pekerja w ON j.id_pekerja = w.id_pekerja
                 WHERE 1=1";
         
         $params = [];
         
         if (!empty($filters['status'])) {
-            $sql .= " AND j.status = ?";
+            $sql .= " AND j.status_pekerjaan = ?";
             $params[] = $filters['status'];
         }
         
         if (!empty($filters['customer_email'])) {
-            $sql .= " AND j.customerEmail = ?";
+            $sql .= " AND j.email_pelanggan = ?";
             $params[] = $filters['customer_email'];
         }
         
         if (!empty($filters['worker_id'])) {
-            $sql .= " AND j.workerId = ?";
+            $sql .= " AND j.id_pekerja = ?";
             $params[] = $filters['worker_id'];
         }
         
-        $sql .= " ORDER BY j.createdAt DESC";
+        $sql .= " ORDER BY j.dibuat_pada DESC";
         
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
@@ -298,14 +298,14 @@ class OptimizedQueries {
         
         foreach ($reviews as $review) {
             $placeholders[] = "(?, ?, ?, ?, ?)";
-            $params[] = $review['jobId'];
-            $params[] = $review['workerId'];
-            $params[] = $review['customerId'];
+            $params[] = $review['id_pekerjaan'];
+            $params[] = $review['id_pekerja'];
+            $params[] = $review['id_pelanggan'];
             $params[] = $review['rating'];
-            $params[] = $review['comment'];
+            $params[] = $review['komentar'];
         }
         
-        $sql = "INSERT INTO reviews (jobId, workerId, customerId, rating, comment) VALUES " 
+        $sql = "INSERT INTO ulasan (id_pekerjaan, id_pekerja, id_pelanggan, rating, komentar) VALUES " 
              . implode(', ', $placeholders);
         
         $stmt = $this->pdo->prepare($sql);

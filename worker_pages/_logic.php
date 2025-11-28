@@ -21,7 +21,7 @@ $openPostedJobs = [];
 
 // Get worker's skills
 $worker = getWorkerById($worker_profile_id);
-$worker_skills = $worker['skills'] ?? [];
+$worker_skills = $worker['keahlian'] ?? [];
 
 if ($active_tab === 'find_jobs') {
     global $pdo;
@@ -31,11 +31,11 @@ if ($active_tab === 'find_jobs') {
         $placeholders = implode(',', array_fill(0, count($worker_skills), '?'));
 
         // Fetch all open jobs that match the worker's skills
-        $sql = "SELECT * FROM posted_jobs 
-                WHERE status = 'open' 
-                AND worker_id IS NULL 
-                AND job_type IN ($placeholders) 
-                ORDER BY created_at DESC";
+        $sql = "SELECT * FROM lowongan_diposting 
+                WHERE status_lowongan = 'open' 
+                AND id_pekerja IS NULL 
+                AND jenis_pekerjaan IN ($placeholders) 
+                ORDER BY dibuat_pada DESC";
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute($worker_skills);
@@ -51,13 +51,13 @@ if ($active_tab === 'find_jobs') {
     // Filter job berdasarkan tab
     $filteredJobs = array_filter($allJobs, function($job) use ($active_tab) {
         if ($active_tab === 'pending') {
-            return ($job['status'] ?? '') === 'pending';
+            return ($job['status_pekerjaan'] ?? '') === 'pending';
         }
         if ($active_tab === 'active') {
-            return ($job['status'] ?? '') === 'in-progress';
+            return ($job['status_pekerjaan'] ?? '') === 'in-progress';
         }
         if ($active_tab === 'completed') {
-            $s = $job['status'] ?? '';
+            $s = $job['status_pekerjaan'] ?? '';
             return $s === 'completed' || $s === 'cancelled';
         }
         return false;

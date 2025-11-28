@@ -88,19 +88,19 @@ if (!defined('IS_ADMIN_PAGE')) {
                                 <td class="px-4 py-3 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 h-10 w-10">
-                                            <img class="h-10 w-10 rounded-full object-cover" src="<?php echo htmlspecialchars($worker['photo']); ?>" alt="">
+                                            <img class="h-10 w-10 rounded-full object-cover" src="<?php echo htmlspecialchars($worker['url_foto']); ?>" alt="">
                                         </div>
                                         <div class="ml-4">
-                                            <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($worker['name']); ?></div>
+                                            <div class="text-sm font-medium text-gray-900"><?php echo htmlspecialchars($worker['nama']); ?></div>
                                             <div class="text-sm text-gray-500"><?php echo htmlspecialchars($worker['email']); ?></div>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900"><?php echo htmlspecialchars(implode(', ', $worker['skills'])); ?></div>
+                                    <div class="text-sm text-gray-900"><?php echo htmlspecialchars(implode(', ', $worker['keahlian'])); ?></div>
                                 </td>
                                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                    <?php echo date('d M Y', strtotime($worker['joinDate'])); ?>
+                                    <?php echo date('d M Y', strtotime($worker['tanggal_bergabung'])); ?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -122,14 +122,14 @@ if (!defined('IS_ADMIN_PAGE')) {
                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg worker-card">
                         <div class="flex items-center">
                             <img
-                                src="<?php echo htmlspecialchars($worker['photo']); ?>"
-                                alt="<?php echo htmlspecialchars($worker['name']); ?>"
+                                src="<?php echo htmlspecialchars($worker['url_foto']); ?>"
+                                alt="<?php echo htmlspecialchars($worker['nama']); ?>"
                                 class="w-10 h-10 rounded-full mr-3 object-cover"
                             >
                             <div>
-                                <div class="font-medium"><?php echo htmlspecialchars($worker['name']); ?></div>
+                                <div class="font-medium"><?php echo htmlspecialchars($worker['nama']); ?></div>
                                 <div class="text-sm text-gray-500">
-                                    <?php echo htmlspecialchars(implode(', ', array_slice($worker['skills'], 0, 2))); ?>
+                                    <?php echo htmlspecialchars(implode(', ', array_slice($worker['keahlian'], 0, 2))); ?>
                                 </div>
                             </div>
                         </div>
@@ -138,7 +138,7 @@ if (!defined('IS_ADMIN_PAGE')) {
                                 <?php echo formatRating($worker['rating']); ?>
                             </div>
                             <div class="text-sm font-medium text-gray-700">
-                                <?php echo formatCurrency($worker['rate']); ?>
+                                <?php echo formatCurrency($worker['tarif_per_jam']); ?>
                             </div>
                         </div>
                     </div>

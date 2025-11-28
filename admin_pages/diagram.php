@@ -27,10 +27,10 @@ try {
     // Query to count jobs per month for the last 6 months
     // uses DATE_FORMAT to group by 'YYYY-MM'
     $sql = "SELECT 
-                DATE_FORMAT(createdAt, '%Y-%m') as month_year, 
+                DATE_FORMAT(dibuat_pada, '%Y-%m') as month_year, 
                 COUNT(*) as total 
-            FROM jobs 
-            WHERE createdAt >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+            FROM pekerjaan 
+            WHERE dibuat_pada >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
             GROUP BY month_year";
             
     $stmt = $pdo->prepare($sql);

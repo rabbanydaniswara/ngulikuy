@@ -6,10 +6,10 @@ if (empty($_SESSION['admin_id'])) {
     return;
 }
 $admin = $_SESSION['admin'] ?? [
-    'id'=>$_SESSION['admin_id'],
-    'name'=>'Administrator',
-    'email'=>'',
-    'avatar'=>'assets/default-avatar.png'
+    'id_pengguna'=>$_SESSION['user_id'],
+    'nama_lengkap'=>$_SESSION['user_name'],
+    'nama_pengguna'=>$_SESSION['user'],
+    'url_foto'=>$_SESSION['user_photo'] ?? 'assets/default-avatar.png'
 ];
 
 $flash = $_SESSION['flash'] ?? null;
@@ -30,27 +30,27 @@ unset($_SESSION['flash']);
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="p-4 bg-white rounded-2xl shadow-sm">
       <div class="flex flex-col items-center gap-3">
-        <?php $avatar = !empty($admin['avatar']) ? $admin['avatar'] : 'assets/default-avatar.png'; ?>
+        <?php $avatar = !empty($admin['url_foto']) ? $admin['url_foto'] : 'assets/default-avatar.png'; ?>
         <img src="<?= htmlspecialchars($avatar) ?>" alt="avatar" class="w-28 h-28 rounded-full object-cover border" />
         <div class="text-center">
-          <p class="font-medium"><?= htmlspecialchars($admin['name']) ?></p>
-          <p class="text-sm text-gray-500"><?= htmlspecialchars($admin['email']) ?></p>
+          <p class="font-medium"><?= htmlspecialchars($admin['nama_lengkap']) ?></p>
+          <p class="text-sm text-gray-500"><?= htmlspecialchars($admin['nama_pengguna']) ?></p>
         </div>
       </div>
     </div>
 
     <div class="lg:col-span-2 p-4 bg-white rounded-2xl shadow-sm">
       <form action="admin_pages/save_profile.php" method="post" enctype="multipart/form-data" class="space-y-4">
-        <input type="hidden" name="admin_id" value="<?= htmlspecialchars($admin['id']) ?>" />
+        <input type="hidden" name="admin_id" value="<?= htmlspecialchars($admin['id_pengguna']) ?>" />
 
         <div>
           <label class="block text-sm text-gray-600">Nama</label>
-          <input name="name" value="<?= htmlspecialchars($admin['name']) ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
+          <input name="name" value="<?= htmlspecialchars($admin['nama_lengkap']) ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
         </div>
 
         <div>
           <label class="block text-sm text-gray-600">Email</label>
-          <input name="email" type="email" value="<?= htmlspecialchars($admin['email']) ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
+          <input name="email" type="email" value="<?= htmlspecialchars($admin['nama_pengguna']) ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
         </div>
 
         <div>

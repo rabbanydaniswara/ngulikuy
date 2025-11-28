@@ -43,27 +43,27 @@ if (!defined('IS_ADMIN_PAGE')) {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($workers as $worker): ?>
-                            <?php $statusClass = getStatusClass($worker['status'], 'worker'); ?>
+                            <?php $statusClass = getStatusClass($worker['status_ketersediaan'], 'worker'); ?>
                             <tr>
 
                                 <!-- ID -->
-                                <td class="px-3 py-3 text-xs font-mono truncate"><?php echo htmlspecialchars($worker['id']); ?></td>
+                                <td class="px-3 py-3 text-xs font-mono truncate"><?php echo htmlspecialchars($worker['id_pekerja']); ?></td>
 
                                 <!-- Worker (photo + name + experience) -->
                                 <td class="px-3 py-3 align-top">
                                     <div class="flex items-center space-x-2 overflow-hidden">
-                                        <img src="<?php echo htmlspecialchars($worker['photo']); ?>"
-                                             alt="<?php echo htmlspecialchars($worker['name']); ?>"
+                                        <img src="<?php echo htmlspecialchars($worker['url_foto']); ?>"
+                                             alt="<?php echo htmlspecialchars($worker['nama']); ?>"
                                              class="w-8 h-8 rounded-full object-cover flex-shrink-0">
 
                                         <div class="min-w-0">
                                             <div class="text-sm font-medium truncate max-w-[120px] view-worker-btn cursor-pointer hover:underline" 
-                                                 title="<?php echo htmlspecialchars($worker['name']); ?>"
-                                                 data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>">
-                                                <?php echo htmlspecialchars($worker['name']); ?>
+                                                 title="<?php echo htmlspecialchars($worker['nama']); ?>"
+                                                 data-worker-id="<?php echo htmlspecialchars($worker['id_pekerja']); ?>">
+                                                <?php echo htmlspecialchars($worker['nama']); ?>
                                             </div>
-                                            <div class="text-xs text-gray-500 truncate max-w-[120px]" title="<?php echo htmlspecialchars($worker['experience'] ?? 'No experience'); ?>">
-                                                <?php echo htmlspecialchars($worker['experience'] ?? 'No experience'); ?>
+                                            <div class="text-xs text-gray-500 truncate max-w-[120px]" title="<?php echo htmlspecialchars($worker['pengalaman'] ?? 'No experience'); ?>">
+                                                <?php echo htmlspecialchars($worker['pengalaman'] ?? 'No experience'); ?>
                                             </div>
                                         </div>
                                     </div>
@@ -74,15 +74,15 @@ if (!defined('IS_ADMIN_PAGE')) {
                                     <div class="truncate text-sm max-w-[130px]" title="<?php echo htmlspecialchars($worker['email']); ?>">
                                         <?php echo htmlspecialchars($worker['email']); ?>
                                     </div>
-                                    <div class="truncate text-xs text-gray-500 max-w-[130px]" title="<?php echo htmlspecialchars($worker['phone']); ?>">
-                                        <?php echo htmlspecialchars($worker['phone']); ?>
+                                    <div class="truncate text-xs text-gray-500 max-w-[130px]" title="<?php echo htmlspecialchars($worker['telepon']); ?>">
+                                        <?php echo htmlspecialchars($worker['telepon']); ?>
                                     </div>
                                 </td>
 
                                 <!-- Skills -->
                                 <td class="px-3 py-3 align-top">
                                     <div class="flex flex-wrap gap-1 max-w-[130px] overflow-hidden">
-                                        <?php foreach ($worker['skills'] as $skill): ?>
+                                        <?php foreach ($worker['keahlian'] as $skill): ?>
                                             <span class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded truncate" title="<?php echo htmlspecialchars($skill); ?>">
                                                 <?php echo htmlspecialchars($skill); ?>
                                             </span>
@@ -91,13 +91,13 @@ if (!defined('IS_ADMIN_PAGE')) {
                                 </td>
 
                                 <!-- Location -->
-                                <td class="px-3 py-3 text-sm text-gray-700 truncate max-w-[100px]" title="<?php echo htmlspecialchars($worker['location']); ?>">
-                                    <?php echo htmlspecialchars($worker['location']); ?>
+                                <td class="px-3 py-3 text-sm text-gray-700 truncate max-w-[100px]" title="<?php echo htmlspecialchars($worker['lokasi']); ?>">
+                                    <?php echo htmlspecialchars($worker['lokasi']); ?>
                                 </td>
 
                                 <!-- Status -->
                                 <td class="px-3 py-3 whitespace-nowrap">
-                                    <span class="px-2 py-1 text-xs rounded-full <?php echo $statusClass; ?>"><?php echo htmlspecialchars($worker['status']); ?></span>
+                                    <span class="px-2 py-1 text-xs rounded-full <?php echo $statusClass; ?>"><?php echo htmlspecialchars($worker['status_ketersediaan']); ?></span>
                                 </td>
 
                                 <!-- Rating -->
@@ -111,7 +111,7 @@ if (!defined('IS_ADMIN_PAGE')) {
 
                                 <!-- Rate -->
                                 <td class="px-3 py-3 text-sm font-medium truncate max-w-[70px]">
-                                    <?php echo formatCurrency($worker['rate']); ?>
+                                    <?php echo formatCurrency($worker['tarif_per_jam']); ?>
                                 </td>
 
                                 <!-- Actions -->
@@ -120,7 +120,7 @@ if (!defined('IS_ADMIN_PAGE')) {
                                         <button
                                             type="button"
                                             class="edit-worker-btn text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition duration-200"
-                                            data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"
+                                            data-worker-id="<?php echo htmlspecialchars($worker['id_pekerja']); ?>"
                                             title="Edit Worker">
                                             <i data-feather="edit" class="w-4 h-4"></i>
                                         </button>
@@ -128,8 +128,8 @@ if (!defined('IS_ADMIN_PAGE')) {
                                         <button
                                             type="button"
                                             class="delete-worker-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition duration-200"
-                                            data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"
-                                            data-worker-name="<?php echo htmlspecialchars($worker['name']); ?>"
+                                            data-worker-id="<?php echo htmlspecialchars($worker['id_pekerja']); ?>"
+                                            data-worker-name="<?php echo htmlspecialchars($worker['nama']); ?>"
                                             title="Hapus Pekerja">
                                             <i data-feather="trash-2" class="w-4 h-4"></i>
                                         </button>
@@ -149,42 +149,42 @@ if (!defined('IS_ADMIN_PAGE')) {
                 <div class="px-6 py-4 text-center text-gray-500">Belum ada data pekerja.</div>
             <?php else: ?>
                 <?php foreach ($workers as $worker): ?>
-                    <?php $statusClass = getStatusClass($worker['status'], 'worker'); ?>
+                    <?php $statusClass = getStatusClass($worker['status_ketersediaan'], 'worker'); ?>
                     <div class="bg-white border rounded-lg p-4 shadow-sm">
                         <div class="flex items-start space-x-3">
-                            <img src="<?php echo htmlspecialchars($worker['photo']); ?>"
-                                 alt="<?php echo htmlspecialchars($worker['name']); ?>"
+                            <img src="<?php echo htmlspecialchars($worker['url_foto']); ?>"
+                                 alt="<?php echo htmlspecialchars($worker['nama']); ?>"
                                  class="w-12 h-12 rounded-full object-cover flex-shrink-0">
 
                             <div class="flex-1 min-w-0">
                                 <div class="flex justify-between items-start">
                                     <div>
                                         <div class="font-medium text-sm truncate view-worker-btn cursor-pointer hover:underline" 
-                                             title="<?php echo htmlspecialchars($worker['name']); ?>"
-                                             data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>">
-                                            <?php echo htmlspecialchars($worker['name']); ?>
+                                             title="<?php echo htmlspecialchars($worker['nama']); ?>"
+                                             data-worker-id="<?php echo htmlspecialchars($worker['id_pekerja']); ?>">
+                                            <?php echo htmlspecialchars($worker['nama']); ?>
                                         </div>
-                                        <div class="text-xs text-gray-500 truncate" title="<?php echo htmlspecialchars($worker['experience'] ?? 'No experience'); ?>"><?php echo htmlspecialchars($worker['experience'] ?? 'No experience'); ?></div>
+                                        <div class="text-xs text-gray-500 truncate" title="<?php echo htmlspecialchars($worker['pengalaman'] ?? 'No experience'); ?>"><?php echo htmlspecialchars($worker['pengalaman'] ?? 'No experience'); ?></div>
                                     </div>
 
                                     <div class="text-right ml-3">
-                                        <div class="text-xs <?php echo $statusClass; ?> inline-block px-2 py-0.5 rounded-full"><?php echo htmlspecialchars($worker['status']); ?></div>
-                                        <div class="mt-1 text-sm font-medium"><?php echo formatCurrency($worker['rate']); ?></div>
+                                        <div class="text-xs <?php echo $statusClass; ?> inline-block px-2 py-0.5 rounded-full"><?php echo htmlspecialchars($worker['status_ketersediaan']); ?></div>
+                                        <div class="mt-1 text-sm font-medium"><?php echo formatCurrency($worker['tarif_per_jam']); ?></div>
                                     </div>
                                 </div>
 
-                                <div class="mt-2 text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars($worker['email'] . ' • ' . $worker['phone']); ?>">
-                                    <?php echo htmlspecialchars($worker['email']); ?> • <?php echo htmlspecialchars($worker['phone']); ?>
+                                <div class="mt-2 text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars($worker['email'] . ' • ' . $worker['telepon']); ?>">
+                                    <?php echo htmlspecialchars($worker['email']); ?> • <?php echo htmlspecialchars($worker['telepon']); ?>
                                 </div>
 
                                 <div class="mt-2 flex flex-wrap gap-1">
-                                    <?php foreach ($worker['skills'] as $skill): ?>
+                                    <?php foreach ($worker['keahlian'] as $skill): ?>
                                         <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded" title="<?php echo htmlspecialchars($skill); ?>"><?php echo htmlspecialchars($skill); ?></span>
                                     <?php endforeach; ?>
                                  </div>
 
                                 <div class="mt-2 flex items-center justify-between text-xs text-gray-500">
-                                    <div class="truncate max-w-xs" title="<?php echo htmlspecialchars($worker['location']); ?>"><?php echo htmlspecialchars($worker['location']); ?></div>
+                                    <div class="truncate max-w-xs" title="<?php echo htmlspecialchars($worker['lokasi']); ?>"><?php echo htmlspecialchars($worker['lokasi']); ?></div>
                                     <div>
                                         <span class="text-yellow-500"><?php echo formatRating($worker['rating']); ?></span>
                                         <span class="ml-1"><?php echo number_format($worker['rating'], 1); ?> (<?php echo $worker['review_count']; ?>)</span>
@@ -195,7 +195,7 @@ if (!defined('IS_ADMIN_PAGE')) {
                                     <button
                                         type="button"
                                         class="edit-worker-btn text-blue-600 hover:text-blue-800 p-1 rounded hover:bg-blue-50 transition duration-200"
-                                        data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"
+                                        data-worker-id="<?php echo htmlspecialchars($worker['id_pekerja']); ?>"
                                         title="Edit Worker">
                                         <i data-feather="edit" class="w-4 h-4"></i>
                                     </button>
@@ -203,8 +203,8 @@ if (!defined('IS_ADMIN_PAGE')) {
                                     <button
                                         type="button"
                                         class="delete-worker-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition duration-200"
-                                        data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"
-                                        data-worker-name="<?php echo htmlspecialchars($worker['name']); ?>"
+                                        data-worker-id="<?php echo htmlspecialchars($worker['id_pekerja']); ?>"
+                                        data-worker-name="<?php echo htmlspecialchars($worker['nama']); ?>"
                                         title="Hapus Pekerja">
                                         <i data-feather="trash-2" class="w-5 h-5"></i>
                                     </button>

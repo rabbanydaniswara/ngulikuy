@@ -64,8 +64,8 @@
         <?php foreach ($workers as $worker): ?>
             <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg hover:shadow-2xl transition-all overflow-hidden worker-card">
                 <div class="relative">
-                    <img src="<?php echo htmlspecialchars($worker['photo']); ?>" 
-                            alt="<?php echo htmlspecialchars($worker['name']); ?>"
+                    <img src="<?php echo htmlspecialchars($worker['url_foto']); ?>" 
+                            alt="<?php echo htmlspecialchars($worker['nama']); ?>"
                             class="w-full h-40 sm:h-56 object-cover">
                     <div class="absolute top-3 sm:top-4 right-3 sm:right-4">
                         <span class="bg-green-500 text-white text-xs font-bold px-2 sm:px-3 py-1 rounded-full shadow-lg">
@@ -74,9 +74,9 @@
                     </div>
                 </div>
                 <div class="p-4 sm:p-6">
-                    <h3 class="font-bold text-lg sm:text-xl mb-2 text-gray-800 view-worker-btn cursor-pointer hover:underline" data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"><?php echo htmlspecialchars($worker['name']); ?></h3>
+                    <h3 class="font-bold text-lg sm:text-xl mb-2 text-gray-800 view-worker-btn cursor-pointer hover:underline" data-worker-id="<?php echo htmlspecialchars($worker['id_pekerja']); ?>"><?php echo htmlspecialchars($worker['nama']); ?></h3>
                     <div class="flex flex-wrap gap-1 sm:gap-2 mb-2 sm:mb-3">
-                        <?php foreach (array_slice($worker['skills'], 0, 2) as $skill): ?>
+                        <?php foreach (array_slice($worker['keahlian'], 0, 2) as $skill): ?>
                             <span class="bg-blue-100 text-blue-700 text-xs font-semibold px-2 sm:px-3 py-1 rounded-full">
                                 <?php echo htmlspecialchars($skill); ?>
                             </span>
@@ -95,13 +95,13 @@
                     </div>
                     <p class="text-xs sm:text-sm text-gray-600 mb-3 sm:mb-4 flex items-center">
                         <i data-feather="map-pin" class="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-400"></i>
-                        <?php echo htmlspecialchars($worker['location']); ?>
+                        <?php echo htmlspecialchars($worker['lokasi']); ?>
                     </p>
                     <div class="flex items-center justify-between pt-3 sm:pt-4 border-t">
                         <span class="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                            <?php echo formatCurrency($worker['rate']); ?>/hari
+                            <?php echo formatCurrency($worker['tarif_per_jam']); ?>/hari
                         </span>
-                        <button onclick="openBookingModal('<?php echo $worker['id']; ?>')" 
+                        <button onclick="openBookingModal('<?php echo $worker['id_pekerja']; ?>')" 
                                 class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-indigo-700 font-semibold shadow-md hover:shadow-lg transition-all text-xs sm:text-sm">
                             Pesan
                         </button>

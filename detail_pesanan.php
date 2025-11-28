@@ -22,8 +22,8 @@ if (!$jobId) {
             $error_message = "Detail pesanan dengan ID '$jobId' tidak ditemukan.";
         } else {
             $worker = null;
-            if (!empty($jobDetails['workerId'])) {
-                $worker = getWorkerById($jobDetails['workerId']);
+            if (!empty($jobDetails['id_pekerja'])) {
+                $worker = getWorkerById($jobDetails['id_pekerja']);
             }
         }
     }
@@ -81,21 +81,21 @@ if (!$jobId) {
                 Kembali ke Pesanan Saya
             </a>
         <?php elseif ($jobDetails): 
-            $statusInfo = getStatusTextAndClass($jobDetails['status']);
+            $statusInfo = getStatusTextAndClass($jobDetails['status_pekerjaan']);
         ?>
             <div class="flex items-center mb-2">
-                <h1 class="text-4xl font-extrabold text-gray-900">Detail Pekerja #<?php echo htmlspecialchars($jobDetails['jobId']); ?></h1>
+                <h1 class="text-4xl font-extrabold text-gray-900">Detail Pekerja #<?php echo htmlspecialchars($jobDetails['id_pekerjaan']); ?></h1>
                 <a href="customer_dashboard.php?tab=orders" class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors duration-200 ml-4">
                     <i data-feather="arrow-left" class="w-4 h-4 mr-1"></i> Kembali ke Pesanan
                 </a>
             </div>
-            <p class="text-md text-gray-400 mb-6">Dibuat pada: <?php echo date('d M Y, H:i', strtotime($jobDetails['createdAt'])); ?></p>
+            <p class="text-md text-gray-400 mb-6">Dibuat pada: <?php echo date('d M Y, H:i', strtotime($jobDetails['dibuat_pada'])); ?></p>
 
             <div class="mb-8 flex items-center">
                 <span class="inline-flex items-center gap-1 px-4 py-2 text-sm font-semibold rounded-full shadow-md transition-all duration-200 ease-in-out <?php echo $statusInfo['class']; ?>">
-                    <?php if ($jobDetails['status'] == 'pending'): ?>
+                    <?php if ($jobDetails['status_pekerjaan'] == 'pending'): ?>
                         <i data-feather="clock" class="w-4 h-4 mr-1"></i>
-                    <?php elseif ($jobDetails['status'] == 'completed'): ?>
+                    <?php elseif ($jobDetails['status_pekerjaan'] == 'completed'): ?>
                         <i data-feather="check-circle" class="w-4 h-4 mr-1"></i>
                     <?php else: ?>
                         <i data-feather="info" class="w-4 h-4 mr-1"></i>
@@ -112,27 +112,27 @@ if (!$jobId) {
                      <dl class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-4 gap-x-6">
                         <div class="sm:col-span-1">
                             <dt class="text-sm font-medium text-gray-500">Jenis Pekerjaan</dt>
-                            <dd class="mt-1 text-gray-800"><?php echo htmlspecialchars($jobDetails['jobType']); ?></dd>
+                            <dd class="mt-1 text-gray-800"><?php echo htmlspecialchars($jobDetails['jenis_pekerjaan']); ?></dd>
                         </div>
                         <div class="sm:col-span-1">
                             <dt class="text-sm font-medium text-gray-500">Tanggal Mulai</dt>
-                            <dd class="mt-1 text-gray-800"><?php echo date('d M Y', strtotime($jobDetails['startDate'])); ?></dd>
+                            <dd class="mt-1 text-gray-800"><?php echo date('d M Y', strtotime($jobDetails['tanggal_mulai'])); ?></dd>
                         </div>
                         <div class="sm:col-span-1">
                             <dt class="text-sm font-medium text-gray-500">Tanggal Selesai</dt>
-                            <dd class="mt-1 text-gray-800"><?php echo date('d M Y', strtotime($jobDetails['endDate'])); ?></dd>
+                            <dd class="mt-1 text-gray-800"><?php echo date('d M Y', strtotime($jobDetails['tanggal_selesai'])); ?></dd>
                         </div>
                          <div class="md:col-span-2">
                             <dt class="text-sm font-medium text-gray-500">Lokasi Pengerjaan</dt>
-                            <dd class="mt-1 text-gray-800"><?php echo nl2br(htmlspecialchars($jobDetails['address'])); ?></dd>
+                            <dd class="mt-1 text-gray-800"><?php echo nl2br(htmlspecialchars($jobDetails['alamat_lokasi'])); ?></dd>
                         </div>
                         <div class="md:col-span-2">
                             <dt class="text-sm font-medium text-gray-500">Deskripsi / Catatan</dt>
-                            <dd class="mt-1 text-gray-800"><?php echo nl2br(htmlspecialchars($jobDetails['description'] ?: '-')); ?></dd>
+                            <dd class="mt-1 text-gray-800"><?php echo nl2br(htmlspecialchars($jobDetails['deskripsi'] ?: '-')); ?></dd>
                         </div>
                          <div class="sm:col-span-1">
                             <dt class="text-sm font-medium text-gray-500">Total Biaya</dt>
-                            <dd class="mt-1 text-xl font-semibold text-blue-600"><?php echo formatCurrency($jobDetails['price']); ?></dd>
+                            <dd class="mt-1 text-xl font-semibold text-blue-600"><?php echo formatCurrency($jobDetails['harga']); ?></dd>
                         </div>
                     </dl>
                 </div>
@@ -143,11 +143,11 @@ if (!$jobId) {
                     <h3 class="text-lg leading-6 font-semibold text-gray-900">Informasi Pekerja</h3>
                 </div>
                 <div class="p-6">
-                    <?php if ($jobDetails['workerId'] && $jobDetails['worker_full_name']): ?>
+                    <?php if ($jobDetails['id_pekerja'] && $jobDetails['worker_full_name']): ?>
                     <div class="flex items-center space-x-4">
                         <img src="<?php echo htmlspecialchars($jobDetails['worker_photo'] ?: getDefaultWorkerPhoto()); ?>" alt="<?php echo htmlspecialchars($jobDetails['worker_full_name']); ?>" class="w-20 h-20 rounded-full flex-shrink-0 object-cover border-2 border-blue-500 p-0.5">
                         <div>
-                            <p class="text-xl font-bold text-gray-900 mb-1 view-worker-btn cursor-pointer hover:underline" data-worker-id="<?php echo htmlspecialchars($jobDetails['workerId']); ?>"><?php echo htmlspecialchars($jobDetails['worker_full_name']); ?></p>
+                            <p class="text-xl font-bold text-gray-900 mb-1 view-worker-btn cursor-pointer hover:underline" data-worker-id="<?php echo htmlspecialchars($jobDetails['id_pekerja']); ?>"><?php echo htmlspecialchars($jobDetails['worker_full_name']); ?></p>
                             <div class="text-sm text-gray-600 space-y-1">
                                 <?php if($jobDetails['worker_phone']): ?>
                                 <p class="flex items-center"><i data-feather="phone" class="inline w-4 h-4 mr-2 text-blue-500"></i> <?php echo htmlspecialchars($jobDetails['worker_phone']); ?></p>
@@ -231,7 +231,7 @@ if (!$jobId) {
         </div>
     </div>
     <script>
-        const workers = <?php echo json_encode($worker ? [$worker['id'] => $worker] : []); ?>;
+        const workers = <?php echo json_encode($worker ? [$worker['id_pekerja'] => $worker] : []); ?>;
         
         const viewWorkerModal = document.getElementById('viewWorkerModal');
         const viewWorkerBtns = document.querySelectorAll('.view-worker-btn');
@@ -241,25 +241,25 @@ if (!$jobId) {
         function openViewWorkerModal(workerId) {
             const worker = workers[workerId];
             if (worker) {
-                document.getElementById('viewWorkerName').textContent = worker.name;
-                document.getElementById('viewWorkerTitle').textContent = 'ID: ' + worker.id;
+                document.getElementById('viewWorkerName').textContent = worker.nama;
+                document.getElementById('viewWorkerTitle').textContent = 'ID: ' + worker.id_pekerja;
                 document.getElementById('viewWorkerEmail').textContent = worker.email;
-                document.getElementById('viewWorkerPhone').textContent = worker.phone;
-                document.getElementById('viewWorkerLocation').textContent = worker.location;
-                document.getElementById('viewWorkerRate').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(worker.rate) + '/hari';
-                document.getElementById('viewWorkerExperience').textContent = worker.experience || '-';
-                document.getElementById('viewWorkerJoinDate').textContent = new Date(worker.joinDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                document.getElementById('viewWorkerDescription').textContent = worker.description || '-';
-                document.getElementById('viewWorkerPhoto').src = worker.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face';
+                document.getElementById('viewWorkerPhone').textContent = worker.telepon;
+                document.getElementById('viewWorkerLocation').textContent = worker.lokasi;
+                document.getElementById('viewWorkerRate').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(worker.tarif_per_jam) + '/hari';
+                document.getElementById('viewWorkerExperience').textContent = worker.pengalaman || '-';
+                document.getElementById('viewWorkerJoinDate').textContent = new Date(worker.tanggal_bergabung).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                document.getElementById('viewWorkerDescription').textContent = worker.deskripsi_diri || '-';
+                document.getElementById('viewWorkerPhoto').src = worker.url_foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face';
                 
                 const statusSpan = document.getElementById('viewWorkerStatus');
-                statusSpan.textContent = worker.status;
-                statusSpan.className = 'px-3 py-1 text-sm rounded-full ' + (worker.status === 'Available' ? 'status-available' : (worker.status === 'Assigned' ? 'status-assigned' : 'status-on-leave'));
+                statusSpan.textContent = worker.status_ketersediaan;
+                statusSpan.className = 'px-3 py-1 text-sm rounded-full ' + (worker.status_ketersediaan === 'Available' ? 'status-available' : (worker.status_ketersediaan === 'Assigned' ? 'status-assigned' : 'status-on-leave'));
 
                 const skillsContainer = document.getElementById('viewWorkerSkills');
                 skillsContainer.innerHTML = '';
-                if (worker.skills && worker.skills.length > 0) {
-                    worker.skills.forEach(skill => {
+                if (worker.keahlian && worker.keahlian.length > 0) {
+                    worker.keahlian.forEach(skill => {
                         const skillBadge = document.createElement('span');
                         skillBadge.className = 'bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full';
                         skillBadge.textContent = skill;

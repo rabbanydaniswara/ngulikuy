@@ -20,11 +20,11 @@ if (!defined('IS_ADMIN_PAGE')) {
                        focus:outline-none focus:ring-2 focus:ring-blue-500" required>
                     <option value="">Pilih Pekerja</option>
                     <?php foreach ($availableWorkers as $worker): ?>
-                        <option value="<?php echo htmlspecialchars($worker['id']); ?>">
+                        <option value="<?php echo htmlspecialchars($worker['id_pekerja']); ?>">
                             <?php echo htmlspecialchars(
-                                $worker['name'] . ' - ' .
-                                implode(', ', $worker['skills']) . ' - ' .
-                                formatCurrency($worker['rate'])
+                                $worker['nama'] . ' - ' .
+                                implode(', ', $worker['keahlian']) . ' - ' .
+                                formatCurrency($worker['tarif_per_jam'])
                             ); ?>
                         </option>
                     <?php endforeach; ?>

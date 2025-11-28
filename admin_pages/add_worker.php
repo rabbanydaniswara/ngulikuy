@@ -168,7 +168,13 @@ if (!defined('IS_ADMIN_PAGE')) {
             </a>
             <button type="submit" id="saveWorkerBtn"
                 class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center">
-                <i data-feather="save" class="w-4 h-4 mr-2"></i> Simpan Pekerja
+                <span class="btn-text flex items-center">
+                    <i data-feather="save" class="w-4 h-4 mr-2"></i> Simpan Pekerja
+                </span>
+                <span class="btn-loading hidden flex items-center">
+                    <i data-feather="loader" class="animate-spin mr-2"></i>
+                    Menyimpan...
+                </span>
             </button>
         </div>
     </form>

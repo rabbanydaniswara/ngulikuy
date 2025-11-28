@@ -92,6 +92,7 @@ function authenticate(string $username, string $password): bool {
             $_SESSION['user_name'] = $user['nama_lengkap'];
             $_SESSION['user_phone'] = $user['telepon'] ?? '';
             $_SESSION['user_address'] = $user['alamat_lengkap'] ?? '';
+            $_SESSION['user_photo'] = $user['url_foto'] ?? ''; // Set user photo URL
             $_SESSION['worker_profile_id'] = $user['id_profil_pekerja'] ?? null;
             $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
             
@@ -118,6 +119,55 @@ function getCustomerDataById(int $customer_id): ?array {
     } catch (PDOException $e) {
         error_log("Error fetching customer data by ID ($customer_id): " . $e->getMessage());
         return null;
+    }
+}
+
+function getAdminById(int $adminId): ?array {
+    global $pdo;
+    try {
+        $stmt = $pdo->prepare("SELECT id_pengguna, nama_pengguna, kata_sandi, nama_lengkap, url_foto FROM pengguna WHERE id_pengguna = ? AND peran = 'admin'");
+        $stmt->execute([$adminId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    } catch (PDOException $e) {
+        error_log("Error fetching admin data by ID ($adminId): " . $e->getMessage());
+        return null;
+    }
+}
+
+function updateAdminById(int $adminId, array $data): bool {
+    global $pdo;
+    
+    $setParts = [];
+    $params = ['id_pengguna' => $adminId];
+
+    // Map old keys to new schema keys
+    $keyMap = [
+        'name' => 'nama_lengkap',
+        'email' => 'nama_pengguna',
+        'avatar' => 'url_foto',
+        'password_hash' => 'kata_sandi'
+    ];
+
+    foreach ($data as $key => $value) {
+        if (isset($keyMap[$key])) {
+            $dbKey = $keyMap[$key];
+            $setParts[] = "`{$dbKey}` = :{$dbKey}";
+            $params[":{$dbKey}"] = $value;
+        }
+    }
+
+    if (empty($setParts)) {
+        return false; // Nothing to update
+    }
+
+    $sql = "UPDATE pengguna SET " . implode(', ', $setParts) . " WHERE id_pengguna = :id_pengguna AND peran = 'admin'";
+
+    try {
+        $stmt = $pdo->prepare($sql);
+        return $stmt->execute($params);
+    } catch (PDOException $e) {
+        error_log("Error updating admin (ID: {$adminId}): " . $e->getMessage());
+        return false;
     }
 }
 
@@ -212,12 +262,12 @@ function get_construction_skills(): array {
 
 function generateJobId(): string {
     global $pdo;
-    $stmt = $pdo->query("SELECT jobId FROM jobs ORDER BY CAST(SUBSTR(jobId, 4) AS UNSIGNED) DESC LIMIT 1");
+    $stmt = $pdo->query("SELECT id_pekerjaan FROM pekerjaan ORDER BY CAST(SUBSTR(id_pekerjaan, 4) AS UNSIGNED) DESC LIMIT 1");
     $lastJob = $stmt->fetch();
     
     $lastId = 0;
     if ($lastJob) {
-        $lastId = intval(substr($lastJob['jobId'], 3));
+        $lastId = intval(substr($lastJob['id_pekerjaan'], 3));
     }
     return 'JOB' . str_pad((string)($lastId + 1), 3, '0', STR_PAD_LEFT);
 }
@@ -225,10 +275,10 @@ function generateJobId(): string {
 function getJobById(string $jobId): ?array {
     global $pdo;
     try {
-        $stmt = $pdo->prepare("SELECT j.*, w.name as worker_full_name, w.photo as worker_photo, w.phone as worker_phone, w.email as worker_email
-                               FROM jobs j
-                               LEFT JOIN workers w ON j.workerId = w.id
-                               WHERE j.jobId = ?");
+        $stmt = $pdo->prepare("SELECT j.*, w.nama as worker_full_name, w.url_foto as worker_photo, w.telepon as worker_phone, w.email as worker_email
+                               FROM pekerjaan j
+                               LEFT JOIN pekerja w ON j.id_pekerja = w.id_pekerja
+                               WHERE j.id_pekerjaan = ?");
         $stmt->execute([$jobId]);
         $job = $stmt->fetch();
         return $job ?: null;
@@ -241,7 +291,7 @@ function getJobById(string $jobId): ?array {
 function verifyCustomerOwnsJob(string $jobId, string $customerEmail): bool {
     global $pdo;
     try {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM jobs WHERE jobId = ? AND customerEmail = ?");
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM pekerjaan WHERE id_pekerjaan = ? AND email_pelanggan = ?");
         $stmt->execute([$jobId, $customerEmail]);
         return (bool) $stmt->fetchColumn();
     } catch (PDOException $e) {
@@ -252,31 +302,31 @@ function verifyCustomerOwnsJob(string $jobId, string $customerEmail): bool {
 
 function getJobs(): array {
     global $pdo;
-    $stmt = $pdo->query("SELECT * FROM jobs ORDER BY createdAt DESC");
+    $stmt = $pdo->query("SELECT * FROM pekerjaan ORDER BY dibuat_pada DESC");
     return $stmt->fetchAll();
 }
 
 function getCustomerOrders(string $customerEmail): array {
     global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM jobs WHERE customerEmail = ? ORDER BY createdAt DESC");
+    $stmt = $pdo->prepare("SELECT * FROM pekerjaan WHERE email_pelanggan = ? ORDER BY dibuat_pada DESC");
     $stmt->execute([$customerEmail]);
     return $stmt->fetchAll();
 }
 
 function getWorkerJobs(string $workerProfileId): array {
     global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM jobs WHERE workerId = ? ORDER BY createdAt DESC");
+    $stmt = $pdo->prepare("SELECT * FROM pekerjaan WHERE id_pekerja = ? ORDER BY dibuat_pada DESC");
     $stmt->execute([$workerProfileId]);
     return $stmt->fetchAll();
 }
 
 function getRecentWorkers(int $limit = 5): array {
     global $pdo;
-    $stmt = $pdo->prepare("SELECT * FROM workers ORDER BY joinDate DESC LIMIT ?");
+    $stmt = $pdo->prepare("SELECT * FROM pekerja ORDER BY tanggal_bergabung DESC LIMIT ?");
     $stmt->execute([$limit]);
     $workers = $stmt->fetchAll();
     foreach ($workers as &$worker) {
-        $worker['skills'] = json_decode((string)$worker['skills'], true) ?: [];
+        $worker['keahlian'] = json_decode((string)$worker['keahlian'], true) ?: [];
     }
     return $workers;
 }
@@ -287,7 +337,7 @@ function addWorkerToJob(array $jobData): bool {
     DatabaseHelper::beginTransaction();
 
     try {
-        $sql = "INSERT INTO jobs (jobId, posted_job_id, workerId, workerName, jobType, startDate, endDate, customer, customerPhone, customerEmail, price, location, address, description, status, createdAt)
+        $sql = "INSERT INTO pekerjaan (id_pekerjaan, id_lowongan_diposting, id_pekerja, nama_pekerja, jenis_pekerjaan, tanggal_mulai, tanggal_selesai, nama_pelanggan, telepon_pelanggan, email_pelanggan, harga, lokasi, alamat_lokasi, deskripsi, status_pekerjaan, dibuat_pada)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 
         $stmt = $pdo->prepare($sql);
@@ -297,25 +347,25 @@ function addWorkerToJob(array $jobData): bool {
         
         $stmt->execute([
             $jobId,
-            $jobData['posted_job_id'] ?? null,
-            $jobData['workerId'] ?? null,
-            $jobData['workerName'] ?? 'Unknown',
-            $jobData['jobType'] ?? '',
-            $jobData['startDate'] ?? null,
-            $jobData['endDate'] ?? null,
-            $jobData['customer'] ?? '',
-            $jobData['customerPhone'] ?? '',
-            $jobData['customerEmail'] ?? '',
-            $jobData['price'] ?? 0,
-            $jobData['location'] ?? '',
-            $jobData['address'] ?? '',
-            $jobData['description'] ?? '',
-            $jobData['status'] ?? 'pending',
+            $jobData['id_lowongan_diposting'] ?? null,
+            $jobData['id_pekerja'] ?? null,
+            $jobData['nama_pekerja'] ?? 'Unknown',
+            $jobData['jenis_pekerjaan'] ?? '',
+            $jobData['tanggal_mulai'] ?? null,
+            $jobData['tanggal_selesai'] ?? null,
+            $jobData['nama_pelanggan'] ?? '',
+            $jobData['telepon_pelanggan'] ?? '',
+            $jobData['email_pelanggan'] ?? '',
+            $jobData['harga'] ?? 0,
+            $jobData['lokasi'] ?? '',
+            $jobData['alamat_lokasi'] ?? '',
+            $jobData['deskripsi'] ?? '',
+            $jobData['status_pekerjaan'] ?? 'pending',
             $createdAt
         ]);
         
-        if (isset($jobData['workerId']) && ($jobData['status'] === 'in-progress' || $jobData['status'] === 'pending')) {
-            updateWorkerStatus((string)$jobData['workerId'], 'Assigned');
+        if (isset($jobData['id_pekerja']) && ($jobData['status_pekerjaan'] === 'in-progress' || $jobData['status_pekerjaan'] === 'pending')) {
+            updateWorkerStatus((string)$jobData['id_pekerja'], 'Assigned');
         }
         
         DatabaseHelper::commit();
@@ -333,7 +383,7 @@ function updateJobStatus(string $jobId, string $status): bool {
     DatabaseHelper::beginTransaction();
     
     try {
-        $stmtJob = $pdo->prepare("SELECT workerId, status FROM jobs WHERE jobId = ? FOR UPDATE");
+        $stmtJob = $pdo->prepare("SELECT id_pekerja, status_pekerjaan FROM pekerjaan WHERE id_pekerjaan = ? FOR UPDATE");
         $stmtJob->execute([$jobId]);
         $job = $stmtJob->fetch();
 
@@ -342,12 +392,12 @@ function updateJobStatus(string $jobId, string $status): bool {
             return false;
         }
 
-        $sql = "UPDATE jobs SET status = ?, updatedAt = NOW() WHERE jobId = ?";
+        $sql = "UPDATE pekerjaan SET status_pekerjaan = ?, diperbarui_pada = NOW() WHERE id_pekerjaan = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$status, $jobId]);
         
-        if ($job['workerId'] && in_array($status, ['completed', 'cancelled'])) {
-            updateWorkerStatus($job['workerId'], 'Available');
+        if ($job['id_pekerja'] && in_array($status, ['completed', 'cancelled'])) {
+            updateWorkerStatus($job['id_pekerja'], 'Available');
         }
         
         DatabaseHelper::commit();
@@ -367,15 +417,15 @@ function deleteWorkerFromJob(string $jobId): bool {
     
     try {
         $job = null;
-        $stmtJob = $pdo->prepare("SELECT workerId, status FROM jobs WHERE jobId = ?");
+        $stmtJob = $pdo->prepare("SELECT id_pekerja, status_pekerjaan FROM pekerjaan WHERE id_pekerjaan = ?");
         $stmtJob->execute([$jobId]);
         $job = $stmtJob->fetch();
         
-        if ($job && $job['workerId'] && ($job['status'] === 'in-progress' || $job['status'] === 'pending')) {
-            updateWorkerStatus($job['workerId'], 'Available');
+        if ($job && $job['id_pekerja'] && ($job['status_pekerjaan'] === 'in-progress' || $job['status_pekerjaan'] === 'pending')) {
+            updateWorkerStatus($job['id_pekerja'], 'Available');
         }
 
-        $sql = "UPDATE jobs SET workerId = NULL, workerName = 'Unassigned' WHERE jobId = ?";
+        $sql = "UPDATE pekerjaan SET id_pekerja = NULL, nama_pekerja = 'Unassigned' WHERE id_pekerjaan = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$jobId]);
         
@@ -395,12 +445,12 @@ function deleteWorkerFromJob(string $jobId): bool {
 
 function generateWorkerId(): string {
     global $pdo;
-    $stmt = $pdo->query("SELECT id FROM workers ORDER BY CAST(SUBSTR(id, 4) AS UNSIGNED) DESC LIMIT 1");
+    $stmt = $pdo->query("SELECT id_pekerja FROM pekerja ORDER BY CAST(SUBSTR(id_pekerja, 4) AS UNSIGNED) DESC LIMIT 1");
     $lastWorker = $stmt->fetch();
     
     $lastId = 0;
     if ($lastWorker) {
-        $lastId = intval(substr($lastWorker['id'], 3));
+        $lastId = intval(substr($lastWorker['id_pekerja'], 3));
     }
     return 'TUK' . str_pad((string)($lastId + 1), 3, '0', STR_PAD_LEFT);
 }
@@ -408,17 +458,17 @@ function generateWorkerId(): string {
 function getWorkers(): array {
     global $pdo;
     
-    $sql = "SELECT w.*, COUNT(r.id) as review_count
-            FROM workers w
-            LEFT JOIN reviews r ON w.id = r.workerId
-            GROUP BY w.id
-            ORDER BY w.name ASC";
+    $sql = "SELECT w.*, COUNT(r.id_ulasan) as review_count
+            FROM pekerja w
+            LEFT JOIN ulasan r ON w.id_pekerja = r.id_pekerja
+            GROUP BY w.id_pekerja
+            ORDER BY w.nama ASC";
             
     $stmt = $pdo->query($sql);
     $workers = $stmt->fetchAll();
     
     foreach ($workers as &$worker) {
-        $worker['skills'] = json_decode((string)$worker['skills'], true) ?: [];
+        $worker['keahlian'] = json_decode((string)$worker['keahlian'], true) ?: [];
     }
     return $workers;
 }
@@ -426,18 +476,18 @@ function getWorkers(): array {
 function getAvailableWorkers(): array {
     global $pdo;
     
-    $sql = "SELECT w.*, COUNT(r.id) as review_count
-            FROM workers w
-            LEFT JOIN reviews r ON w.id = r.workerId
-            WHERE w.status = 'Available'
-            GROUP BY w.id
-            ORDER BY w.name ASC";
+    $sql = "SELECT w.*, COUNT(r.id_ulasan) as review_count
+            FROM pekerja w
+            LEFT JOIN ulasan r ON w.id_pekerja = r.id_pekerja
+            WHERE w.status_ketersediaan = 'Available'
+            GROUP BY w.id_pekerja
+            ORDER BY w.nama ASC";
             
-    $stmt = $pdo->query($sql);
+    $stmt = $pdo->prepare($sql);
     $workers = $stmt->fetchAll();
     
     foreach ($workers as &$worker) {
-        $worker['skills'] = json_decode((string)$worker['skills'], true) ?: [];
+        $worker['keahlian'] = json_decode((string)$worker['keahlian'], true) ?: [];
     }
     return $workers;
 }
@@ -445,11 +495,11 @@ function getAvailableWorkers(): array {
 function getTopRatedWorkers(int $limit = 4): array {
     global $pdo;
 
-    $sql = "SELECT w.*, COUNT(r.id) as review_count
-            FROM workers w
-            LEFT JOIN reviews r ON w.id = r.workerId
-            WHERE w.status = 'Available'
-            GROUP BY w.id
+    $sql = "SELECT w.*, COUNT(r.id_ulasan) as review_count
+            FROM pekerja w
+            LEFT JOIN ulasan r ON w.id_pekerja = r.id_pekerja
+            WHERE w.status_ketersediaan = 'Available'
+            GROUP BY w.id_pekerja
             ORDER BY w.rating DESC, review_count DESC
             LIMIT ?";
             
@@ -458,7 +508,7 @@ function getTopRatedWorkers(int $limit = 4): array {
     $workers = $stmt->fetchAll();
     
     foreach ($workers as &$worker) {
-        $worker['skills'] = json_decode((string)$worker['skills'], true) ?: [];
+        $worker['keahlian'] = json_decode((string)$worker['keahlian'], true) ?: [];
     }
     return $workers;
 }
@@ -466,12 +516,12 @@ function getTopRatedWorkers(int $limit = 4): array {
 function getWorkerById(string $workerId): ?array {
     global $pdo;
     try {
-        $stmt = $pdo->prepare("SELECT * FROM workers WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT * FROM pekerja WHERE id_pekerja = ?");
         $stmt->execute([$workerId]);
         $worker = $stmt->fetch();
         
         if ($worker) {
-            $worker['skills'] = json_decode((string)$worker['skills'], true) ?: [];
+            $worker['keahlian'] = json_decode((string)$worker['keahlian'], true) ?: [];
         }
         return $worker ?: null;
     } catch (PDOException $e) {
@@ -483,29 +533,29 @@ function getWorkerById(string $workerId): ?array {
 function searchWorkers(array $criteria = []): array {
     global $pdo;
     
-    $sql = "SELECT w.*, COUNT(r.id) as review_count
-            FROM workers w
-            LEFT JOIN reviews r ON w.id = r.workerId
-            WHERE w.status = 'Available'";
+    $sql = "SELECT w.*, COUNT(r.id_ulasan) as review_count
+            FROM pekerja w
+            LEFT JOIN ulasan r ON w.id_pekerja = r.id_pekerja
+            WHERE w.status_ketersediaan = 'Available'";
     $params = [];
     
     if (!empty($criteria['skill'])) {
-        $sql .= " AND JSON_CONTAINS(skills, ?)";
+        $sql .= " AND JSON_CONTAINS(keahlian, ?)";
         $params[] = '"' . $criteria['skill'] . '"';
     }
     
     if (!empty($criteria['location'])) {
-        $sql .= " AND location LIKE ?";
+        $sql .= " AND lokasi LIKE ?";
         $params[] = '%' . $criteria['location'] . '%';
     }
     
     if (!empty($criteria['min_price'])) {
-        $sql .= " AND rate >= ?";
+        $sql .= " AND tarif_per_jam >= ?";
         $params[] = intval($criteria['min_price']);
     }
     
     if (!empty($criteria['max_price'])) {
-        $sql .= " AND rate <= ?";
+        $sql .= " AND tarif_per_jam <= ?";
         $params[] = intval($criteria['max_price']);
     }
     
@@ -514,7 +564,7 @@ function searchWorkers(array $criteria = []): array {
         $params[] = floatval($criteria['min_rating']);
     }
     
-    $sql .= " GROUP BY w.id";
+    $sql .= " GROUP BY w.id_pekerja";
 
     try {
         $stmt = $pdo->prepare($sql);
@@ -522,7 +572,7 @@ function searchWorkers(array $criteria = []): array {
         $workers = $stmt->fetchAll();
         
         foreach ($workers as &$worker) {
-            $worker['skills'] = json_decode((string)$worker['skills'], true) ?: [];
+            $worker['keahlian'] = json_decode((string)$worker['keahlian'], true) ?: [];
         }
         return $workers;
         
@@ -540,7 +590,7 @@ function addWorker(array $workerData): bool {
     try {
         $id = generateWorkerId();
         
-        $sqlWorker = "INSERT INTO workers (id, name, email, phone, location, skills, status, rate, experience, description, photo, rating, completedJobs, joinDate)
+        $sqlWorker = "INSERT INTO pekerja (id_pekerja, nama, email, telepon, lokasi, keahlian, status_ketersediaan, tarif_per_jam, pengalaman, deskripsi_diri, url_foto, rating, jumlah_pekerjaan_selesai, tanggal_bergabung)
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         $stmtWorker = $pdo->prepare($sqlWorker);
         $skillsJson = json_encode($workerData['skills'] ?? []);
@@ -597,62 +647,65 @@ function updateWorker(string $workerId, array $updatedData): bool {
 
     try {
         $params = [
-            'name' => $updatedData['name'] ?? '',
+            'nama' => $updatedData['name'] ?? '',
             'email' => $updatedData['email'] ?? '',
-            'phone' => $updatedData['phone'] ?? '',
-            'location' => $updatedData['location'] ?? '',
-            'skills' => json_encode($updatedData['skills'] ?? []),
-            'status' => $updatedData['status'] ?? 'Available',
-            'rate' => $updatedData['rate'] ?? 0,
-            'experience' => $updatedData['experience'] ?? '',
-            'description' => $updatedData['description'] ?? '',
-            'id' => $workerId
+            'telepon' => $updatedData['phone'] ?? '',
+            'lokasi' => $updatedData['location'] ?? '',
+            'keahlian' => json_encode($updatedData['skills'] ?? []),
+            'status_ketersediaan' => $updatedData['status'] ?? 'Available',
+            'tarif_per_jam' => $updatedData['rate'] ?? 0,
+            'pengalaman' => $updatedData['experience'] ?? '',
+            'deskripsi_diri' => $updatedData['description'] ?? '',
+            'id_pekerja' => $workerId
         ];
         
-        if (!empty($updatedData['photo'])) {
-            $sql = "UPDATE workers SET name = :name, email = :email, phone = :phone, location = :location, 
-                    skills = :skills, status = :status, rate = :rate, experience = :experience, 
-                    description = :description, photo = :photo WHERE id = :id";
-            $params['photo'] = $updatedData['photo'];
-        } else {
-            $sql = "UPDATE workers SET name = :name, email = :email, phone = :phone, location = :location, 
-                    skills = :skills, status = :status, rate = :rate, experience = :experience, 
-                    description = :description WHERE id = :id";
+        $setParts = [];
+        foreach ($params as $key => $value) {
+            if ($key !== 'id_pekerja') { // id_pekerja is in WHERE clause
+                $setParts[] = "`{$key}` = :{$key}";
+            }
         }
+
+        if (!empty($updatedData['photo'])) {
+            $setParts[] = "`url_foto` = :url_foto";
+            $params['url_foto'] = $updatedData['photo'];
+        }
+        
+        $sql = "UPDATE pekerja SET " . implode(', ', $setParts) . " WHERE id_pekerja = :id_pekerja";
         
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         
-        // Also update the 'users' table if the worker's name or email changed
+        // Also update the 'pengguna' table if the worker's name or email changed
         if (isset($updatedData['name']) || isset($updatedData['email'])) {
             $updateUserSql = "UPDATE pengguna SET ";
             $userUpdateParams = [];
             
             if (isset($updatedData['name'])) {
-                $updateUserSql .= "nama_lengkap = :name_user, ";
-                $userUpdateParams['name_user'] = $updatedData['name'];
+                $updateUserSql .= "nama_lengkap = :nama_lengkap_user, ";
+                $userUpdateParams['nama_lengkap_user'] = $updatedData['name'];
             }
             if (isset($updatedData['email'])) { 
-                $updateUserSql .= "nama_pengguna = :username_user, ";
-                $userUpdateParams['username_user'] = $updatedData['email'];
+                $updateUserSql .= "nama_pengguna = :nama_pengguna_user, ";
+                $userUpdateParams['nama_pengguna_user'] = $updatedData['email'];
             }
             
             // Remove trailing comma and space
             $updateUserSql = rtrim($updateUserSql, ', ');
-            $updateUserSql .= " WHERE id_profil_pekerja = :worker_profile_id";
-            $userUpdateParams['worker_profile_id'] = $workerId;
+            $updateUserSql .= " WHERE id_profil_pekerja = :id_profil_pekerja";
+            $userUpdateParams['id_profil_pekerja'] = $workerId;
 
             $stmtUser = $pdo->prepare($updateUserSql);
             $stmtUser->execute($userUpdateParams);
         }
 
-        // Also update workerName in the 'jobs' table for consistency
+        // Also update nama_pekerja in the 'pekerjaan' table for consistency
         if (isset($updatedData['name'])) {
-            $updateJobsSql = "UPDATE jobs SET workerName = :new_worker_name WHERE workerId = :worker_id";
+            $updateJobsSql = "UPDATE pekerjaan SET nama_pekerja = :new_nama_pekerja WHERE id_pekerja = :id_pekerja_job";
             $stmtJobs = $pdo->prepare($updateJobsSql);
             $stmtJobs->execute([
-                'new_worker_name' => $updatedData['name'],
-                'worker_id' => $workerId
+                'new_nama_pekerja' => $updatedData['name'],
+                'id_pekerja_job' => $workerId
             ]);
         }
 
@@ -668,7 +721,7 @@ function updateWorker(string $workerId, array $updatedData): bool {
 function updateWorkerStatus(string $workerId, string $status): bool {
     global $pdo;
     try {
-        $sql = "UPDATE workers SET status = ? WHERE id = ?";
+        $sql = "UPDATE pekerja SET status_ketersediaan = ? WHERE id_pekerja = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$status, $workerId]);
         return $stmt->rowCount() > 0;
@@ -684,14 +737,14 @@ function deleteWorker(string $workerId): bool {
     $pdo->beginTransaction();
 
     try {
-        $sql = "DELETE FROM workers WHERE id = ?";
+        $sql = "DELETE FROM pekerja WHERE id_pekerja = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$workerId]);
         
         $sqlUser = "DELETE FROM pengguna WHERE id_profil_pekerja = ?";
         $pdo->prepare($sqlUser)->execute([$workerId]);
         
-        $sqlJobs = "UPDATE jobs SET workerId = NULL, workerName = 'Deleted Worker' WHERE workerId = ?";
+        $sqlJobs = "UPDATE pekerjaan SET id_pekerja = NULL, nama_pekerja = 'Deleted Worker' WHERE id_pekerja = ?";
         $pdo->prepare($sqlJobs)->execute([$workerId]);
         
         $pdo->commit();
@@ -714,7 +767,7 @@ function deleteWorker(string $workerId): bool {
 function hasCustomerReviewedJob(string $jobId, int $customerId): bool {
     global $pdo;
     try {
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM reviews WHERE jobId = ? AND customerId = ?");
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM ulasan WHERE id_pekerjaan = ? AND id_pelanggan = ?");
         $stmt->execute([$jobId, $customerId]);
         return $stmt->fetchColumn() > 0;
     } catch (PDOException $e) {
@@ -729,7 +782,7 @@ function hasCustomerReviewedJob(string $jobId, int $customerId): bool {
 function canReviewJob(string $jobId, string $customerEmail): bool {
     global $pdo;
     try {
-        $stmt = $pdo->prepare("SELECT status, customerEmail FROM jobs WHERE jobId = ?");
+        $stmt = $pdo->prepare("SELECT status_pekerjaan, email_pelanggan FROM pekerjaan WHERE id_pekerjaan = ?");
         $stmt->execute([$jobId]);
         $job = $stmt->fetch();
         
@@ -737,7 +790,7 @@ function canReviewJob(string $jobId, string $customerEmail): bool {
             return false;
         }
         
-        return $job['status'] === 'completed' && $job['customerEmail'] === $customerEmail;
+        return $job['status_pekerjaan'] === 'completed' && $job['email_pelanggan'] === $customerEmail;
     } catch (PDOException $e) {
         SecurityLogger::logError('Error checking job review permission: ' . $e->getMessage());
         return false;
@@ -779,7 +832,7 @@ function deleteReview(int $reviewId): bool {
     $pdo->beginTransaction();
 
     try {
-        $stmtGetWorker = $pdo->prepare("SELECT workerId FROM reviews WHERE id = ?");
+        $stmtGetWorker = $pdo->prepare("SELECT id_pekerja FROM ulasan WHERE id_ulasan = ?");
         $stmtGetWorker->execute([$reviewId]);
         $reviewData = $stmtGetWorker->fetch();
         
@@ -787,19 +840,19 @@ function deleteReview(int $reviewId): bool {
             $pdo->rollBack();
             return false;
         }
-        $workerId = $reviewData['workerId'];
+        $workerId = $reviewData['id_pekerja'];
 
-        $sql = "DELETE FROM reviews WHERE id = ?";
+        $sql = "DELETE FROM ulasan WHERE id_ulasan = ?";
         $stmt = $pdo->prepare($sql);
         $deleted = $stmt->execute([$reviewId]);
 
         if ($deleted && $workerId) {
-            $sqlAvg = $pdo->prepare("SELECT AVG(rating) as avg_rating FROM reviews WHERE workerId = ?");
+            $sqlAvg = $pdo->prepare("SELECT AVG(rating) as avg_rating FROM ulasan WHERE id_pekerja = ?");
             $sqlAvg->execute([$workerId]);
             
             $newRating = $sqlAvg->fetch()['avg_rating'] ?? 4.0;
 
-            $sqlUpdateWorker = $pdo->prepare("UPDATE workers SET rating = ? WHERE id = ?");
+            $sqlUpdateWorker = $pdo->prepare("UPDATE pekerja SET rating = ? WHERE id_pekerja = ?");
             $sqlUpdateWorker->execute([$newRating, $workerId]);
         }
         
@@ -823,12 +876,12 @@ function getDashboardStats(): array {
     try {
         $stats = [];
         
-        $stats['total_workers'] = $pdo->query("SELECT COUNT(*) FROM workers")->fetchColumn();
-        $stats['available_workers'] = $pdo->query("SELECT COUNT(*) FROM workers WHERE status = 'Available'")->fetchColumn();
-        $stats['on_job_workers'] = $pdo->query("SELECT COUNT(*) FROM workers WHERE status = 'Assigned'")->fetchColumn();
-        $stats['active_jobs'] = $pdo->query("SELECT COUNT(*) FROM jobs WHERE status IN ('in-progress', 'pending')")->fetchColumn();
-        $stats['completed_jobs'] = $pdo->query("SELECT COUNT(*) FROM jobs WHERE status = 'completed'")->fetchColumn();
-        $stats['pending_jobs'] = $pdo->query("SELECT COUNT(*) FROM jobs WHERE status = 'pending'")->fetchColumn();
+        $stats['total_workers'] = $pdo->query("SELECT COUNT(*) FROM pekerja")->fetchColumn();
+        $stats['available_workers'] = $pdo->query("SELECT COUNT(*) FROM pekerja WHERE status_ketersediaan = 'Available'")->fetchColumn();
+        $stats['on_job_workers'] = $pdo->query("SELECT COUNT(*) FROM pekerja WHERE status_ketersediaan = 'Assigned'")->fetchColumn();
+        $stats['active_jobs'] = $pdo->query("SELECT COUNT(*) FROM pekerjaan WHERE status_pekerjaan IN ('in-progress', 'pending')")->fetchColumn();
+        $stats['completed_jobs'] = $pdo->query("SELECT COUNT(*) FROM pekerjaan WHERE status_pekerjaan = 'completed'")->fetchColumn();
+        $stats['pending_jobs'] = $pdo->query("SELECT COUNT(*) FROM pekerjaan WHERE status_pekerjaan = 'pending'")->fetchColumn();
         
         return $stats;
     } catch (PDOException $e) {

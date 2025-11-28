@@ -37,7 +37,7 @@
                 <p class="text-xs sm:text-sm text-gray-500 font-medium">Pesanan Selesai</p>
                 <h3 class="text-2xl sm:text-3xl font-bold text-gray-800">
                     <?php echo count(array_filter(getCustomerOrders($customer_email), function($o) { 
-                        return $o['status'] === 'completed'; 
+                        return $o['status_pekerjaan'] === 'completed'; 
                     })); ?>
                 </h3>
             </div>
@@ -84,15 +84,15 @@
             <div class="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden worker-card card-hover">
                 <div class="relative h-24 sm:h-32 bg-gradient-to-br from-blue-400 to-indigo-500">
                     <div class="absolute -bottom-10 sm:-bottom-12 left-1/2 transform -translate-x-1/2">
-                        <img src="<?php echo htmlspecialchars($worker['photo']); ?>" 
-                                alt="<?php echo htmlspecialchars($worker['name']); ?>"
+                        <img src="<?php echo htmlspecialchars($worker['url_foto']); ?>" 
+                                alt="<?php echo htmlspecialchars($worker['nama']); ?>"
                                 class="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-white shadow-lg">
                     </div>
                 </div>
                 <div class="pt-12 sm:pt-16 pb-4 sm:pb-6 px-4 sm:px-6 text-center">
-                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-1 view-worker-btn cursor-pointer hover:underline" data-worker-id="<?php echo htmlspecialchars($worker['id']); ?>"><?php echo htmlspecialchars($worker['name']); ?></h3>
+                    <h3 class="font-bold text-base sm:text-lg text-gray-800 mb-1 view-worker-btn cursor-pointer hover:underline" data-worker-id="<?php echo htmlspecialchars($worker['id_pekerja']); ?>"><?php echo htmlspecialchars($worker['nama']); ?></h3>
                     <p class="text-xs sm:text-sm text-gray-600 mb-2 sm:mb-3">
-                        <?php echo htmlspecialchars($worker['skills'][0] ?? 'Tidak ada keahlian'); ?>
+                        <?php echo htmlspecialchars($worker['keahlian'][0] ?? 'Tidak ada keahlian'); ?>
                     </p>
                     <div class="flex justify-center items-center mb-2 sm:mb-3">
                         <div class="flex text-yellow-400 text-sm sm:text-base">
@@ -103,9 +103,9 @@
                         </span>
                     </div>
                     <p class="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-3 sm:mb-4">
-                        <?php echo formatCurrency($worker['rate']); ?>/hari
+                        <?php echo formatCurrency($worker['tarif_per_jam']); ?>/hari
                     </p>
-                    <button onclick="openBookingModal('<?php echo $worker['id']; ?>')" 
+                    <button onclick="openBookingModal('<?php echo $worker['id_pekerja']; ?>')" 
                             class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl hover:from-blue-700 hover:to-indigo-700 text-xs sm:text-sm font-semibold shadow-md hover:shadow-lg transform hover:-translate-y-1 transition-all">
                         Pesan Sekarang
                     </button>

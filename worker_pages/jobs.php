@@ -55,15 +55,15 @@
             </tr>
         <?php else: ?>
             <?php foreach ($filteredJobs as $job):
-                $jobId = htmlspecialchars($job['jobId'] ?? $job['id'] ?? '');
-                $jobType = htmlspecialchars($job['jobType'] ?? '-');
-                $location = htmlspecialchars($job['location'] ?? '-');
-                $customer = htmlspecialchars($job['customer'] ?? ($job['customer_name'] ?? '-'));
-                $customerPhone = htmlspecialchars($job['customerPhone'] ?? ($job['customer_phone'] ?? '-'));
-                $startDate = !empty($job['startDate']) ? date('d M Y', strtotime($job['startDate'])) : '-';
-                $price = function_exists('formatCurrency') ? formatCurrency($job['price'] ?? 0) : 'Rp ' . number_format($job['price'] ?? 0,0,',','.');
-                $status = htmlspecialchars($job['status'] ?? 'pending');
-                $notes = htmlspecialchars($job['notes'] ?? $job['description'] ?? '-');
+                $jobId = htmlspecialchars($job['id_pekerjaan'] ?? '');
+                $jobType = htmlspecialchars($job['jenis_pekerjaan'] ?? '-');
+                $location = htmlspecialchars($job['lokasi'] ?? '-');
+                $customer = htmlspecialchars($job['nama_pelanggan'] ?? '-');
+                $customerPhone = htmlspecialchars($job['telepon_pelanggan'] ?? '-');
+                $startDate = !empty($job['tanggal_mulai']) ? date('d M Y', strtotime($job['tanggal_mulai'])) : '-';
+                $price = function_exists('formatCurrency') ? formatCurrency($job['harga'] ?? 0) : 'Rp ' . number_format($job['harga'] ?? 0,0,',','.');
+                $status = htmlspecialchars($job['status_pekerjaan'] ?? 'pending');
+                $notes = htmlspecialchars($job['deskripsi'] ?? '-');
             ?>
             <tr id="job-row-<?php echo $jobId; ?>">
             <td class="px-3 py-3 align-top">
@@ -74,7 +74,7 @@
             <td class="px-3 py-3 align-top">
                 <div class="font-medium"><?php echo $customer; ?></div>
                 <div class="text-sm text-gray-500"><?php echo $customerPhone; ?></div>
-                <div class="text-sm text-gray-500"><?php echo htmlspecialchars($job['address'] ?? ''); ?></div>
+                <div class="text-sm text-gray-500"><?php echo htmlspecialchars($job['alamat_lokasi'] ?? ''); ?></div>
             </td>
 
             <td class="px-3 py-3 text-sm whitespace-nowrap align-top"><?php echo $startDate; ?></td>
@@ -91,7 +91,7 @@
 
             <td class="px-3 py-3 actions align-top">
                 <div class="actions-buttons">
-                <?php if (($job['status'] ?? '') === 'pending'): ?>
+                <?php if (($job['status_pekerjaan'] ?? '') === 'pending'): ?>
                     <button type="button" class="job-modal-trigger px-4 py-1.5 flex items-center gap-2 rounded-full bg-green-100 text-green-700 text-xs font-medium hover:bg-green-200 transition shadow-sm"
                         data-action="worker_accept_job" data-job-id="<?php echo $jobId; ?>"
                         data-job-type="<?php echo $jobType; ?>" data-job-customer="<?php echo $customer; ?>">
@@ -106,7 +106,7 @@
                     Tolak
                     </button>
 
-                <?php elseif (($job['status'] ?? '') === 'in-progress'): ?>
+                <?php elseif (($job['status_pekerjaan'] ?? '') === 'in-progress'): ?>
 
                     <button type="button" class="job-modal-trigger px-4 py-1.5 flex items-center gap-2 rounded-full bg-blue-100 text-blue-700 text-xs font-medium hover:bg-blue-200 transition shadow-sm"
                         data-action="worker_complete_job" data-job-id="<?php echo $jobId; ?>"
@@ -135,22 +135,22 @@
                     <div class="px-4 py-4 text-center text-gray-500">Tidak ada pekerjaan di kategori ini.</div>
                 <?php else: ?>
                     <?php foreach ($filteredJobs as $job):
-                        $jobId = htmlspecialchars($job['jobId'] ?? $job['id'] ?? '');
-                        $jobType = htmlspecialchars($job['jobType'] ?? '-');
-                        $location = htmlspecialchars($job['location'] ?? '-');
-                        $customer = htmlspecialchars($job['customer'] ?? ($job['customer_name'] ?? '-'));
-                        $customerPhone = htmlspecialchars($job['customerPhone'] ?? ($job['customer_phone'] ?? '-'));
-                        $startDate = !empty($job['startDate']) ? date('d M Y', strtotime($job['startDate'])) : '-';
-                        $price = function_exists('formatCurrency') ? formatCurrency($job['price'] ?? 0) : 'Rp ' . number_format($job['price'] ?? 0,0,',','.');
-                        $status = htmlspecialchars($job['status'] ?? 'pending');
-                        $notes = htmlspecialchars($job['notes'] ?? $job['description'] ?? '-');
+                        $jobId = htmlspecialchars($job['id_pekerjaan'] ?? '');
+                        $jobType = htmlspecialchars($job['jenis_pekerjaan'] ?? '-');
+                        $location = htmlspecialchars($job['lokasi'] ?? '-');
+                        $customer = htmlspecialchars($job['nama_pelanggan'] ?? '-');
+                        $customerPhone = htmlspecialchars($job['telepon_pelanggan'] ?? '-');
+                        $startDate = !empty($job['tanggal_mulai']) ? date('d M Y', strtotime($job['tanggal_mulai'])) : '-';
+                        $price = function_exists('formatCurrency') ? formatCurrency($job['harga'] ?? 0) : 'Rp ' . number_format($job['harga'] ?? 0,0,',','.');
+                        $status = htmlspecialchars($job['status_pekerjaan'] ?? 'pending');
+                        $notes = htmlspecialchars($job['deskripsi'] ?? '-');
                     ?>
                         <div id="job-row-<?php echo $jobId; ?>" class="bg-white border rounded-lg p-4 shadow-sm">
                             <div class="flex items-start justify-between">
                                 <div class="min-w-0 pr-3">
                                     <div class="text-base font-semibold truncate"><?php echo $jobType; ?></div>
                                     <div class="text-sm text-gray-700 truncate"><?php echo $location; ?></div>
-                                    <div class="text-sm text-gray-700 truncate"><?php echo htmlspecialchars($job['address'] ?? ''); ?></div>
+                                    <div class="text-sm text-gray-700 truncate"><?php echo htmlspecialchars($job['alamat_lokasi'] ?? ''); ?></div>
                                     <div class="mt-1 text-sm text-gray-600 truncate"><?php echo $customer; ?> • <?php echo $customerPhone; ?></div>
                                     <div class="mt-2 text-sm text-gray-500"><?php echo $startDate; ?></div>
                                     <div class="mt-2 text-sm text-gray-600 break-words"><strong>Catatan:</strong> <?php echo $notes; ?></div>
@@ -164,7 +164,7 @@
                                     </div>
 
                                     <div class="mt-3 flex justify-end space-x-2">
-                                        <?php if (($job['status'] ?? '') === 'pending'): ?>
+                                        <?php if (($job['status_pekerjaan'] ?? '') === 'pending'): ?>
                                             <button type="button" class="job-modal-trigger text-green-600 bg-green-50 p-2 rounded-full"
                                                 data-action="worker_accept_job" data-job-id="<?php echo $jobId; ?>"
                                                 data-job-type="<?php echo $jobType; ?>" data-job-customer="<?php echo $customer; ?>">
@@ -175,7 +175,7 @@
                                                 data-job-type="<?php echo $jobType; ?>" data-job-customer="<?php echo $customer; ?>">
                                                 <i data-feather="x-circle" class="w-5 h-5"></i>
                                             </button>
-                                        <?php elseif (($job['status'] ?? '') === 'in-progress'): ?>
+                                        <?php elseif (($job['status_pekerjaan'] ?? '') === 'in-progress'): ?>
                                             <button type="button" class="job-modal-trigger text-blue-600 bg-blue-50 p-2 rounded-full"
                                                 data-action="worker_complete_job" data-job-id="<?php echo $jobId; ?>"
                                                 data-job-type="<?php echo $jobType; ?>" data-job-customer="<?php echo $customer; ?>">

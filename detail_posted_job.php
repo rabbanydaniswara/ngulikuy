@@ -16,18 +16,18 @@ global $pdo;
 $stmt = $pdo->prepare("
     SELECT 
         pj.*, 
-        u.name as customer_name, 
-        u.photo as customer_photo,
-        w.name as worker_name,
-        w.photo as worker_photo,
+        u.nama_lengkap as customer_name, 
+        u.url_foto as customer_photo,
+        w.nama as worker_name,
+        w.url_foto as worker_photo,
         w.rating as worker_rating,
-        pj.status as posted_job_status,
-        j.status as job_status
-    FROM posted_jobs pj
-    JOIN users u ON pj.customer_id = u.id
-    LEFT JOIN workers w ON pj.worker_id = w.id
-    LEFT JOIN jobs j ON pj.id = j.posted_job_id
-    WHERE pj.id = ?
+        pj.status_lowongan as posted_job_status,
+        j.status_pekerjaan as job_status
+    FROM lowongan_diposting pj
+    JOIN pengguna u ON pj.id_pelanggan = u.id_pengguna
+    LEFT JOIN pekerja w ON pj.id_pekerja = w.id_pekerja
+    LEFT JOIN pekerjaan j ON pj.id_lowongan = j.id_lowongan_diposting
+    WHERE pj.id_lowongan = ?
 ");
 $stmt->execute([$job_id]);
 $job = $stmt->fetch();
@@ -73,7 +73,7 @@ if (isCustomer()) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Pekerja - <?php echo htmlspecialchars($job['title']); ?></title>
+    <title>Detail Pekerja - <?php echo htmlspecialchars($job['judul_lowongan']); ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
@@ -95,16 +95,16 @@ if (isCustomer()) {
             <div class="lg:col-span-2 space-y-6">
                 <!-- Job Header -->
                 <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
-                    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight"><?php echo htmlspecialchars($job['title']); ?></h1>
+                    <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 leading-tight"><?php echo htmlspecialchars($job['judul_lowongan']); ?></h1>
                     <div class="mt-4 flex flex-wrap items-center text-sm text-gray-600 gap-x-4 gap-y-2">
                         <span class="inline-flex items-center px-3 py-1 bg-blue-50 text-blue-700 rounded-full font-medium text-xs">
-                            <i data-feather="briefcase" class="w-3 h-3 mr-1.5"></i> <?php echo htmlspecialchars($job['job_type']); ?>
+                            <i data-feather="briefcase" class="w-3 h-3 mr-1.5"></i> <?php echo htmlspecialchars($job['jenis_pekerjaan']); ?>
                         </span>
                         <span class="inline-flex items-center px-3 py-1 bg-purple-50 text-purple-700 rounded-full font-medium text-xs">
-                            <i data-feather="map-pin" class="w-3 h-3 mr-1.5"></i> <?php echo htmlspecialchars($job['location']); ?>
+                            <i data-feather="map-pin" class="w-3 h-3 mr-1.5"></i> <?php echo htmlspecialchars($job['lokasi']); ?>
                         </span>
                         <span class="inline-flex items-center px-3 py-1 bg-gray-50 text-gray-700 rounded-full font-medium text-xs">
-                            <i data-feather="calendar" class="w-3 h-3 mr-1.5"></i> Diposting pada <?php echo date('d M Y', strtotime($job['created_at'])); ?>
+                            <i data-feather="calendar" class="w-3 h-3 mr-1.5"></i> Diposting pada <?php echo date('d M Y', strtotime($job['dibuat_pada'])); ?>
                         </span>
                     </div>
                 </div>
@@ -113,7 +113,7 @@ if (isCustomer()) {
                 <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">Deskripsi Pekerja</h2>
                     <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
-                        <?php echo nl2br(htmlspecialchars($job['description'])); ?>
+                        <?php echo nl2br(htmlspecialchars($job['deskripsi_lowongan'])); ?>
                     </div>
                 </div>
             </div>
@@ -136,8 +136,8 @@ if (isCustomer()) {
                     
                     <?php if (isWorker() && $final_status === 'open'): ?>
                         <button type="button" class="job-modal-trigger w-full text-center px-6 py-3 flex items-center justify-center gap-2 rounded-lg bg-green-600 text-white text-base font-semibold hover:bg-green-700 transition shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                            data-action="worker_take_posted_job" data-job-id="<?php echo $job['id']; ?>"
-                            data-job-title="<?php echo htmlspecialchars($job['title']); ?>">
+                            data-action="worker_take_posted_job" data-job-id="<?php echo $job['id_lowongan']; ?>"
+                            data-job-title="<?php echo htmlspecialchars($job['judul_lowongan']); ?>">
                             <i data-feather="plus-circle" class="w-5 h-5"></i>
                             Ambil Pekerja Ini
                         </button>
@@ -145,10 +145,10 @@ if (isCustomer()) {
                 </div>
 
                 <!-- Budget Card -->
-                <?php if (isset($job['budget']) && $job['budget'] > 0): ?>
+                <?php if (isset($job['anggaran']) && $job['anggaran'] > 0): ?>
                 <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
                     <h3 class="text-xl font-bold text-gray-800 mb-2">Anggaran</h3>
-                    <p class="text-3xl font-extrabold text-green-600"><?php echo formatCurrency($job['budget']); ?></p>
+                    <p class="text-3xl font-extrabold text-green-600"><?php echo formatCurrency($job['anggaran']); ?></p>
                 </div>
                 <?php endif; ?>
 
@@ -164,7 +164,7 @@ if (isCustomer()) {
                 </div>
 
                 <!-- Worker Card -->
-                <?php if ($job['worker_id']): ?>
+                <?php if ($job['id_pekerja']): ?>
                 <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
                     <h3 class="text-xl font-bold text-gray-800 mb-4">Diambil Oleh</h3>
                     <div class="flex items-center">

@@ -45,58 +45,58 @@ if (!defined('IS_ADMIN_PAGE')) {
                         </tr>
                     <?php else: ?>
                         <?php foreach ($jobs as $job): ?>
-                            <?php $statusClass = getStatusClass($job['status'], 'job'); ?>
+                            <?php $statusClass = getStatusClass($job['status_pekerjaan'], 'job'); ?>
                             <tr>
                                 <!-- Job ID -->
-                                <td class="px-3 py-3 text-xs font-mono truncate"><?php echo htmlspecialchars($job['jobId']); ?></td>
+                                <td class="px-3 py-3 text-xs font-mono truncate"><?php echo htmlspecialchars($job['id_pekerjaan']); ?></td>
 
                                 <!-- Worker -->
                                 <td class="px-3 py-3 align-top">
                                     <div class="min-w-0">
-                                        <div class="text-sm font-medium truncate max-w-[160px]" title="<?php echo htmlspecialchars($job['workerName']); ?>">
-                                            <?php echo htmlspecialchars($job['workerName']); ?>
+                                        <div class="text-sm font-medium truncate max-w-[160px]" title="<?php echo htmlspecialchars($job['nama_pekerja']); ?>">
+                                            <?php echo htmlspecialchars($job['nama_pekerja']); ?>
                                         </div>
                                     </div>
                                 </td>
 
                                 <!-- Job Type -->
-                                <td class="px-3 py-3 text-sm truncate max-w-[110px]" title="<?php echo htmlspecialchars($job['jobType']); ?>">
-                                    <?php echo htmlspecialchars($job['jobType']); ?>
+                                <td class="px-3 py-3 text-sm truncate max-w-[110px]" title="<?php echo htmlspecialchars($job['jenis_pekerjaan']); ?>">
+                                    <?php echo htmlspecialchars($job['jenis_pekerjaan']); ?>
                                 </td>
 
                                 <!-- Customer (name + phone/email) -->
                                 <td class="px-3 py-3 align-top">
-                                    <div class="text-sm truncate max-w-[150px]" title="<?php echo htmlspecialchars($job['customer']); ?>">
-                                        <?php echo htmlspecialchars($job['customer']); ?>
+                                    <div class="text-sm truncate max-w-[150px]" title="<?php echo htmlspecialchars($job['nama_pelanggan']); ?>">
+                                        <?php echo htmlspecialchars($job['nama_pelanggan']); ?>
                                     </div>
-                                    <div class="text-xs text-gray-500 truncate max-w-[150px]" title="<?php echo htmlspecialchars($job['customerPhone'] ?? ''); ?>">
-                                        <?php echo htmlspecialchars($job['customerPhone'] ?? ''); ?>
+                                    <div class="text-xs text-gray-500 truncate max-w-[150px]" title="<?php echo htmlspecialchars($job['telepon_pelanggan'] ?? ''); ?>">
+                                        <?php echo htmlspecialchars($job['telepon_pelanggan'] ?? ''); ?>
                                     </div>
                                 </td>
 
                                 <!-- Dates -->
                                 <td class="px-3 py-3 text-sm align-top">
-                                    <div class="truncate max-w-[140px]" title="<?php echo date('d M Y', strtotime($job['startDate'])) . ' - ' . date('d M Y', strtotime($job['endDate'])); ?>">
-                                        <?php echo date('d M Y', strtotime($job['startDate'])); ?>
+                                    <div class="truncate max-w-[140px]" title="<?php echo date('d M Y', strtotime($job['tanggal_mulai'])) . ' - ' . date('d M Y', strtotime($job['tanggal_selesai'])); ?>">
+                                        <?php echo date('d M Y', strtotime($job['tanggal_mulai'])); ?>
                                         <span class="text-xs text-gray-500"> to </span>
-                                        <?php echo date('d M Y', strtotime($job['endDate'])); ?>
+                                        <?php echo date('d M Y', strtotime($job['tanggal_selesai'])); ?>
                                     </div>
                                 </td>
 
                                 <!-- Location -->
-                                <td class="px-3 py-3 text-sm text-gray-700 truncate max-w-[120px]" title="<?php echo htmlspecialchars($job['location']); ?>">
-                                    <?php echo htmlspecialchars($job['location']); ?>
+                                <td class="px-3 py-3 text-sm text-gray-700 truncate max-w-[120px]" title="<?php echo htmlspecialchars($job['lokasi']); ?>">
+                                    <?php echo htmlspecialchars($job['lokasi']); ?>
                                 </td>
 
                                 <!-- Alamat -->
-                                <td class="px-3 py-3 text-sm text-gray-700 truncate max-w-[150px]" title="<?php echo htmlspecialchars($job['address']); ?>">
-                                    <?php echo htmlspecialchars($job['address']); ?>
+                                <td class="px-3 py-3 text-sm text-gray-700 truncate max-w-[150px]" title="<?php echo htmlspecialchars($job['alamat_lokasi']); ?>">
+                                    <?php echo htmlspecialchars($job['alamat_lokasi']); ?>
                                 </td>
 
                                 <!-- Price (right aligned, beri spacing agar tidak nempel) -->
                                 <td class="px-3 py-3 text-right align-top">
-                                    <div class="text-sm font-medium whitespace-nowrap" title="<?php echo formatCurrency($job['price']); ?>">
-                                        <?php echo formatCurrency($job['price']); ?>
+                                    <div class="text-sm font-medium whitespace-nowrap" title="<?php echo formatCurrency($job['harga']); ?>">
+                                        <?php echo formatCurrency($job['harga']); ?>
                                     </div>
                                 </td>
 
@@ -107,11 +107,11 @@ if (!defined('IS_ADMIN_PAGE')) {
                                         <select
                                             name="status"
                                             class="job-status-select appearance-none pr-8 pl-3 py-1 text-sm rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 <?php echo $statusClass; ?>"
-                                            data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
-                                            <option value="pending" <?php echo $job['status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                            <option value="in-progress" <?php echo $job['status'] === 'in-progress' ? 'selected' : ''; ?>>In Progress</option>
-                                            <option value="completed" <?php echo $job['status'] === 'completed' ? 'selected' : ''; ?>>Completed</option>
-                                            <option value="cancelled" <?php echo $job['status'] === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                            data-job-id="<?php echo htmlspecialchars($job['id_pekerjaan']); ?>">
+                                            <option value="pending" <?php echo $job['status_pekerjaan'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                            <option value="in-progress" <?php echo $job['status_pekerjaan'] === 'in-progress' ? 'selected' : ''; ?>>In Progress</option>
+                                            <option value="completed" <?php echo $job['status_pekerjaan'] === 'completed' ? 'selected' : ''; ?>>Completed</option>
+                                            <option value="cancelled" <?php echo $job['status_pekerjaan'] === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
                                         </select>
 
                                         <!-- small caret icon -->
@@ -127,8 +127,8 @@ if (!defined('IS_ADMIN_PAGE')) {
                                         <button
                                             type="button"
                                             class="delete-worker-from-job-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition duration-200"
-                                            data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>"
-                                            data-worker-name="<?php echo htmlspecialchars($job['workerName']); ?>"
+                                            data-job-id="<?php echo htmlspecialchars($job['id_pekerjaan']); ?>"
+                                            data-worker-name="<?php echo htmlspecialchars($job['nama_pekerja']); ?>"
                                             title="Delete Worker from Job">
                                             <i data-feather="user-x" class="w-4 h-4"></i>
                                         </button>
@@ -148,28 +148,28 @@ if (!defined('IS_ADMIN_PAGE')) {
                 <div class="px-4 py-4 text-center text-gray-500">Belum ada data pekerja.</div>
             <?php else: ?>
                 <?php foreach ($jobs as $job): ?>
-                    <?php $statusClass = getStatusClass($job['status'], 'job'); ?>
+                    <?php $statusClass = getStatusClass($job['status_pekerjaan'], 'job'); ?>
                     <div class="bg-white border rounded-lg p-4 shadow-sm">
                         <!-- main info (title + small meta) -->
                         <div class="min-w-0">
-                            <div class="text-base font-semibold truncate" title="<?php echo htmlspecialchars($job['jobId'] . ' — ' . $job['jobType']); ?>">
-                                <?php echo htmlspecialchars($job['jobId']); ?> — <?php echo htmlspecialchars($job['jobType']); ?>
+                            <div class="text-base font-semibold truncate" title="<?php echo htmlspecialchars($job['id_pekerjaan'] . ' — ' . $job['jenis_pekerjaan']); ?>">
+                                <?php echo htmlspecialchars($job['id_pekerjaan']); ?> — <?php echo htmlspecialchars($job['jenis_pekerjaan']); ?>
                             </div>
-                            <div class="text-sm text-gray-700 truncate mt-1" title="<?php echo htmlspecialchars($job['workerName']); ?>"><?php echo htmlspecialchars($job['workerName']); ?></div>
+                            <div class="text-sm text-gray-700 truncate mt-1" title="<?php echo htmlspecialchars($job['nama_pekerja']); ?>"><?php echo htmlspecialchars($job['nama_pekerja']); ?></div>
 
-                            <div class="mt-2 text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars($job['customer'] . ' • ' . ($job['customerPhone'] ?? '')); ?>">
-                                <?php echo htmlspecialchars($job['customer']); ?> • <?php echo htmlspecialchars($job['customerPhone'] ?? ''); ?>
-                            </div>
-
-                            <div class="mt-2 text-sm text-gray-500 truncate" title="<?php echo date('d M Y', strtotime($job['startDate'])) . ' - ' . date('d M Y', strtotime($job['endDate'])); ?>">
-                                <?php echo date('d M Y', strtotime($job['startDate'])); ?> to <?php echo date('d M Y', strtotime($job['endDate'])); ?>
+                            <div class="mt-2 text-sm text-gray-600 truncate" title="<?php echo htmlspecialchars($job['nama_pelanggan'] . ' • ' . ($job['telepon_pelanggan'] ?? '')); ?>">
+                                <?php echo htmlspecialchars($job['nama_pelanggan']); ?> • <?php echo htmlspecialchars($job['telepon_pelanggan'] ?? ''); ?>
                             </div>
 
-                            <div class="mt-2 text-sm text-gray-500 truncate" title="<?php echo htmlspecialchars($job['location']); ?>">
-                                <?php echo htmlspecialchars($job['location']); ?>
+                            <div class="mt-2 text-sm text-gray-500 truncate" title="<?php echo date('d M Y', strtotime($job['tanggal_mulai'])) . ' - ' . date('d M Y', strtotime($job['tanggal_selesai'])); ?>">
+                                <?php echo date('d M Y', strtotime($job['tanggal_mulai'])); ?> to <?php echo date('d M Y', strtotime($job['tanggal_selesai'])); ?>
                             </div>
-                            <div class="mt-2 text-sm text-gray-500 truncate" title="<?php echo htmlspecialchars($job['address']); ?>">
-                                <?php echo htmlspecialchars($job['address']); ?>
+
+                            <div class="mt-2 text-sm text-gray-500 truncate" title="<?php echo htmlspecialchars($job['lokasi']); ?>">
+                                <?php echo htmlspecialchars($job['lokasi']); ?>
+                            </div>
+                            <div class="mt-2 text-sm text-gray-500 truncate" title="<?php echo htmlspecialchars($job['alamat_lokasi']); ?>">
+                                <?php echo htmlspecialchars($job['alamat_lokasi']); ?>
                             </div>
                         </div>
 
@@ -177,7 +177,7 @@ if (!defined('IS_ADMIN_PAGE')) {
                         <div class="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <!-- price -->
                             <div class="text-right sm:text-right">
-                                <div class="text-lg font-medium whitespace-nowrap"><?php echo formatCurrency($job['price']); ?></div>
+                                <div class="text-lg font-medium whitespace-nowrap"><?php echo formatCurrency($job['harga']); ?></div>
                             </div>
 
                             <!-- status (on small screens make full width if needed) -->
@@ -187,11 +187,11 @@ if (!defined('IS_ADMIN_PAGE')) {
                                         <select
                                             name="status"
                                             class="job-status-select appearance-none w-full sm:w-auto pr-8 pl-3 py-1 text-sm rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-200 <?php echo $statusClass; ?>"
-                                            data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>">
-                                            <option value="pending" <?php echo $job['status'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
-                                            <option value="in-progress" <?php echo $job['status'] === 'in-progress' ? 'selected' : ''; ?>>In Progress</option>
-                                            <option value="completed" <?php echo $job['status'] === 'completed' ? 'selected' : ''; ?>>Completed</option>
-                                            <option value="cancelled" <?php echo $job['status'] === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
+                                            data-job-id="<?php echo htmlspecialchars($job['id_pekerjaan']); ?>">
+                                            <option value="pending" <?php echo $job['status_pekerjaan'] === 'pending' ? 'selected' : ''; ?>>Pending</option>
+                                            <option value="in-progress" <?php echo $job['status_pekerjaan'] === 'in-progress' ? 'selected' : ''; ?>>In Progress</option>
+                                            <option value="completed" <?php echo $job['status_pekerjaan'] === 'completed' ? 'selected' : ''; ?>>Completed</option>
+                                            <option value="cancelled" <?php echo $job['status_pekerjaan'] === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
                                         </select>
 
                                         <svg class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -206,8 +206,8 @@ if (!defined('IS_ADMIN_PAGE')) {
                                 <button
                                     type="button"
                                     class="delete-worker-from-job-btn text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition duration-200"
-                                    data-job-id="<?php echo htmlspecialchars($job['jobId']); ?>"
-                                    data-worker-name="<?php echo htmlspecialchars($job['workerName']); ?>"
+                                    data-job-id="<?php echo htmlspecialchars($job['id_pekerjaan']); ?>"
+                                    data-worker-name="<?php echo htmlspecialchars($job['nama_pekerja']); ?>"
                                     title="Delete Worker from Job">
                                     <i data-feather="user-x" class="w-5 h-5"></i>
                                 </button>

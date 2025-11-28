@@ -18,12 +18,12 @@ $customer_id = $_SESSION['user_id'] ?? null;
 
 // Fetch up-to-date customer data from the database
 $customer_data = getCustomerDataById($customer_id);
-$customer_address = $customer_data['alamat'] ?? 'Alamat tidak tersedia';
+$customer_address = $customer_data['alamat_lengkap'] ?? 'Alamat tidak tersedia';
 
 // Also update session with fresh data to avoid inconsistencies in other parts of the application
-$_SESSION['user_name'] = $customer_data['name'] ?? $_SESSION['user_name'];
-$_SESSION['user_phone'] = $customer_data['phone'] ?? $_SESSION['user_phone'];
-$_SESSION['user_address'] = $customer_data['alamat'] ?? 'Alamat tidak tersedia';
+$_SESSION['user_name'] = $customer_data['nama_lengkap'] ?? $_SESSION['user_name'];
+$_SESSION['user_phone'] = $customer_data['telepon'] ?? $_SESSION['user_phone'];
+$_SESSION['user_address'] = $customer_data['alamat_lengkap'] ?? 'Alamat tidak tersedia';
 
 
 // Initialize variables for messages
@@ -62,25 +62,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 
                 if ($worker) {
                     $jobData = [
-                        'workerId' => $worker_id,
-                        'workerName' => $worker['name'],
-                        'jobType' => InputValidator::sanitizeString($_POST['job_type'] ?? ''),
-                        'startDate' => $startDate,
-                        'endDate' => $endDate,
-                        'location' => InputValidator::sanitizeString($_POST['job_location'] ?? ''),
-                        'address' => InputValidator::sanitizeString($_POST['job_location'] ?? ''),
-                        'status' => 'pending',
-                        'customer' => $_SESSION['user_name'],
-                        'customerPhone' => $_SESSION['user_phone'] ?? 'N/A',
-                        'customerEmail' => $customer_email,
-                        'description' => InputValidator::sanitizeString($_POST['job_notes'] ?? '')
+                        'id_pekerja' => $worker_id,
+                        'nama_pekerja' => $worker['nama'],
+                        'jenis_pekerjaan' => InputValidator::sanitizeString($_POST['job_type'] ?? ''),
+                        'tanggal_mulai' => $startDate,
+                        'tanggal_selesai' => $endDate,
+                        'lokasi' => InputValidator::sanitizeString($_POST['job_location'] ?? ''),
+                        'alamat_lokasi' => InputValidator::sanitizeString($_POST['job_location'] ?? ''),
+                        'status_pekerjaan' => 'pending',
+                        'nama_pelanggan' => $_SESSION['user_name'],
+                        'telepon_pelanggan' => $_SESSION['user_phone'] ?? 'N/A',
+                        'email_pelanggan' => $customer_email,
+                        'deskripsi' => InputValidator::sanitizeString($_POST['job_notes'] ?? '')
                     ];
                     
                     // Calculate price
                     $start = new DateTime($startDate);
                     $end = new DateTime($endDate);
                     $days = $end->diff($start)->days + 1;
-                    $jobData['price'] = $days > 0 ? $worker['rate'] * $days : 0;
+                    $jobData['harga'] = $days > 0 ? $worker['tarif_per_jam'] * $days : 0;
                     
                     if (addWorkerToJob($jobData)) {
                         SecurityLogger::log('INFO', 'Job created', ['customer' => $customer_email, 'worker' => $worker_id]);
@@ -112,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 try {
                     // Check if review already exists
-                    $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM reviews WHERE jobId = ? AND customerId = ?");
+                    $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM ulasan WHERE id_pekerjaan = ? AND id_pelanggan = ?");
                     $stmtCheck->execute([$jobId, $customer_id]);
                     $reviewExists = $stmtCheck->fetchColumn() > 0;
                     
@@ -122,22 +122,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         DatabaseHelper::beginTransaction();
                         
                         // Insert review
-                        $sql = "INSERT INTO reviews (jobId, workerId, customerId, rating, comment) 
+                        $sql = "INSERT INTO ulasan (id_pekerjaan, id_pekerja, id_pelanggan, rating, komentar) 
                                 VALUES (?, ?, ?, ?, ?)";
                         $stmt = $pdo->prepare($sql);
                         $stmt->execute([$jobId, $workerId, $customer_id, $rating, $comment]);
                         
                         // Update worker rating
-                        $sqlAvg = "SELECT AVG(rating) as avg_rating FROM reviews WHERE workerId = ?";
+                        $sqlAvg = "SELECT AVG(rating) as avg_rating FROM ulasan WHERE id_pekerja = ?";
                         $stmtAvg = $pdo->prepare($sqlAvg);
                         $stmtAvg->execute([$workerId]);
                         $newRating = $stmtAvg->fetch()['avg_rating'];
                         
-                        $sqlUpdate = "UPDATE workers SET rating = ? WHERE id = ?";
+                        $sqlUpdate = "UPDATE pekerja SET rating = ? WHERE id_pekerja = ?";
                         $stmtUpdate = $pdo->prepare($sqlUpdate);
                         $stmtUpdate->execute([$newRating, $workerId]);
                         
                         DatabaseHelper::commit();
+                        // ...
                         
                         SecurityLogger::log('INFO', 'Review submitted', ['job' => $jobId, 'rating' => $rating]);
                         
@@ -167,7 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error_message = 'Harap isi semua kolom yang wajib diisi.';
             } else {
                 try {
-                    $sql = "INSERT INTO posted_jobs (customer_id, title, description, job_type, location, budget) 
+                    $sql = "INSERT INTO lowongan_diposting (id_pelanggan, judul_lowongan, deskripsi_lowongan, jenis_pekerjaan, lokasi, anggaran) 
                             VALUES (?, ?, ?, ?, ?, ?)";
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute([$customer_id, $title, $description, $job_type, $location, $budget]);
@@ -222,12 +223,12 @@ if ($active_tab === 'my_jobs') {
     $stmt = $pdo->prepare("
         SELECT 
             pj.*, 
-            j.status as job_status,
-            pj.status as posted_job_status
-        FROM posted_jobs pj
-        LEFT JOIN jobs j ON pj.id = j.posted_job_id
-        WHERE pj.customer_id = ? 
-        ORDER BY pj.created_at DESC
+            j.status_pekerjaan as job_status,
+            pj.status_lowongan as posted_job_status
+        FROM lowongan_diposting pj
+        LEFT JOIN pekerjaan j ON pj.id_lowongan = j.id_lowongan_diposting
+        WHERE pj.id_pelanggan = ? 
+        ORDER BY pj.dibuat_pada DESC
     ");
     $stmt->execute([$customer_id]);
     $postedJobs = $stmt->fetchAll();
@@ -241,14 +242,14 @@ if ($active_tab === 'orders') {
     } else {
         $allOrders = getCustomerOrders($customer_email);
         $customerOrders = array_filter($allOrders, function($order) use ($order_status_filter) {
-            return $order['status'] === $order_status_filter;
+            return $order['status_pekerjaan'] === $order_status_filter;
         });
     }
     
     // Check review status for each order
     // BUG FIX: using &$order reference without unset caused array corruption in later loops
     foreach ($customerOrders as &$order) {
-        $order['has_review'] = hasCustomerReviewedJob($order['jobId'], (int)$customer_id);
+        $order['has_review'] = hasCustomerReviewedJob($order['id_pekerjaan'], (int)$customer_id);
     }
     unset($order); // CRITICAL FIX: Unlink the reference to prevent duplicate display issues
 }
@@ -262,7 +263,7 @@ if ($active_tab === 'home') {
 // Count pending orders
 $pendingOrderCount = count(array_filter(
     getCustomerOrders($customer_email), 
-    function($o) { return $o['status'] === 'pending'; }
+    function($o) { return $o['status_pekerjaan'] === 'pending'; }
 ));
 
 // --- Gabungkan semua data worker untuk modal ---
@@ -271,10 +272,10 @@ $worker_data_sources = [$workers, $topWorkers];
 
 // Ambil data worker dari pesanan
 if (!empty($customerOrders)) {
-    $orderWorkerIds = array_filter(array_column($customerOrders, 'workerId'));
+    $orderWorkerIds = array_filter(array_column($customerOrders, 'id_pekerja'));
     if(!empty($orderWorkerIds)) {
         $placeholders = implode(',', array_fill(0, count($orderWorkerIds), '?'));
-        $stmt = $pdo->prepare("SELECT * FROM workers WHERE id IN ($placeholders)");
+        $stmt = $pdo->prepare("SELECT * FROM pekerja WHERE id_pekerja IN ($placeholders)");
         $stmt->execute($orderWorkerIds);
         $orderWorkers = $stmt->fetchAll();
         $worker_data_sources[] = $orderWorkers;
@@ -284,11 +285,11 @@ if (!empty($customerOrders)) {
 foreach ($worker_data_sources as $source) {
     if (!empty($source)) {
         foreach ($source as $worker) {
-            if (!isset($allWorkersForModal[$worker['id']])) {
-                 if (isset($worker['skills']) && !is_array($worker['skills'])) {
-                    $worker['skills'] = json_decode($worker['skills'], true) ?: [];
+            if (!isset($allWorkersForModal[$worker['id_pekerja']])) {
+                 if (isset($worker['keahlian']) && !is_array($worker['keahlian'])) {
+                    $worker['keahlian'] = json_decode($worker['keahlian'], true) ?: [];
                 }
-                $allWorkersForModal[$worker['id']] = $worker;
+                $allWorkersForModal[$worker['id_pekerja']] = $worker;
             }
         }
     }

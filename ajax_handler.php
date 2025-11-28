@@ -224,13 +224,13 @@ if ($action === 'update_job_status') {
             $current_password = $_POST['current_password'];
             $new_password = $_POST['new_password'];
 
-            $user_stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
+            $user_stmt = $pdo->prepare("SELECT kata_sandi FROM pengguna WHERE id_pengguna = ?");
             $user_stmt->execute([$_SESSION['user_id']]);
             $user = $user_stmt->fetch();
 
-            if ($user && password_verify($current_password, $user['password'])) {
+            if ($user && password_verify($current_password, $user['kata_sandi'])) {
                 $hashedPassword = password_hash($new_password, PASSWORD_DEFAULT);
-                $update_pass_stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
+                $update_pass_stmt = $pdo->prepare("UPDATE pengguna SET kata_sandi = ? WHERE id_pengguna = ?");
                 $update_pass_stmt->execute([$hashedPassword, $_SESSION['user_id']]);
                 $response['success'] = true;
                 $response['message'] = 'Profil dan password berhasil diperbarui!';
@@ -251,22 +251,22 @@ if ($action === 'update_job_status') {
     $worker = getWorkerById($workerId);
     
     $jobData = [
-        'workerId' => $workerId,
-        'workerName' => $worker ? $worker['name'] : 'Unknown Worker',
-        'jobType' => $_POST['job_type'] ?? '',
-        'startDate' => $_POST['start_date'] ?? '',
-        'endDate' => $_POST['end_date'] ?? '',
-        'customer' => $_POST['customer'] ?? '',
-        'customerPhone' => $_POST['customer_phone'] ?? '',
-        'customerEmail' => $_POST['customer_email'] ?? '',
-        'price' => intval($_POST['price'] ?? 0),
-        'location' => $_POST['location'] ?? '',
-        'address' => $_POST['address'] ?? '',
-        'description' => $_POST['description'] ?? '',
-        'status' => $_POST['status'] ?? 'pending'
+        'id_pekerja' => $workerId,
+        'nama_pekerja' => $worker ? $worker['nama'] : 'Unknown Worker',
+        'jenis_pekerjaan' => $_POST['job_type'] ?? '',
+        'tanggal_mulai' => $_POST['start_date'] ?? '',
+        'tanggal_selesai' => $_POST['end_date'] ?? '',
+        'nama_pelanggan' => $_POST['customer'] ?? '',
+        'telepon_pelanggan' => $_POST['customer_phone'] ?? '',
+        'email_pelanggan' => $_POST['customer_email'] ?? '',
+        'harga' => intval($_POST['price'] ?? 0),
+        'lokasi' => $_POST['location'] ?? '',
+        'alamat_lokasi' => $_POST['address'] ?? '',
+        'deskripsi' => $_POST['description'] ?? '',
+        'status_pekerjaan' => $_POST['status'] ?? 'pending'
     ];
     
-    if (addJob($jobData)) {
+    if (addWorkerToJob($jobData)) {
         $response['success'] = true;
         $response['message'] = 'Pekerjaan berhasil ditambahkan!';
     } else {
@@ -319,7 +319,7 @@ if ($action === 'update_job_status') {
 
     global $pdo;
     try {
-        $stmt = $pdo->prepare("DELETE FROM posted_jobs WHERE id = ? AND customer_id = ? AND worker_id IS NULL");
+        $stmt = $pdo->prepare("DELETE FROM lowongan_diposting WHERE id_lowongan = ? AND id_pelanggan = ? AND id_pekerja IS NULL");
         $stmt->execute([$jobId, $customerId]);
 
         if ($stmt->rowCount() > 0) {
@@ -355,7 +355,7 @@ if ($action === 'update_job_status') {
     
     // Verifikasi ekstra: pastikan kuli ini pemilik job-nya
     $jobDetails = getJobById($jobId);
-    if ($jobDetails['workerId'] !== $workerProfileId) {
+    if ($jobDetails['id_pekerja'] !== $workerProfileId) {
         $response['message'] = 'Anda tidak berhak mengubah job ini.';
         ob_clean(); // Discard any buffered output before sending JSON
         echo json_encode($response);
@@ -402,17 +402,17 @@ if ($action === 'update_job_status') {
 
     try {
         // Atomic update to claim the job
-        $sql = "UPDATE posted_jobs SET worker_id = ?, status = 'assigned' WHERE id = ? AND status = 'open'";
+        $sql = "UPDATE lowongan_diposting SET id_pekerja = ?, status_lowongan = 'assigned' WHERE id_lowongan = ? AND status_lowongan = 'open'";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$workerProfileId, $jobId]);
 
         if ($stmt->rowCount() > 0) {
             // Successfully claimed the job, now get its details
             $stmtSelect = $pdo->prepare("
-                SELECT pj.*, u.username as customer_email, u.name as customer_name, u.phone as customer_phone, u.alamat 
-                FROM posted_jobs pj 
-                JOIN users u ON pj.customer_id = u.id 
-                WHERE pj.id = ?
+                SELECT pj.*, u.nama_pengguna as customer_email, u.nama_lengkap as customer_name, u.telepon as customer_phone, u.alamat_lengkap as alamat 
+                FROM lowongan_diposting pj 
+                JOIN pengguna u ON pj.id_pelanggan = u.id_pengguna 
+                WHERE pj.id_lowongan = ?
             ");
             $stmtSelect->execute([$jobId]);
             $postedJob = $stmtSelect->fetch();
@@ -426,20 +426,20 @@ if ($action === 'update_job_status') {
                 $endDate = date('Y-m-d');
 
                 $jobData = [
-                    'posted_job_id' => $jobId,
-                    'workerId' => $workerProfileId,
-                    'workerName' => $worker['name'],
-                    'jobType' => $postedJob['job_type'],
-                    'startDate' => $startDate,
-                    'endDate' => $endDate,
-                    'customer' => $postedJob['customer_name'],
-                    'customerPhone' => $postedJob['customer_phone'],
-                    'customerEmail' => $postedJob['customer_email'],
-                    'price' => $postedJob['budget'] ?? 0,
-                    'location' => $postedJob['location'],
-                    'address' => $postedJob['alamat'],
-                    'description' => $postedJob['description'],
-                    'status' => 'in-progress' // Directly move to in-progress as requested
+                    'id_lowongan_diposting' => $jobId,
+                    'id_pekerja' => $workerProfileId,
+                    'nama_pekerja' => $worker['nama'],
+                    'jenis_pekerjaan' => $postedJob['jenis_pekerjaan'],
+                    'tanggal_mulai' => $startDate,
+                    'tanggal_selesai' => $endDate,
+                    'nama_pelanggan' => $postedJob['customer_name'],
+                    'telepon_pelanggan' => $postedJob['customer_phone'],
+                    'email_pelanggan' => $postedJob['customer_email'],
+                    'harga' => $postedJob['anggaran'] ?? 0,
+                    'lokasi' => $postedJob['lokasi'],
+                    'alamat_lokasi' => $postedJob['alamat'],
+                    'deskripsi' => $postedJob['deskripsi'],
+                    'status_pekerjaan' => 'in-progress'
                 ];
 
                 if (addWorkerToJob($jobData)) {

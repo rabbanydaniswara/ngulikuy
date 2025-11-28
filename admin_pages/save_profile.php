@@ -10,7 +10,7 @@ if (file_exists(__DIR__ . '/../functions.php')) {
     require_once __DIR__ . '/../functions.php';
 }
 
-$admin_id = (int)($_POST['admin_id'] ?? ($_SESSION['admin_id'] ?? 0));
+$admin_id = (int)($_POST['admin_id'] ?? ($_SESSION['user_id'] ?? 0));
 $name = trim($_POST['name'] ?? '');
 $email = trim($_POST['email'] ?? '');
 $current_password = $_POST['current_password'] ?? '';
@@ -55,8 +55,8 @@ if ($new_password !== '') {
 
     if (function_exists('getAdminById')) {
         $adm = getAdminById($admin_id);
-        if (!empty($adm['password_hash'])) {
-            if (!password_verify($current_password, $adm['password_hash'])) {
+        if ($adm && !empty($adm['kata_sandi'])) { // Changed 'password_hash' to 'kata_sandi'
+            if (!password_verify($current_password, $adm['kata_sandi'])) { // Changed 'password_hash' to 'kata_sandi'
                 $errors[] = 'Password saat ini salah';
                 $can_change = False;
             }
@@ -78,17 +78,24 @@ $ok = false;
 
 if (function_exists('updateAdminById')) {
     $ok = updateAdminById($admin_id, $update_data);
-} else if (file_exists(__DIR__ . '/../db.php')) {
+} else if (file_exists(__DIR__ . '/../db.php')) { // This fallback should ideally not be hit
     require_once __DIR__ . '/../db.php';
     try {
         $stmt_parts = [];
         $params = [];
+        $keyMap = [ // Map update_data keys to actual DB column names
+            'name' => 'nama_lengkap',
+            'email' => 'nama_pengguna',
+            'avatar' => 'url_foto',
+            'password_hash' => 'kata_sandi'
+        ];
         foreach ($update_data as $k => $v) {
-            $stmt_parts[] = "`$k` = :$k";
-            $params[":$k"] = $v;
+            $dbKey = $keyMap[$k] ?? $k; // Use mapped key or original if not mapped
+            $stmt_parts[] = "`$dbKey` = :$dbKey";
+            $params[":$dbKey"] = $v;
         }
-        $sql = "UPDATE admins SET " . implode(', ', $stmt_parts) . " WHERE id = :id";
-        $params[':id'] = $admin_id;
+        $sql = "UPDATE pengguna SET " . implode(', ', $stmt_parts) . " WHERE id_pengguna = :id_pengguna AND peran = 'admin'";
+        $params[':id_pengguna'] = $admin_id; // Use id_pengguna here
         $pdo->prepare($sql)->execute($params);
         $ok = true;
     } catch (Exception $e) {
@@ -101,11 +108,15 @@ if (function_exists('updateAdminById')) {
 if ($ok) {
     $_SESSION['flash'] = 'Profil berhasil diperbarui';
 
-    if (!isset($_SESSION['admin'])) $_SESSION['admin'] = [];
-    $_SESSION['admin']['name'] = $update_data['name'] ?? ($_SESSION['admin']['name'] ?? 'Admin');
-    $_SESSION['admin']['email'] = $update_data['email'] ?? ($_SESSION['admin']['email'] ?? '');
+    // Update session variables to reflect changes
+    // Assuming $_SESSION['user_name'], $_SESSION['user'], $_SESSION['user_photo'] are used for admin
+    if (!isset($_SESSION['user_name'])) $_SESSION['user_name'] = '';
+    if (!isset($_SESSION['user'])) $_SESSION['user'] = '';
+    
+    $_SESSION['user_name'] = $update_data['name'] ?? $_SESSION['user_name'];
+    $_SESSION['user'] = $update_data['email'] ?? $_SESSION['user'];
     if (!empty($update_data['avatar'])) {
-        $_SESSION['admin']['avatar'] = $update_data['avatar'];
+        $_SESSION['user_photo'] = $update_data['avatar'];
     }
 } else {
     $_SESSION['flash'] = 'Tidak ada perubahan atau terjadi kesalahan';

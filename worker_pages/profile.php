@@ -23,10 +23,10 @@ $worker = getWorkerById($worker_id);
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <div class="p-4 bg-white rounded-2xl shadow-sm">
       <div class="flex flex-col items-center gap-3">
-        <?php $avatar = !empty($worker['photo']) ? $worker['photo'] : getDefaultWorkerPhoto(); ?>
+        <?php $avatar = !empty($worker['url_foto']) ? $worker['url_foto'] : getDefaultWorkerPhoto(); ?>
         <img id="avatar-preview" src="<?php echo htmlspecialchars($avatar); ?>" alt="avatar" class="w-28 h-28 rounded-full object-cover border" />
         <div class="text-center">
-          <p class="font-medium"><?php echo htmlspecialchars($worker['name']); ?></p>
+          <p class="font-medium"><?php echo htmlspecialchars($worker['nama']); ?></p>
           <p class="text-sm text-gray-500"><?php echo htmlspecialchars($worker['email']); ?></p>
         </div>
       </div>
@@ -39,7 +39,7 @@ $worker = getWorkerById($worker_id);
 
         <div>
           <label class="block text-sm text-gray-600">Nama</label>
-          <input name="name" value="<?php echo htmlspecialchars($worker['name']); ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
+          <input name="name" value="<?php echo htmlspecialchars($worker['nama']); ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
         </div>
 
         <div>
@@ -49,12 +49,12 @@ $worker = getWorkerById($worker_id);
 
         <div>
           <label class="block text-sm text-gray-600">Telepon</label>
-          <input name="phone" type="tel" value="<?php echo htmlspecialchars($worker['phone']); ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
+          <input name="phone" type="tel" value="<?php echo htmlspecialchars($worker['telepon']); ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
         </div>
         
         <div>
           <label class="block text-sm text-gray-600">Lokasi</label>
-          <input name="location" type="text" value="<?php echo htmlspecialchars($worker['location']); ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
+          <input name="location" type="text" value="<?php echo htmlspecialchars($worker['lokasi']); ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
         </div>
         
         <div>
@@ -65,7 +65,7 @@ $worker = getWorkerById($worker_id);
                 <?php 
                     $skills = get_construction_skills();
                     foreach ($skills as $skill_option) {
-                        $selected = in_array($skill_option, $worker['skills']) ? 'selected' : '';
+                        $selected = in_array($skill_option, $worker['keahlian']) ? 'selected' : '';
                         echo "<option value=\"{$skill_option}\" {$selected}>{$skill_option}</option>";
                     }
                 ?>
@@ -78,7 +78,7 @@ $worker = getWorkerById($worker_id);
             <textarea name="description" rows="3"
                 class="w-full px-4 py-2 rounded-lg border border-gray-300
                 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Deskripsi keahlian dan pengalaman..."><?php echo htmlspecialchars($worker['description']); ?></textarea>
+                placeholder="Deskripsi keahlian dan pengalaman..."><?php echo htmlspecialchars($worker['deskripsi_diri']); ?></textarea>
         </div>
 
         <div>

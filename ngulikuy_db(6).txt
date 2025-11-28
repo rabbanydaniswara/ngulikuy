@@ -1,0 +1,309 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.2
+-- https://www.phpmyadmin.net/
+--
+-- Host: localhost:3306
+-- Generation Time: Nov 28, 2025 at 03:05 PM
+-- Server version: 8.4.3
+-- PHP Version: 8.3.26
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `ngulikuy_db`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lowongan_diposting`
+--
+
+CREATE TABLE `lowongan_diposting` (
+  `id_lowongan` int NOT NULL,
+  `id_pelanggan` int NOT NULL,
+  `id_pekerja` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `judul_lowongan` varchar(255) NOT NULL,
+  `deskripsi_lowongan` text NOT NULL,
+  `jenis_pekerjaan` varchar(100) NOT NULL,
+  `lokasi` varchar(255) NOT NULL,
+  `anggaran` decimal(10,2) DEFAULT NULL,
+  `status_lowongan` varchar(50) NOT NULL DEFAULT 'open',
+  `dibuat_pada` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `diperbarui_pada` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table `lowongan_diposting`
+--
+
+INSERT INTO `lowongan_diposting` (`id_lowongan`, `id_pelanggan`, `id_pekerja`, `judul_lowongan`, `deskripsi_lowongan`, `jenis_pekerjaan`, `lokasi`, `anggaran`, `status_lowongan`, `dibuat_pada`, `diperbarui_pada`) VALUES
+(2, 6, 'KUL009', 'renovasi atap', 'perbaikan dan renovasi atap rumah', 'Construction', 'Ciputat', NULL, 'assigned', '2025-10-01 13:55:02', '2025-10-04 13:55:35'),
+(3, 6, 'KUL009', 'Membuat ruangan gaming', 'Pembuatan ruangan untuk gaming', 'Construction', 'Ciputat', NULL, 'assigned', '2025-11-25 14:16:25', '2025-11-25 14:17:23'),
+(4, 6, 'KUL009', 'Pembuatan kebun di belakang rumah', 'Pembuatan taman/kebun halaman belakang rumah', 'Construction', 'Ciputat', NULL, 'assigned', '2025-11-25 14:24:33', '2025-11-25 14:24:57'),
+(5, 6, 'KUL011', 'pembuatan ruangan gaming', 'pembuatan ruangan gaming harus rapi dan estetik', 'Construction', 'Ciputat', NULL, 'assigned', '2025-11-25 15:44:11', '2025-11-25 15:44:26'),
+(6, 6, 'KUL009', 'Diperlukan tukang untuk pembuatan rumah dengan tema Modern Minimalis', 'Diperlukan tukang untuk pembuatan rumah dengan tema Modern Minimalis', 'Tukang Bangunan', 'Pisangan, JL. Kertamukti Gang Leman No. 85', 10000000.00, 'assigned', '2025-11-28 11:37:50', '2025-11-28 11:38:30');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pekerja`
+--
+
+CREATE TABLE `pekerja` (
+  `id_pekerja` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nama` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `telepon` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `lokasi` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `keahlian` json DEFAULT NULL,
+  `status_ketersediaan` enum('Available','Assigned','On Leave') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT 'Available',
+  `tarif_per_jam` int DEFAULT '0',
+  `pengalaman` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `deskripsi_diri` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `url_foto` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `rating` float DEFAULT '4',
+  `jumlah_pekerjaan_selesai` int DEFAULT '0',
+  `tanggal_bergabung` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `pekerja`
+--
+
+INSERT INTO `pekerja` (`id_pekerja`, `nama`, `email`, `telepon`, `lokasi`, `keahlian`, `status_ketersediaan`, `tarif_per_jam`, `pengalaman`, `deskripsi_diri`, `url_foto`, `rating`, `jumlah_pekerjaan_selesai`, `tanggal_bergabung`) VALUES
+('KUL002', '', '', '', '', '[\"Tukang Gypsum / Plafon\", \"Tukang Kayu\"]', 'Available', 0, '', '', 'uploads/workers/worker_690262c3057e0_1761764035.png', 4, 0, '2025-10-18'),
+('KUL003', 'Hadi', 'hadi@gmail.com', '08972724811', 'Gungung Sindur', '[\"Tukang Las / Besi\"]', 'Available', 90000, '', '', 'uploads/workers/worker_69026337d8281_1761764151.png', 5, 0, '2025-10-18'),
+('KUL005', '', '', '', '', '[\"Tukang Gypsum / Plafon\"]', 'Available', 0, '', '', 'uploads/workers/worker_6902633fac547_1761764159.png', 5, 0, '2025-10-26'),
+('KUL006', 'George Floyd', 'floyd@gmail.com', '089872327448', 'Depok, Sawangan', '[\"Tukang Kayu\", \"Tukang Atap / Baja Ringan\"]', 'Available', 75000, '', '', 'https://upload.wikimedia.org/wikipedia/en/9/9c/George_Floyd.png', 5, 0, '2025-10-29'),
+('KUL007', '', '', '', '', '[\"Tukang Listrik\", \"Tukang Cat / Finishing\", \"Tukang Bangunan\"]', 'Available', 0, '', '', 'uploads/workers/worker_414777040bccfeb1ae6626b185c24ddc.png', 4, 0, '2025-10-30'),
+('KUL009', 'Udin Sludin', 'udin@gmail.com', '08323275441', 'Ciputat', '[\"Tukang Keramik / Lantai\"]', 'Available', 90000, '', '', 'uploads/workers/worker_10ac8fa252dfa5b36fad4a2b24110c9a.jpg', 5, 0, '2025-11-09'),
+('KUL010', 'Arvian Syidq', 'arvian@gmail.com', '0872723844', 'Jakarta Utara', '[\"Tukang Atap / Baja Ringan\"]', 'Available', 100000, '', '', 'uploads/workers/worker_e2b8c1bcdfd7b7edbaa5b98596a7a313.png', 5, 0, '2025-11-15'),
+('KUL011', 'Edi', 'edi@gmail.com', '081250800132', 'Ciputat', '[\"Tukang Cat / Finishing\"]', 'Available', 80000, '2 Tahun', 'Andal dalam Pengecatan dan Finishing rumah', 'uploads/workers/worker_4a4ac9a351695ad242681a13dd986132.jpg', 5, 0, '2025-11-25');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pekerjaan`
+--
+
+CREATE TABLE `pekerjaan` (
+  `id_pekerjaan` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id_lowongan_diposting` int DEFAULT NULL,
+  `id_pekerja` varchar(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `nama_pekerja` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `jenis_pekerjaan` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `tanggal_mulai` date DEFAULT NULL,
+  `tanggal_selesai` date DEFAULT NULL,
+  `nama_pelanggan` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `telepon_pelanggan` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `email_pelanggan` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `harga` int DEFAULT '0',
+  `lokasi` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `alamat_lokasi` text COLLATE utf8mb4_unicode_ci,
+  `deskripsi` text COLLATE utf8mb4_unicode_ci,
+  `status_pekerjaan` enum('pending','in-progress','completed','cancelled') COLLATE utf8mb4_unicode_ci DEFAULT 'pending',
+  `dibuat_pada` datetime DEFAULT CURRENT_TIMESTAMP,
+  `diperbarui_pada` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `pekerjaan`
+--
+
+INSERT INTO `pekerjaan` (`id_pekerjaan`, `id_lowongan_diposting`, `id_pekerja`, `nama_pekerja`, `jenis_pekerjaan`, `tanggal_mulai`, `tanggal_selesai`, `nama_pelanggan`, `telepon_pelanggan`, `email_pelanggan`, `harga`, `lokasi`, `alamat_lokasi`, `deskripsi`, `status_pekerjaan`, `dibuat_pada`, `diperbarui_pada`) VALUES
+('JOB001', NULL, 'KUL009', 'Udin Sludin', 'Tukang Las / Besi', '2025-11-21', '2025-11-23', 'Daniswara Rabbany', '08972724855', 'daniswara@gmail.com', 330000, 'dwasdwadwad', 'dwasdwadwad', 'sadwadsadwad', 'completed', '2025-11-20 14:18:41', '2025-11-28 18:32:32'),
+('JOB002', NULL, 'KUL010', 'Arvian Syidq', 'Kebersihan Pasca Renovasi', '2025-11-24', '2025-11-27', 'Daniswara Rabbany', '08972724855', 'daniswara@gmail.com', 440000, 'waodaspdoijwd', 'waodaspdoijwd', 'wdadgsrefsrdfvd', 'completed', '2025-11-20 14:19:48', '2025-11-28 18:21:27'),
+('JOB003', NULL, 'KUL010', 'Arvian Syidq', 'Tukang Gypsum / Plafon', '2025-11-25', '2025-11-29', 'Daniswara Rabbany', '08972724855', 'daniswara@gmail.com', 550000, 'awdadsadwadwa', 'awdadsadwadwa', 'sdwaedawfedes', 'completed', '2025-11-24 09:34:09', '2025-11-28 18:21:27'),
+('JOB004', NULL, 'KUL009', 'Udin Sludin', 'Tukang Kayu', '2025-11-28', '2025-11-30', 'Zahra', '08972724833', 'zahra@gmail.com', 330000, 'Disana aja lah yak', 'Disana aja lah yak', 'Pembuatan kebun di belakang rumah', 'completed', '2025-11-24 09:42:48', '2025-11-28 18:32:32'),
+('JOB005', NULL, 'KUL010', 'Arvian Syidq', 'Kebersihan Pasca Renovasi', '2025-11-25', '2025-11-30', 'Daniswara Rabbany', '08972724855', 'daniswara@gmail.com', 660000, 'disitu deh', 'disitu deh', 'ngecat ruangan', 'completed', '2025-11-24 10:01:06', '2025-11-28 18:21:27'),
+('JOB006', NULL, 'KUL009', 'Udin Sludin', 'Kebersihan Pasca Renovasi', '2025-11-26', '2025-11-29', 'Daniswara Rabbany', '08972724855', 'daniswara@gmail.com', 440000, 'Disana lah yak', 'Disana lah yak', 'Pembuatan rumah', 'completed', '2025-11-25 12:35:56', '2025-11-28 18:32:32'),
+('JOB007', 3, 'KUL009', 'Udin Sludin', 'Tukang Pipa / Plumbing', '2025-11-25', '2025-11-25', 'Daniswara Rabbany', '08972724855', 'daniswara@gmail.com', 0, 'Ciputat', 'Ciputat', 'Pembuatan ruangan untuk gaming', 'completed', '2025-11-25 14:17:23', '2025-11-28 18:32:32'),
+('JOB008', 4, 'KUL009', 'Udin Sludin', 'Tukang Cat / Finishing', '2025-11-25', '2025-11-25', 'Daniswara Rabbany', '08972724855', 'daniswara@gmail.com', 0, 'Ciputat', 'Ciputat', 'Pembuatan taman/kebun halaman belakang rumah', 'completed', '2025-11-25 14:24:57', '2025-11-28 18:32:32'),
+('JOB009', NULL, 'KUL009', 'Udin Sludin', 'Tukang Cat / Finishing', '2025-12-01', '2025-12-06', 'Daniswara Rabbany', '08972724855', 'daniswara@gmail.com', 660000, 'pembuatan ruangan gaming', 'pembuatan ruangan gaming', 'harus rapi', 'completed', '2025-11-25 15:43:33', '2025-11-28 18:32:32'),
+('JOB010', 5, 'KUL011', 'Edi', 'Tukang Keramik / Lantai', '2025-11-25', '2025-11-25', 'Daniswara Rabbany', '08972724855', 'daniswara@gmail.com', 0, 'Ciputat', 'Ciputat', 'pembuatan ruangan gaming harus rapi dan estetik', 'completed', '2025-11-25 15:44:26', '2025-11-28 18:24:36'),
+('JOB011', 6, 'KUL009', 'Udin Sludin', 'Tukang Bangunan', '2025-11-28', '2025-11-28', 'Daniswara Rabbany', '08972724855', 'daniswara@gmail.com', 10000000, 'Pisangan, JL. Kertamukti Gang Leman No. 85', 'Pisangan, JL. Kertamukti Gang Leman No. 85', 'Diperlukan tukang untuk pembuatan rumah dengan tema Modern Minimalis', 'completed', '2025-11-28 11:38:30', '2025-11-28 19:24:55');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `pengguna`
+--
+
+CREATE TABLE `pengguna` (
+  `id_pengguna` int NOT NULL,
+  `nama_pengguna` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `kata_sandi` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `peran` enum('admin','customer','worker') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nama_lengkap` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `telepon` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `url_foto` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT 'Path ke foto profil user',
+  `id_profil_pekerja` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `alamat_lengkap` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `pengguna`
+--
+
+INSERT INTO `pengguna` (`id_pengguna`, `nama_pengguna`, `kata_sandi`, `peran`, `nama_lengkap`, `telepon`, `url_foto`, `id_profil_pekerja`, `alamat_lengkap`) VALUES
+(1, 'admin', '$2y$10$oui3nmQUjDUxV4YRSitoeOgQVZCOzhzXbng7TTiwsUVYQgxzNBT1i', 'admin', 'Administrator', NULL, NULL, NULL, NULL),
+(2, 'user@gmail.com', '$2y$10$C2MCgSvxv9Ian.QWX9eu9.YimKPHatOmy/ExPEUuntm87tULhZcAu', 'customer', 'Customer User', '081250800137', NULL, NULL, NULL),
+(6, 'daniswara@gmail.com', '$2y$10$DGikOqv8868fnR3zBfcvFOo7LM/U.ahXjQL0CwUreIR1iDgEU1dXW', 'customer', 'Daniswara Rabbany', '08972724855', 'uploads/users/user_692425860d519.png', NULL, 'Pisangan, JL. Kertamukti Gang Leman No. 85'),
+(8, 'udin@gmail.com', '$2y$10$E8MuxG1iDNS628qISWvRO.gK9iCnzWiGqMzDsEvaJQ9DT3l83NsGW', 'worker', 'Udin Sludin', '08972724877', NULL, 'KUL009', NULL),
+(9, 'arvian@gmail.com', '$2y$10$F3gs7wWnuqHhgkAfy8JHguJV4kqpOCcWV4FE49Y5E08.64CjxLjEi', 'worker', 'Arvian Syidq', '08973735922', NULL, 'KUL010', NULL),
+(10, 'ujang@gmail.com', '$2y$10$vQ59o07OA7jWc34pGLiYSeU0yFk0/x4VvMJQakenksIoV/IEfDK3G', 'customer', 'Ujang', '08972724877', NULL, NULL, NULL),
+(11, 'zahra@gmail.com', '$2y$10$JRDkcaFxxN3857a/.xrcp.d40N.8NtD38aC6VnKjVEoBVY6hlmfuG', 'customer', 'Zahra', '08972724833', 'uploads/users/user_6924287394e75.jpg', NULL, NULL),
+(12, 'edi@gmail.com', '$2y$10$E/BSI6muofqVPnbgt7gdO.9X6B3IFw4gn.BiXZ58Iok9i0XwY/kwa', 'worker', 'Edi', '08972724899', NULL, 'KUL011', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `ulasan`
+--
+
+CREATE TABLE `ulasan` (
+  `id_ulasan` int NOT NULL,
+  `id_pekerjaan` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id_pekerja` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `id_pelanggan` int DEFAULT NULL,
+  `rating` int NOT NULL,
+  `komentar` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `dibuat_pada` timestamp NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `ulasan`
+--
+
+INSERT INTO `ulasan` (`id_ulasan`, `id_pekerjaan`, `id_pekerja`, `id_pelanggan`, `rating`, `komentar`, `dibuat_pada`) VALUES
+(23, 'JOB004', 'KUL009', 11, 5, 'Sangat baik dan memuaskan', '2025-11-24 09:43:54'),
+(24, 'JOB005', 'KUL010', 6, 5, 'yak', '2025-11-24 10:31:47'),
+(25, 'JOB001', 'KUL009', 6, 5, 'sangat memuaskan', '2025-11-25 11:06:14'),
+(30, 'JOB006', 'KUL009', 6, 5, 'yak mantap', '2025-11-25 14:15:34'),
+(31, 'JOB007', 'KUL009', 6, 5, 'pengerjaan sangat cepat', '2025-11-25 14:18:27'),
+(32, 'JOB008', 'KUL009', 6, 5, 'sangat memuaskan', '2025-11-25 14:34:33'),
+(33, 'JOB009', 'KUL009', 6, 5, 'Sangat memuaskan pak udin', '2025-11-28 11:24:18'),
+(34, 'JOB010', 'KUL011', 6, 5, 'Pengerjaan sangat memuaskan dan cepat', '2025-11-28 11:28:13'),
+(35, 'JOB011', 'KUL009', 6, 5, 'Sangat Rapi, cepat, dan memuaskan', '2025-11-28 11:51:51');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `lowongan_diposting`
+--
+ALTER TABLE `lowongan_diposting`
+  ADD PRIMARY KEY (`id_lowongan`),
+  ADD KEY `customer_id` (`id_pelanggan`),
+  ADD KEY `posted_jobs_ibfk_2` (`id_pekerja`);
+
+--
+-- Indexes for table `pekerja`
+--
+ALTER TABLE `pekerja`
+  ADD PRIMARY KEY (`id_pekerja`),
+  ADD KEY `idx_status` (`status_ketersediaan`),
+  ADD KEY `idx_email` (`email`),
+  ADD KEY `idx_rating` (`rating`),
+  ADD KEY `idx_location` (`lokasi`),
+  ADD KEY `idx_status_rating` (`status_ketersediaan`,`rating`);
+
+--
+-- Indexes for table `pekerjaan`
+--
+ALTER TABLE `pekerjaan`
+  ADD PRIMARY KEY (`id_pekerjaan`),
+  ADD KEY `idx_status` (`status_pekerjaan`),
+  ADD KEY `idx_customer_email` (`email_pelanggan`),
+  ADD KEY `idx_created` (`dibuat_pada`),
+  ADD KEY `idx_worker_id` (`id_pekerja`),
+  ADD KEY `idx_created_at` (`dibuat_pada`),
+  ADD KEY `idx_customer_status` (`email_pelanggan`,`status_pekerjaan`),
+  ADD KEY `idx_worker_status` (`id_pekerja`,`status_pekerjaan`),
+  ADD KEY `idx_posted_job_id` (`id_lowongan_diposting`);
+
+--
+-- Indexes for table `pengguna`
+--
+ALTER TABLE `pengguna`
+  ADD PRIMARY KEY (`id_pengguna`),
+  ADD UNIQUE KEY `username` (`nama_pengguna`),
+  ADD UNIQUE KEY `worker_profile_id_unique` (`id_profil_pekerja`),
+  ADD KEY `idx_username` (`nama_pengguna`),
+  ADD KEY `idx_role` (`peran`),
+  ADD KEY `idx_worker_profile` (`id_profil_pekerja`);
+
+--
+-- Indexes for table `ulasan`
+--
+ALTER TABLE `ulasan`
+  ADD PRIMARY KEY (`id_ulasan`),
+  ADD KEY `idx_worker` (`id_pekerja`),
+  ADD KEY `idx_created` (`dibuat_pada`),
+  ADD KEY `idx_worker_id` (`id_pekerja`),
+  ADD KEY `idx_job_id` (`id_pekerjaan`),
+  ADD KEY `idx_customer_id` (`id_pelanggan`),
+  ADD KEY `idx_created_at` (`dibuat_pada`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `lowongan_diposting`
+--
+ALTER TABLE `lowongan_diposting`
+  MODIFY `id_lowongan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `pengguna`
+--
+ALTER TABLE `pengguna`
+  MODIFY `id_pengguna` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+
+--
+-- AUTO_INCREMENT for table `ulasan`
+--
+ALTER TABLE `ulasan`
+  MODIFY `id_ulasan` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `lowongan_diposting`
+--
+ALTER TABLE `lowongan_diposting`
+  ADD CONSTRAINT `lowongan_diposting_ibfk_1` FOREIGN KEY (`id_pelanggan`) REFERENCES `pengguna` (`id_pengguna`) ON DELETE CASCADE,
+  ADD CONSTRAINT `lowongan_diposting_ibfk_2` FOREIGN KEY (`id_pekerja`) REFERENCES `pekerja` (`id_pekerja`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `pekerjaan`
+--
+ALTER TABLE `pekerjaan`
+  ADD CONSTRAINT `pekerjaan_ibfk_1` FOREIGN KEY (`id_pekerja`) REFERENCES `pekerja` (`id_pekerja`) ON DELETE SET NULL,
+  ADD CONSTRAINT `pekerjaan_ibfk_2` FOREIGN KEY (`id_lowongan_diposting`) REFERENCES `lowongan_diposting` (`id_lowongan`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `ulasan`
+--
+ALTER TABLE `ulasan`
+  ADD CONSTRAINT `ulasan_ibfk_1` FOREIGN KEY (`id_pekerjaan`) REFERENCES `pekerjaan` (`id_pekerjaan`) ON DELETE CASCADE,
+  ADD CONSTRAINT `ulasan_ibfk_2` FOREIGN KEY (`id_pekerja`) REFERENCES `pekerja` (`id_pekerja`) ON DELETE CASCADE,
+  ADD CONSTRAINT `ulasan_ibfk_3` FOREIGN KEY (`id_pelanggan`) REFERENCES `pengguna` (`id_pengguna`) ON DELETE SET NULL;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

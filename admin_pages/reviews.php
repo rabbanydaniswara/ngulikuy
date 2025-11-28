@@ -39,10 +39,10 @@ if (!defined('IS_ADMIN_PAGE')) {
                                 $date = !empty($review['review_date']) ? date('d M Y', strtotime($review['review_date'])) : '-';
                                 $customer = htmlspecialchars($review['customer_name'] ?: $review['customer_email']);
                                 $workerName = htmlspecialchars($review['worker_name'] ?: 'N/A');
-                                $jobId = htmlspecialchars($review['jobId'] ?? '');
-                                $jobType = htmlspecialchars($review['jobType'] ?? '');
+                                $jobId = htmlspecialchars($review['id_pekerjaan'] ?? '');
+                                $jobType = htmlspecialchars($review['jenis_pekerjaan'] ?? '');
                                 $rating = floatval($review['rating'] ?? 0);
-                                $comment = htmlspecialchars($review['comment'] ?: '-');
+                                $comment = htmlspecialchars($review['komentar'] ?: '-');
                             ?>
                             <tr>
                                 <td class="px-3 py-3 text-xs font-mono truncate" title="<?php echo $reviewId; ?>"><?php echo $reviewId; ?></td>

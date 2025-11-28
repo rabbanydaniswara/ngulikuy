@@ -133,25 +133,25 @@
             const workers = <?php echo json_encode($allWorkersForModal); ?>;
             const worker = workers[workerId];
             if (worker) {
-                document.getElementById('viewWorkerName').textContent = worker.name;
-                document.getElementById('viewWorkerTitle').textContent = 'ID: ' + worker.id;
+                document.getElementById('viewWorkerName').textContent = worker.nama;
+                document.getElementById('viewWorkerTitle').textContent = 'ID: ' + worker.id_pekerja;
                 document.getElementById('viewWorkerEmail').textContent = worker.email;
-                document.getElementById('viewWorkerPhone').textContent = worker.phone;
-                document.getElementById('viewWorkerLocation').textContent = worker.location;
-                document.getElementById('viewWorkerRate').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(worker.rate) + '/hari';
-                document.getElementById('viewWorkerExperience').textContent = worker.experience || '-';
-                document.getElementById('viewWorkerJoinDate').textContent = new Date(worker.joinDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                document.getElementById('viewWorkerDescription').textContent = worker.description || '-';
-                document.getElementById('viewWorkerPhoto').src = worker.photo || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face';
+                document.getElementById('viewWorkerPhone').textContent = worker.telepon;
+                document.getElementById('viewWorkerLocation').textContent = worker.lokasi;
+                document.getElementById('viewWorkerRate').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(worker.tarif_per_jam) + '/hari';
+                document.getElementById('viewWorkerExperience').textContent = worker.pengalaman || '-';
+                document.getElementById('viewWorkerJoinDate').textContent = new Date(worker.tanggal_bergabung).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                document.getElementById('viewWorkerDescription').textContent = worker.deskripsi_diri || '-';
+                document.getElementById('viewWorkerPhoto').src = worker.url_foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face';
                 
                 const statusSpan = document.getElementById('viewWorkerStatus');
-                statusSpan.textContent = worker.status;
-                statusSpan.className = 'px-3 py-1 text-sm rounded-full ' + (worker.status === 'Available' ? 'status-available' : (worker.status === 'Assigned' ? 'status-assigned' : 'status-on-leave'));
+                statusSpan.textContent = worker.status_ketersediaan;
+                statusSpan.className = 'px-3 py-1 text-sm rounded-full ' + (worker.status_ketersediaan === 'Available' ? 'status-available' : (worker.status_ketersediaan === 'Assigned' ? 'status-assigned' : 'status-on-leave'));
 
                 const skillsContainer = document.getElementById('viewWorkerSkills');
                 skillsContainer.innerHTML = '';
-                if (worker.skills && worker.skills.length > 0) {
-                    worker.skills.forEach(skill => {
+                if (worker.keahlian && worker.keahlian.length > 0) {
+                    worker.keahlian.forEach(skill => {
                         const skillBadge = document.createElement('span');
                         skillBadge.className = 'bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full';
                         skillBadge.textContent = skill;
