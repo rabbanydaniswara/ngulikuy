@@ -10,107 +10,177 @@ $worker_id = $_SESSION['worker_profile_id'];
 $worker = getWorkerById($worker_id);
 
 ?>
-<div class="w-full">
+<div class="w-full max-w-5xl mx-auto">
     <div id="profile-notification"></div>
 
-  <div class="flex items-center justify-between mb-6">
+  <div class="flex items-center justify-between mb-8">
     <div>
-      <h2 class="text-2xl font-semibold">Profil Saya</h2>
-      <p class="text-sm text-gray-600">Perbarui informasi profil Anda.</p>
+      <h2 class="text-3xl font-bold text-slate-900 tracking-tight">Profil Saya</h2>
+      <p class="text-slate-500 mt-2">Perbarui informasi profil dan keahlian Anda.</p>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <div class="p-4 bg-white rounded-2xl shadow-sm">
-      <div class="flex flex-col items-center gap-3">
-        <?php $avatar = !empty($worker['url_foto']) ? $worker['url_foto'] : getDefaultWorkerPhoto(); ?>
-        <img id="avatar-preview" src="<?php echo htmlspecialchars($avatar); ?>" alt="avatar" class="w-28 h-28 rounded-full object-cover border" />
-        <div class="text-center">
-          <p class="font-medium"><?php echo htmlspecialchars($worker['nama']); ?></p>
-          <p class="text-sm text-gray-500"><?php echo htmlspecialchars($worker['email']); ?></p>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <!-- Sidebar / Avatar -->
+    <div class="lg:col-span-1">
+        <div class="card-modern p-6 sticky top-24">
+            <div class="flex flex-col items-center gap-4">
+                <?php $avatar = !empty($worker['url_foto']) ? $worker['url_foto'] : getDefaultWorkerPhoto(); ?>
+                <div class="relative group">
+                    <img id="avatar-preview" src="<?php echo htmlspecialchars($avatar); ?>" alt="avatar" class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md group-hover:shadow-lg transition-shadow" />
+                    <div class="absolute inset-0 rounded-full bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+                        <i data-feather="camera" class="text-white opacity-0 group-hover:opacity-100 w-8 h-8 drop-shadow-md transition-opacity"></i>
+                    </div>
+                    <input type="file" id="photo-input-trigger" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept=".png,.jpg,.jpeg" />
+                </div>
+                
+                <div class="text-center">
+                    <h3 class="font-bold text-lg text-slate-900"><?php echo htmlspecialchars($worker['nama']); ?></h3>
+                    <p class="text-sm text-slate-500"><?php echo htmlspecialchars($worker['email']); ?></p>
+                </div>
+
+                <div class="w-full border-t border-slate-100 pt-4 mt-2">
+                    <div class="grid grid-cols-2 gap-4 text-center">
+                        <div>
+                            <div class="text-xs text-slate-400 uppercase font-semibold tracking-wider">Tarif/Jam</div>
+                            <div class="font-medium text-slate-700 mt-1">
+                                <?php echo number_format($worker['tarif_per_jam'] ?? 0, 0, ',', '.'); ?>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="text-xs text-slate-400 uppercase font-semibold tracking-wider">Pengalaman</div>
+                            <div class="font-medium text-slate-700 mt-1">
+                                <?php echo htmlspecialchars($worker['pengalaman'] ?? '-'); ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
-    <div class="lg:col-span-2 p-4 bg-white rounded-2xl shadow-sm">
-      <form id="profile-form" method="post" enctype="multipart/form-data" class="space-y-4">
-        <?php echo csrfInput(); ?>
-        <input type="hidden" name="action" value="save_worker_profile">
+    <!-- Main Form -->
+    <div class="lg:col-span-2">
+        <div class="card-modern p-6 sm:p-8">
+            <form id="profile-form" method="post" enctype="multipart/form-data" class="space-y-6">
+                <?php echo csrfInput(); ?>
+                <input type="hidden" name="action" value="save_worker_profile">
+                <!-- Hidden real file input linked to trigger above -->
+                <input name="photo" id="photo-input" type="file" accept=".png,.jpg,.jpeg" class="hidden" />
 
-        <div>
-          <label class="block text-sm text-gray-600">Nama</label>
-          <input name="name" value="<?php echo htmlspecialchars($worker['nama']); ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
-        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="col-span-1 md:col-span-2">
+                        <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                            <i data-feather="user" class="w-5 h-5 text-blue-500"></i> Informasi Dasar
+                        </h3>
+                    </div>
 
-        <div>
-          <label class="block text-sm text-gray-600">Email</label>
-          <input name="email" type="email" value="<?php echo htmlspecialchars($worker['email']); ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
-        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label>
+                        <input name="name" value="<?php echo htmlspecialchars($worker['nama']); ?>" required 
+                            class="block w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all p-2.5" />
+                    </div>
 
-        <div>
-          <label class="block text-sm text-gray-600">Telepon</label>
-          <input name="phone" type="tel" value="<?php echo htmlspecialchars($worker['telepon']); ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
-        </div>
-        
-        <div>
-          <label class="block text-sm text-gray-600">Lokasi</label>
-          <input name="location" type="text" value="<?php echo htmlspecialchars($worker['lokasi']); ?>" required class="mt-1 block w-full rounded border-gray-200 p-2" />
-        </div>
-        
-        <div>
-            <label class="block text-sm text-gray-600">Keahlian</label>
-            <select multiple name="skills[]"
-                class="w-full px-4 py-2 rounded-lg border border-gray-300
-                focus:outline-none focus:ring-2 focus:ring-blue-500 h-24">
-                <?php 
-                    $skills = get_construction_skills();
-                    foreach ($skills as $skill_option) {
-                        $selected = in_array($skill_option, $worker['keahlian']) ? 'selected' : '';
-                        echo "<option value=\"{$skill_option}\" {$selected}>{$skill_option}</option>";
-                    }
-                ?>
-            </select>
-            <p class="text-xs text-gray-500 mt-1">Hold Ctrl/Cmd untuk memilih beberapa skill</p>
-        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input name="email" type="email" value="<?php echo htmlspecialchars($worker['email']); ?>" required 
+                            class="block w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all p-2.5" />
+                    </div>
 
-        <div>
-            <label class="block text-sm text-gray-600">Deskripsi</label>
-            <textarea name="description" rows="3"
-                class="w-full px-4 py-2 rounded-lg border border-gray-300
-                focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Deskripsi keahlian dan pengalaman..."><?php echo htmlspecialchars($worker['deskripsi_diri']); ?></textarea>
-        </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Nomor Telepon</label>
+                        <input name="phone" type="tel" value="<?php echo htmlspecialchars($worker['telepon']); ?>" required 
+                            class="block w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all p-2.5" />
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Lokasi / Kota</label>
+                        <input name="location" type="text" value="<?php echo htmlspecialchars($worker['lokasi']); ?>" required 
+                            class="block w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all p-2.5" />
+                    </div>
+                </div>
 
-        <div>
-            <label class="block text-sm text-gray-600">Pengalaman</label>
-            <input name="experience" type="text" value="<?php echo htmlspecialchars($worker['pengalaman']); ?>" 
-                   class="mt-1 block w-full rounded border-gray-200 p-2" placeholder="Cth: 5 Tahun / 6 Bulan" />
-        </div>
+                <div class="border-t border-slate-100 my-6"></div>
 
-        <div>
-            <label class="block text-sm text-gray-600">Tarif per Jam (Rp)</label>
-            <input name="rate" type="number" value="<?php echo htmlspecialchars($worker['tarif_per_jam']); ?>" 
-                   class="mt-1 block w-full rounded border-gray-200 p-2" placeholder="Cth: 50000" min="0" />
-        </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                        <i data-feather="briefcase" class="w-5 h-5 text-blue-500"></i> Keahlian & Pengalaman
+                    </h3>
+                    
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Keahlian (Pilih Banyak)</label>
+                            <select multiple name="skills[]"
+                                class="block w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all p-2.5 min-h-[120px]">
+                                <?php 
+                                    $skills = get_construction_skills();
+                                    foreach ($skills as $skill_option) {
+                                        $selected = in_array($skill_option, $worker['keahlian']) ? 'selected' : '';
+                                        echo "<option value=\"{$skill_option}\" {$selected}>{$skill_option}</option>";
+                                    }
+                                ?>
+                            </select>
+                            <p class="text-xs text-slate-500 mt-1.5 flex items-center gap-1">
+                                <i data-feather="info" class="w-3 h-3"></i> Tahan tombol Ctrl (Windows) atau Cmd (Mac) untuk memilih lebih dari satu.
+                            </p>
+                        </div>
 
-        <div>
-          <label class="block text-sm text-gray-600">Upload Foto Profil (jpg/png, max 2MB)</label>
-          <input name="photo" id="photo-input" type="file" accept=".png,.jpg,.jpeg" class="mt-1" />
-        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Deskripsi Diri</label>
+                            <textarea name="description" rows="4"
+                                class="block w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all p-2.5"
+                                placeholder="Jelaskan pengalaman kerja dan keahlian spesifik Anda..."><?php echo htmlspecialchars($worker['deskripsi_diri']); ?></textarea>
+                        </div>
 
-        <div class="pt-2 border-t">
-          <h4 class="text-sm font-medium mb-2">Ubah Password</h4>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <input name="current_password" type="password" placeholder="Password saat ini" class="block w-full rounded border-gray-200 p-2" />
-            <input name="new_password" type="password" placeholder="Password baru (kosong = tidak diubah)" class="block w-full rounded border-gray-200 p-2" />
-          </div>
-        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Pengalaman Kerja</label>
+                                <input name="experience" type="text" value="<?php echo htmlspecialchars($worker['pengalaman']); ?>" 
+                                    class="block w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all p-2.5" 
+                                    placeholder="Cth: 5 Tahun" />
+                            </div>
 
-        <div class="flex items-center justify-end gap-2 mt-4">
-          <a href="worker_dashboard.php" class="px-4 py-2 rounded border text-sm">Batal</a>
-          <button type="submit" id="save-profile-btn" class="px-4 py-2 rounded bg-blue-600 text-white text-sm">Simpan Perubahan</button>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 mb-1">Tarif per Jam (Rp)</label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2.5 text-slate-500 text-sm">Rp</span>
+                                    <input name="rate" type="number" value="<?php echo htmlspecialchars($worker['tarif_per_jam']); ?>" 
+                                        class="block w-full rounded-lg border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all p-2.5 pl-10" 
+                                        placeholder="0" min="0" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-100 my-6"></div>
+
+                <div>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                        <i data-feather="lock" class="w-5 h-5 text-blue-500"></i> Keamanan
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Password Saat Ini</label>
+                            <input name="current_password" type="password" placeholder="••••••••" class="block w-full rounded-lg border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all p-2.5" />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 mb-1">Password Baru</label>
+                            <input name="new_password" type="password" placeholder="••••••••" class="block w-full rounded-lg border-slate-200 bg-white focus:border-blue-500 focus:ring-blue-500/20 transition-all p-2.5" />
+                            <p class="text-xs text-slate-500 mt-1">Kosongkan jika tidak ingin mengubah password.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 pt-4">
+                    <a href="worker_dashboard.php" class="px-5 py-2.5 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors">Batal</a>
+                    <button type="submit" id="save-profile-btn" class="px-5 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+                        <i data-feather="save" class="w-4 h-4"></i>
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
         </div>
-      </form>
     </div>
   </div>
 </div>

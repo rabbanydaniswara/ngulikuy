@@ -319,3 +319,10 @@ Context: {"job":"JOB007","rating":5}
 [2025-11-28 17:19:54] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin
 [2025-11-28 23:11:07] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
 [2025-11-28 23:11:28] [INFO] [IP: 127.0.0.1] [User: udin@gmail.com] Successful login: udin@gmail.com
+[2025-11-28 23:19:15] [INFO] [IP: ::1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-28 23:19:46] [INFO] [IP: ::1] [User: daniswara@gmail.com] Posted job created
+Context: {"customer":"daniswara@gmail.com","title":"test aja"}
+[2025-11-28 23:23:07] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-28 23:24:07] [INFO] [IP: ::1] [User: daniswara@gmail.com] Review submitted
+Context: {"job":"JOB009","rating":5}
+[2025-11-28 23:25:50] [INFO] [IP: ::1] [User: admin] Successful login: admin
