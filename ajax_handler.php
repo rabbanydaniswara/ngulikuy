@@ -479,6 +479,27 @@ if ($action === 'update_job_status') {
         SecurityLogger::logError('Error taking posted job: ' . $e->getMessage());
         $response['message'] = 'Terjadi error di database. Silakan coba lagi.';
     }
+} elseif ($action === 'get_job_details') {
+    if (!isAdmin()) {
+        $response['message'] = 'Aksi ini hanya untuk admin.';
+        ob_clean(); // Discard any buffered output before sending JSON
+        echo json_encode($response);
+        exit;
+    }
+
+    $jobId = $_POST['job_id'] ?? null;
+
+    if (!$jobId) {
+        $response['message'] = 'Job ID tidak valid.';
+    } else {
+        $job = getJobById($jobId);
+        if ($job) {
+            $response['success'] = true;
+            $response['job'] = $job;
+        } else {
+            $response['message'] = 'Pekerjaan tidak ditemukan.';
+        }
+    }
 }
 
 } catch (Throwable $e) {

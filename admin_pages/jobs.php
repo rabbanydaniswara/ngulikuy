@@ -48,7 +48,11 @@ if (!defined('IS_ADMIN_PAGE')) {
                             <?php $statusClass = getStatusClass($job['status_pekerjaan'], 'job'); ?>
                             <tr>
                                 <!-- Job ID -->
-                                <td class="px-3 py-3 text-xs font-mono truncate"><?php echo htmlspecialchars($job['id_pekerjaan']); ?></td>
+                                <td class="px-3 py-3 text-xs font-mono truncate">
+                                    <a href="#" class="job-id-link text-blue-600 hover:underline" data-job-id="<?php echo htmlspecialchars($job['id_pekerjaan']); ?>">
+                                        <?php echo htmlspecialchars($job['id_pekerjaan']); ?>
+                                    </a>
+                                </td>
 
                                 <!-- Worker -->
                                 <td class="px-3 py-3 align-top">
@@ -70,7 +74,7 @@ if (!defined('IS_ADMIN_PAGE')) {
                                         <?php echo htmlspecialchars($job['nama_pelanggan']); ?>
                                     </div>
                                     <div class="text-xs text-gray-500 truncate max-w-[150px]" title="<?php echo htmlspecialchars($job['telepon_pelanggan'] ?? ''); ?>">
-                                        <?php echo htmlspecialchars($job['telepon_pelanggan'] ?? ''); ?>
+                                        <?php echo htmlspecialchars($job['teleanggan'] ?? ''); ?>
                                     </div>
                                 </td>
 
@@ -153,7 +157,9 @@ if (!defined('IS_ADMIN_PAGE')) {
                         <!-- main info (title + small meta) -->
                         <div class="min-w-0">
                             <div class="text-base font-semibold truncate" title="<?php echo htmlspecialchars($job['id_pekerjaan'] . ' — ' . $job['jenis_pekerjaan']); ?>">
-                                <?php echo htmlspecialchars($job['id_pekerjaan']); ?> — <?php echo htmlspecialchars($job['jenis_pekerjaan']); ?>
+                                <a href="#" class="job-id-link text-blue-600 hover:underline" data-job-id="<?php echo htmlspecialchars($job['id_pekerjaan']); ?>">
+                                    <?php echo htmlspecialchars($job['id_pekerjaan']); ?>
+                                </a> — <?php echo htmlspecialchars($job['jenis_pekerjaan']); ?>
                             </div>
                             <div class="text-sm text-gray-700 truncate mt-1" title="<?php echo htmlspecialchars($job['nama_pekerja']); ?>"><?php echo htmlspecialchars($job['nama_pekerja']); ?></div>
 
@@ -219,3 +225,202 @@ if (!defined('IS_ADMIN_PAGE')) {
         </div>
     </div>
 </div>
+
+<!-- Job Details Modal (Tailwind CSS based) -->
+<div id="jobDetailsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 shadow-lg rounded-md bg-white">
+        <div class="flex justify-between items-center pb-3">
+            <h3 class="text-xl leading-6 font-medium text-gray-900" id="modalTitle">Detail Pekerjaan</h3>
+            <button class="text-gray-400 hover:text-gray-500 close-modal">
+                <span class="sr-only">Close</span>
+                <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        <div class="mt-2 px-7 py-3" id="modalBody">
+            <!-- Job details will be loaded here via AJAX -->
+            <p>Loading job details...</p>
+        </div>
+        <div class="items-center px-4 py-3">
+            <button id="okButton" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300 close-modal">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const jobDetailsModal = document.getElementById('jobDetailsModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+
+    document.querySelectorAll('.job-id-link').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const jobId = this.dataset.jobId;
+            modalTitle.textContent = `Detail Pekerjaan: ${jobId}`;
+            modalBody.innerHTML = `
+                <div class="flex items-center justify-center p-8">
+                    <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="ml-3 text-gray-600">Memuat detail pekerjaan...</p>
+                </div>
+            `; // Loading message with spinner
+            jobDetailsModal.classList.remove('hidden');
+
+            // Helper function to get status text and class for styling
+            function getJobStatusTextAndClass(status) {
+                let text = 'Tidak Diketahui';
+                let classNames = 'bg-gray-200 text-gray-800'; // Default classes
+
+                switch (status) {
+                    case 'pending':
+                        text = 'Menunggu Konfirmasi';
+                        classNames = 'bg-yellow-100 text-yellow-800';
+                        break;
+                    case 'in-progress':
+                        text = 'Sedang Dikerjakan';
+                        classNames = 'bg-blue-100 text-blue-800';
+                        break;
+                    case 'completed':
+                        text = 'Selesai';
+                        classNames = 'bg-green-100 text-green-800';
+                        break;
+                    case 'cancelled':
+                        text = 'Dibatalkan';
+                        classNames = 'bg-red-100 text-red-800';
+                        break;
+                }
+                return { text, classNames };
+            }
+
+            // Function to format date
+            function formatDate(dateString) {
+                if (!dateString) return '-';
+                try {
+                    return new Date(dateString).toLocaleDateString('id-ID', {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                } catch (e) {
+                    return dateString; // Fallback if date is invalid
+                }
+            }
+
+            // Function to format currency
+            function formatCurrency(amount) {
+                if (typeof amount !== 'number') amount = parseFloat(amount);
+                if (isNaN(amount)) return '-';
+                return new Intl.NumberFormat('id-ID', {
+                    style: 'currency', currency: 'IDR'
+                }).format(amount);
+            }
+
+            // Fetch job details via AJAX
+            fetch('ajax_handler.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=get_job_details&job_id=' + encodeURIComponent(jobId) + '&csrf_token=' + encodeURIComponent(CSRF_TOKEN)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.job) {
+                    const job = data.job;
+                    const statusInfo = getJobStatusTextAndClass(job.status_pekerjaan);
+
+                    let detailsHtml = `
+                        <div class="space-y-6">
+                            <div class="border-b pb-4">
+                                <h4 class="text-lg font-semibold flex items-center text-gray-800">
+                                    <i data-feather="briefcase" class="w-5 h-5 mr-2 text-blue-500"></i> Informasi Pekerjaan
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm">
+                                    <div><span class="font-medium text-gray-600">ID Pekerjaan:</span> <span class="font-mono">${job.id_pekerjaan}</span></div>
+                                    <div><span class="font-medium text-gray-600">Jenis Pekerjaan:</span> ${job.jenis_pekerjaan}</div>
+                                    <div class="md:col-span-2">
+                                        <span class="font-medium text-gray-600">Deskripsi:</span> ${job.deskripsi || '-'}
+                                    </div>
+                                    <div><span class="font-medium text-gray-600">Harga:</span> ${formatCurrency(job.harga)}</div>
+                                    <div>
+                                        <span class="font-medium text-gray-600">Status:</span>
+                                        <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusInfo.classNames}">${statusInfo.text}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-b pb-4">
+                                <h4 class="text-lg font-semibold flex items-center text-gray-800">
+                                    <i data-feather="tool" class="w-5 h-5 mr-2 text-green-500"></i> Detail Pekerja
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm">
+                                    <div><span class="font-medium text-gray-600">Nama Pekerja:</span> ${job.nama_pekerja || '-'}</div>
+                                    <div><span class="font-medium text-gray-600">Telepon Pekerja:</span> ${job.worker_phone || '-'}</div>
+                                    <div class="md:col-span-2"><span class="font-medium text-gray-600">Email Pekerja:</span> ${job.worker_email || '-'}</div>
+                                    ${job.worker_photo ? `
+                                        <div class="md:col-span-2">
+                                            <span class="font-medium text-gray-600">Foto Pekerja:</span>
+                                            <img src="${job.worker_photo}" alt="Foto Pekerja" class="w-24 h-24 object-cover rounded-full mt-2 border border-gray-200">
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <div class="border-b pb-4">
+                                <h4 class="text-lg font-semibold flex items-center text-gray-800">
+                                    <i data-feather="user" class="w-5 h-5 mr-2 text-purple-500"></i> Detail Pelanggan
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm">
+                                    <div><span class="font-medium text-gray-600">Nama Pelanggan:</span> ${job.nama_pelanggan || '-'}</div>
+                                    <div><span class="font-medium text-gray-600">Telepon Pelanggan:</span> ${job.telepon_pelanggan || '-'}</div>
+                                    <div class="md:col-span-2"><span class="font-medium text-gray-600">Email Pelanggan:</span> ${job.email_pelanggan || '-'}</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="text-lg font-semibold flex items-center text-gray-800">
+                                    <i data-feather="map-pin" class="w-5 h-5 mr-2 text-red-500"></i> Lokasi & Tanggal
+                                </h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm">
+                                    <div><span class="font-medium text-gray-600">Lokasi:</span> ${job.lokasi || '-'}</div>
+                                    <div class="md:col-span-2"><span class="font-medium text-gray-600">Alamat Lengkap:</span> ${job.alamat_lokasi || '-'}</div>
+                                    <div><span class="font-medium text-gray-600">Mulai:</span> ${formatDate(job.tanggal_mulai)}</div>
+                                    <div><span class="font-medium text-gray-600">Selesai:</span> ${formatDate(job.tanggal_selesai)}</div>
+                                    <div><span class="font-medium text-gray-600">Dibuat Pada:</span> ${formatDate(job.dibuat_pada)}</div>
+                                    <div><span class="font-medium text-gray-600">Diperbarui Pada:</span> ${formatDate(job.diperbarui_pada)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    modalBody.innerHTML = detailsHtml;
+                    feather.replace(); // Re-initialize feather icons for newly added HTML
+                } else {
+                    modalBody.innerHTML = `<p class="text-red-500">${data.message || 'Gagal memuat detail pekerjaan.'}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching job details:', error);
+                modalBody.innerHTML = '<p class="text-red-500">Terjadi kesalahan saat memuat detail.</p>';
+            });
+        });
+    });
+
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            jobDetailsModal.classList.add('hidden');
+        });
+    });
+
+    // Close modal if clicked outside
+    jobDetailsModal.addEventListener('click', function(e) {
+        if (e.target === jobDetailsModal) {
+            jobDetailsModal.classList.add('hidden');
+        }
+    });
+});
+</script>
