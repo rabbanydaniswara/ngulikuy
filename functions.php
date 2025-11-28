@@ -765,9 +765,6 @@ function hasCustomerReviewedJob(string $jobId, int $customerId): bool {
     }
 }
 
-/**
- * Cek apakah job bisa di-review (harus completed dan milik customer)
- */
 function canReviewJob(string $jobId, string $customerEmail): bool {
     global $pdo;
     try {
@@ -790,21 +787,21 @@ function getAllReviews(): array {
     global $pdo;
     try {
         $sql = "SELECT 
-                    r.id as review_id, 
+                    r.id_ulasan as review_id, 
                     r.rating, 
-                    r.comment, 
-                    r.createdAt as review_date,
-                    j.jobId, 
-                    j.jobType,
+                    r.komentar, 
+                    r.dibuat_pada as review_date,
+                    j.id_pekerjaan as id_pekerjaan, 
+                    j.jenis_pekerjaan as jenis_pekerjaan,
                     u.nama_lengkap as customer_name, 
                     u.nama_pengguna as customer_email,
-                    w.id as worker_id, 
-                    w.name as worker_name
+                    w.id_pekerja as worker_id, 
+                    w.nama as worker_name
                 FROM ulasan r
                 LEFT JOIN pengguna u ON r.id_pelanggan = u.id_pengguna
-                LEFT JOIN workers w ON r.workerId = w.id
-                LEFT JOIN jobs j ON r.jobId = j.jobId
-                ORDER BY r.createdAt DESC";
+                LEFT JOIN pekerja w ON r.id_pekerja = w.id_pekerja
+                LEFT JOIN pekerjaan j ON r.id_pekerjaan = j.id_pekerjaan
+                ORDER BY r.dibuat_pada DESC";
                 
         $stmt = $pdo->query($sql);
         return $stmt->fetchAll();

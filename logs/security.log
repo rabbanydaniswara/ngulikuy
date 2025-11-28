@@ -326,3 +326,4 @@ Context: {"customer":"daniswara@gmail.com","title":"test aja"}
 [2025-11-28 23:24:07] [INFO] [IP: ::1] [User: daniswara@gmail.com] Review submitted
 Context: {"job":"JOB009","rating":5}
 [2025-11-28 23:25:50] [INFO] [IP: ::1] [User: admin] Successful login: admin
+[2025-11-28 23:45:02] [INFO] [IP: 127.0.0.1] [User: admin] Successful login: admin

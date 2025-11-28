@@ -95,10 +95,10 @@ if (!defined('IS_ADMIN_PAGE')) {
                         $date = !empty($review['review_date']) ? date('d M Y', strtotime($review['review_date'])) : '-';
                         $customer = htmlspecialchars($review['customer_name'] ?: $review['customer_email']);
                         $workerName = htmlspecialchars($review['worker_name'] ?: 'N/A');
-                        $jobId = htmlspecialchars($review['jobId'] ?? '');
-                        $jobType = htmlspecialchars($review['jobType'] ?? '');
+                        $jobId = htmlspecialchars($review['id_pekerjaan'] ?? '');
+                        $jobType = htmlspecialchars($review['jenis_pekerjaan'] ?? '');
                         $rating = floatval($review['rating'] ?? 0);
-                        $comment = htmlspecialchars($review['comment'] ?: '-');
+                        $comment = htmlspecialchars($review['komentar'] ?: '-');
                     ?>
                     <div class="bg-white border rounded-lg p-4 shadow-sm">
                         <div class="flex items-start justify-between">
