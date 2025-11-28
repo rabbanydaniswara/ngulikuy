@@ -80,19 +80,19 @@ function authenticate(string $username, string $password): bool {
     }
 
     try {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+        $stmt = $pdo->prepare("SELECT * FROM pengguna WHERE nama_pengguna = ?");
         $stmt->execute([$username]);
         $user = $stmt->fetch();
 
-        if ($user && password_verify($password, $user['password'])) {
+        if ($user && password_verify($password, $user['kata_sandi'])) {
             
-            $_SESSION['user_id'] = $user['id']; // <-- ADD THIS
-            $_SESSION['user'] = $user['username'];
-            $_SESSION['user_role'] = $user['role'];
-            $_SESSION['user_name'] = $user['name'];
-            $_SESSION['user_phone'] = $user['phone'] ?? '';
-            $_SESSION['user_address'] = $user['alamat'] ?? '';
-            $_SESSION['worker_profile_id'] = $user['worker_profile_id'] ?? null;
+            $_SESSION['user_id'] = $user['id_pengguna'];
+            $_SESSION['user'] = $user['nama_pengguna'];
+            $_SESSION['user_role'] = $user['peran'];
+            $_SESSION['user_name'] = $user['nama_lengkap'];
+            $_SESSION['user_phone'] = $user['telepon'] ?? '';
+            $_SESSION['user_address'] = $user['alamat_lengkap'] ?? '';
+            $_SESSION['worker_profile_id'] = $user['id_profil_pekerja'] ?? null;
             $_SESSION['user_agent'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
             
             SecurityLogger::logLoginAttempt($username, true);
@@ -111,7 +111,7 @@ function authenticate(string $username, string $password): bool {
 function getCustomerDataById(int $customer_id): ?array {
     global $pdo;
     try {
-        $stmt = $pdo->prepare("SELECT id, username, name, phone, alamat FROM users WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT id_pengguna, nama_pengguna, nama_lengkap, telepon, alamat_lengkap FROM pengguna WHERE id_pengguna = ?");
         $stmt->execute([$customer_id]);
         $customerData = $stmt->fetch();
         return $customerData ?: null;
@@ -565,7 +565,7 @@ function addWorker(array $workerData): bool {
         $defaultPassword = 'ngulikuy123';
         $hashedPassword = password_hash($defaultPassword, PASSWORD_DEFAULT);
         
-        $sqlUser = "INSERT INTO users (username, password, role, name, phone, worker_profile_id)
+        $sqlUser = "INSERT INTO pengguna (nama_pengguna, kata_sandi, peran, nama_lengkap, telepon, id_profil_pekerja)
                     VALUES (?, ?, ?, ?, ?, ?)";
         $stmtUser = $pdo->prepare($sqlUser);
         $stmtUser->execute([
@@ -625,21 +625,21 @@ function updateWorker(string $workerId, array $updatedData): bool {
         
         // Also update the 'users' table if the worker's name or email changed
         if (isset($updatedData['name']) || isset($updatedData['email'])) {
-            $updateUserSql = "UPDATE users SET ";
+            $updateUserSql = "UPDATE pengguna SET ";
             $userUpdateParams = [];
             
             if (isset($updatedData['name'])) {
-                $updateUserSql .= "name = :name_user, ";
+                $updateUserSql .= "nama_lengkap = :name_user, ";
                 $userUpdateParams['name_user'] = $updatedData['name'];
             }
             if (isset($updatedData['email'])) { 
-                $updateUserSql .= "username = :username_user, ";
+                $updateUserSql .= "nama_pengguna = :username_user, ";
                 $userUpdateParams['username_user'] = $updatedData['email'];
             }
             
             // Remove trailing comma and space
             $updateUserSql = rtrim($updateUserSql, ', ');
-            $updateUserSql .= " WHERE worker_profile_id = :worker_profile_id";
+            $updateUserSql .= " WHERE id_profil_pekerja = :worker_profile_id";
             $userUpdateParams['worker_profile_id'] = $workerId;
 
             $stmtUser = $pdo->prepare($updateUserSql);
@@ -688,7 +688,7 @@ function deleteWorker(string $workerId): bool {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$workerId]);
         
-        $sqlUser = "DELETE FROM users WHERE worker_profile_id = ?";
+        $sqlUser = "DELETE FROM pengguna WHERE id_profil_pekerja = ?";
         $pdo->prepare($sqlUser)->execute([$workerId]);
         
         $sqlJobs = "UPDATE jobs SET workerId = NULL, workerName = 'Deleted Worker' WHERE workerId = ?";
@@ -754,12 +754,12 @@ function getAllReviews(): array {
                     r.createdAt as review_date,
                     j.jobId, 
                     j.jobType,
-                    u.name as customer_name, 
-                    u.username as customer_email,
+                    u.nama_lengkap as customer_name, 
+                    u.nama_pengguna as customer_email,
                     w.id as worker_id, 
                     w.name as worker_name
-                FROM reviews r
-                LEFT JOIN users u ON r.customerId = u.id
+                FROM ulasan r
+                LEFT JOIN pengguna u ON r.id_pelanggan = u.id_pengguna
                 LEFT JOIN workers w ON r.workerId = w.id
                 LEFT JOIN jobs j ON r.jobId = j.jobId
                 ORDER BY r.createdAt DESC";

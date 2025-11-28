@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Proses registrasi
                 try {
-                    $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");
+                    $stmtCheck = $pdo->prepare("SELECT COUNT(*) FROM pengguna WHERE nama_pengguna = ?");
                     $stmtCheck->execute([$username]);
                     
                     if ($stmtCheck->fetchColumn() > 0) {
@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     } else {
                         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
                         
-                        $sql = "INSERT INTO users (username, password, role, name, phone, alamat) VALUES (?, ?, ?, ?, ?, ?)";
+                        $sql = "INSERT INTO pengguna (nama_pengguna, kata_sandi, peran, nama_lengkap, telepon, alamat_lengkap) VALUES (?, ?, ?, ?, ?, ?)";
                         $stmt = $pdo->prepare($sql);
                         $stmt->execute([$username, $hashedPassword, 'customer', $name, $phone, $alamat]);
                         
