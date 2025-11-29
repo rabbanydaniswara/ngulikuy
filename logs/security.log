@@ -330,3 +330,11 @@ Context: {"job":"JOB009","rating":5}
 [2025-11-29 00:11:03] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
 [2025-11-29 00:22:03] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Posted job created
 Context: {"customer":"daniswara@gmail.com","title":"test"}
+[2025-11-29 00:36:07] [INFO] [IP: 127.0.0.1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com
+[2025-11-29 00:48:41] [WARNING] [IP: ::1] [User: Guest] Failed login attempt: customer@example.com
+[2025-11-29 00:48:49] [WARNING] [IP: ::1] [User: Guest] Failed login attempt: pelanggan@example.com
+[2025-11-29 00:48:55] [WARNING] [IP: ::1] [User: Guest] Failed login attempt: pelanggan@example.com
+[2025-11-29 00:49:05] [WARNING] [IP: ::1] [User: Guest] Failed login attempt: pelanggan1@example.com
+[2025-11-29 00:52:18] [WARNING] [IP: ::1] [User: Guest] Failed login attempt: pelanggan@ngulikuy.com
+[2025-11-29 00:52:25] [WARNING] [IP: ::1] [User: Guest] Failed login attempt: customer@ngulikuy.com
+[2025-11-29 00:54:06] [INFO] [IP: ::1] [User: daniswara@gmail.com] Successful login: daniswara@gmail.com

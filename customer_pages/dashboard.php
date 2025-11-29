@@ -117,7 +117,7 @@
                     
                     <div class="flex justify-center items-center gap-1 mb-4">
                         <i data-feather="star" class="w-4 h-4 text-yellow-400 fill-current"></i>
-                        <span class="font-bold text-gray-900"><?php echo formatRating($worker['rating']); ?></span>
+                        <span class="font-bold text-gray-900"><?php echo number_format($worker['rating'], 1); ?></span>
                         <span class="text-xs text-gray-400">(<?php echo $worker['review_count']; ?> ulasan)</span>
                     </div>
                     
