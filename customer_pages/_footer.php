@@ -1,22 +1,25 @@
- </div>
+    </div> <!-- End Main Content Wrapper -->
 
+    <!-- Mobile Navigation (Fixed Bottom) -->
     <nav class="mobile-nav md:hidden">
-        <div class="flex justify-around items-center">
+        <div class="grid grid-cols-5 h-full">
             <a href="?tab=home" class="mobile-nav-item <?php echo $active_tab === 'home' ? 'active' : ''; ?>">
                 <i data-feather="home"></i>
                 <span>Home</span>
             </a>
             <a href="?tab=search" class="mobile-nav-item <?php echo $active_tab === 'search' ? 'active' : ''; ?>">
                 <i data-feather="search"></i>
-                <span>Cari Pekerja</span>
+                <span>Cari</span>
             </a>
             <a href="?tab=post_job" class="mobile-nav-item <?php echo $active_tab === 'post_job' ? 'active' : ''; ?>">
-                <i data-feather="plus-circle"></i>
-                <span>Post</span>
+                <div class="bg-blue-600 rounded-full p-2 -mt-6 shadow-lg border-4 border-white text-white">
+                    <i data-feather="plus" class="w-6 h-6"></i>
+                </div>
+                <span class="mt-1">Post</span>
             </a>
             <a href="?tab=my_jobs" class="mobile-nav-item <?php echo $active_tab === 'my_jobs' ? 'active' : ''; ?>">
                 <i data-feather="briefcase"></i>
-                <span>Pekerja Saya</span>
+                <span>Pekerja</span>
             </a>
             <a href="?tab=orders" class="mobile-nav-item <?php echo $active_tab === 'orders' ? 'active' : ''; ?>">
                 <i data-feather="clipboard"></i>
@@ -27,63 +30,85 @@
 
     <?php include __DIR__ . '/_modals.php'; ?>
 
-    <div id="viewWorkerModal" class="hidden fixed inset-0 z-50 overflow-y-auto">
+    <!-- View Worker Detail Modal -->
+    <div id="viewWorkerModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div class="fixed inset-0 transition-opacity modal-overlay" aria-hidden="true">
-                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity backdrop-blur-sm" aria-hidden="true" onclick="closeViewWorkerModal()"></div>
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
-                <div class="gradient-bg p-6 text-center text-white rounded-t-lg relative">
-                    <h2 class="text-xl font-bold">Detail Data Pekerja</h2>
-                    <p id="viewWorkerTitle" class="text-blue-100 mt-1"></p>
-                    <button type="button" id="closeViewWorkerModalX" class="absolute top-4 right-4 text-blue-100 hover:text-white transition p-1 rounded-full hover:bg-white/10">
-                        <i data-feather="x" class="w-6 h-6"></i>
+            
+            <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+                <!-- Modal Header -->
+                <div class="bg-white px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">Detail Pekerja</h3>
+                        <p id="viewWorkerTitle" class="text-xs text-gray-500 font-mono mt-0.5"></p>
+                    </div>
+                    <button type="button" onclick="closeViewWorkerModal()" class="text-gray-400 hover:text-gray-500 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <i data-feather="x" class="w-5 h-5"></i>
                     </button>
                 </div>
+
                 <div class="p-6 modal-content">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                        <div class="md:col-span-1 flex justify-center">
-                            <img id="viewWorkerPhoto" class="photo-preview rounded-full w-40 h-40 object-cover border-4 border-white shadow-lg">
+                    <div class="flex flex-col md:flex-row gap-6 mb-8">
+                        <!-- Photo -->
+                        <div class="flex-shrink-0 flex justify-center md:justify-start">
+                            <img id="viewWorkerPhoto" class="w-24 h-24 md:w-32 md:h-32 rounded-full object-cover border-4 border-gray-50 shadow-sm">
                         </div>
-                        <div class="md:col-span-2">
-                            <h3 id="viewWorkerName" class="text-2xl font-bold text-gray-800"></h3>
-                            <p id="viewWorkerEmail" class="text-sm text-gray-500"></p>
-                            <p id="viewWorkerPhone" class="text-sm text-gray-500"></p>
-                            <div class="mt-4">
-                                <span id="viewWorkerStatus" class="px-3 py-1 text-sm rounded-full"></span>
+                        
+                        <!-- Main Info -->
+                        <div class="flex-1 text-center md:text-left">
+                            <h3 id="viewWorkerName" class="text-2xl font-bold text-gray-900 mb-1"></h3>
+                            <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-3">
+                                <span id="viewWorkerStatus" class="status-badge"></span>
+                            </div>
+                            
+                            <div class="flex flex-col md:flex-row gap-4 text-sm text-gray-600 justify-center md:justify-start">
+                                <div class="flex items-center gap-1.5">
+                                    <i data-feather="mail" class="w-4 h-4 text-gray-400"></i>
+                                    <span id="viewWorkerEmail"></span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <i data-feather="phone" class="w-4 h-4 text-gray-400"></i>
+                                    <span id="viewWorkerPhone"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 border-t pt-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Lokasi</label>
-                            <p id="viewWorkerLocation" class="text-base text-gray-800"></p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Lokasi</label>
+                            <p id="viewWorkerLocation" class="text-gray-900 font-medium"></p>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Rate per Hari</label>
-                            <p id="viewWorkerRate" class="text-base text-gray-800"></p>
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Tarif Harian</label>
+                            <p id="viewWorkerRate" class="text-gray-900 font-medium"></p>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Pengalaman</label>
-                            <p id="viewWorkerExperience" class="text-base text-gray-800"></p>
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Pengalaman</label>
+                            <p id="viewWorkerExperience" class="text-gray-900 font-medium"></p>
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Bergabung pada</label>
-                            <p id="viewWorkerJoinDate" class="text-base text-gray-800"></p>
+                        <div class="bg-gray-50 rounded-xl p-4">
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">Bergabung</label>
+                            <p id="viewWorkerJoinDate" class="text-gray-900 font-medium"></p>
                         </div>
+                        
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Keahlian</label>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Keahlian</label>
                             <div id="viewWorkerSkills" class="flex flex-wrap gap-2"></div>
                         </div>
+                        
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-500 mb-1">Deskripsi</label>
-                            <p id="viewWorkerDescription" class="text-base text-gray-800"></p>
+                            <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Tentang</label>
+                            <p id="viewWorkerDescription" class="text-gray-600 text-sm leading-relaxed"></p>
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse rounded-b-lg">
-                    <button type="button" id="closeViewWorkerModal" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">Tutup</button>
+                
+                <div class="bg-gray-50 px-6 py-4 flex justify-end">
+                    <button type="button" onclick="closeViewWorkerModal()" class="px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors shadow-sm text-sm">
+                        Tutup
+                    </button>
                 </div>
             </div>
         </div>
@@ -126,11 +151,9 @@
 
         const viewWorkerModal = document.getElementById('viewWorkerModal');
         const viewWorkerBtns = document.querySelectorAll('.view-worker-btn');
-        const closeViewWorkerModalXBtn = document.getElementById('closeViewWorkerModalX');
-        const closeViewWorkerModalBtn = document.getElementById('closeViewWorkerModal');
 
         function openViewWorkerModal(workerId) {
-            const workers = <?php echo json_encode($allWorkersForModal); ?>;
+            const workers = <?php echo json_encode($allWorkersForModal ?? []); ?>;
             const worker = workers[workerId];
             if (worker) {
                 document.getElementById('viewWorkerName').textContent = worker.nama;
@@ -138,22 +161,27 @@
                 document.getElementById('viewWorkerEmail').textContent = worker.email;
                 document.getElementById('viewWorkerPhone').textContent = worker.telepon;
                 document.getElementById('viewWorkerLocation').textContent = worker.lokasi;
-                document.getElementById('viewWorkerRate').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(worker.tarif_per_jam) + '/hari';
+                document.getElementById('viewWorkerRate').textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(worker.tarif_per_jam);
                 document.getElementById('viewWorkerExperience').textContent = worker.pengalaman || '-';
                 document.getElementById('viewWorkerJoinDate').textContent = new Date(worker.tanggal_bergabung).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-                document.getElementById('viewWorkerDescription').textContent = worker.deskripsi_diri || '-';
-                document.getElementById('viewWorkerPhoto').src = worker.url_foto || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face';
+                document.getElementById('viewWorkerDescription').textContent = worker.deskripsi_diri || 'Tidak ada deskripsi.';
+                document.getElementById('viewWorkerPhoto').src = worker.url_foto || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(worker.nama) + '&background=random';
                 
                 const statusSpan = document.getElementById('viewWorkerStatus');
                 statusSpan.textContent = worker.status_ketersediaan;
-                statusSpan.className = 'px-3 py-1 text-sm rounded-full ' + (worker.status_ketersediaan === 'Available' ? 'status-available' : (worker.status_ketersediaan === 'Assigned' ? 'status-assigned' : 'status-on-leave'));
+                
+                // Set status class
+                statusSpan.className = 'status-badge';
+                if (worker.status_ketersediaan === 'Available') statusSpan.classList.add('status-completed'); // Green
+                else if (worker.status_ketersediaan === 'Assigned') statusSpan.classList.add('status-in-progress'); // Blue
+                else statusSpan.classList.add('status-cancelled'); // Red
 
                 const skillsContainer = document.getElementById('viewWorkerSkills');
                 skillsContainer.innerHTML = '';
                 if (worker.keahlian && worker.keahlian.length > 0) {
                     worker.keahlian.forEach(skill => {
                         const skillBadge = document.createElement('span');
-                        skillBadge.className = 'bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full';
+                        skillBadge.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100';
                         skillBadge.textContent = skill;
                         skillsContainer.appendChild(skillBadge);
                     });
@@ -163,6 +191,7 @@
 
                 viewWorkerModal.classList.remove('hidden');
                 document.body.style.overflow = 'hidden';
+                refreshIcons();
             }
         }
 
@@ -171,13 +200,14 @@
             document.body.style.overflow = 'auto';
         }
 
-        viewWorkerBtns.forEach(btn => btn.addEventListener('click', function() {
-            const workerId = this.dataset.workerId;
-            openViewWorkerModal(workerId);
-        }));
-
-        if(closeViewWorkerModalXBtn) closeViewWorkerModalXBtn.addEventListener('click', closeViewWorkerModal);
-        if(closeViewWorkerModalBtn) closeViewWorkerModalBtn.addEventListener('click', closeViewWorkerModal);
+        // Event Delegation for dynamic elements
+        document.body.addEventListener('click', function(e) {
+            if (e.target.closest('.view-worker-btn')) {
+                const btn = e.target.closest('.view-worker-btn');
+                const workerId = btn.dataset.workerId;
+                openViewWorkerModal(workerId);
+            }
+        });
         
         // Close modals on overlay click
         document.getElementById('bookingModal').addEventListener('click', function(e) {
@@ -197,28 +227,6 @@
             }
         });
         
-        // Prevent body scroll when modal is open
-        const modals = document.querySelectorAll('[id$="Modal"]');
-        modals.forEach(modal => {
-            const observer = new MutationObserver(function(mutations) {
-                mutations.forEach(function(mutation) {
-                    if (mutation.attributeName === 'class') {
-                        const isHidden = modal.classList.contains('hidden');
-                        document.body.style.overflow = isHidden ? 'auto' : 'hidden';
-                    }
-                });
-            });
-            observer.observe(modal, { attributes: true });
-        });
-        
-        // Smooth scroll to top when changing tabs
-        const navLinks = document.querySelectorAll('a[href^="?tab="]');
-        navLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            });
-        });
-        
         // Auto-dismiss alert notifications
         const alerts = document.querySelectorAll('.alert-notification');
         alerts.forEach(alert => {
@@ -229,153 +237,34 @@
             }, 5000);
         });
         
-        // Touch-friendly hover effects on mobile
-        if ('ontouchstart' in window) {
-            document.querySelectorAll('.card-hover').forEach(card => {
-                card.addEventListener('touchstart', function() {
-                    this.style.transform = 'translateY(-4px)';
-                });
-                card.addEventListener('touchend', function() {
-                    this.style.transform = '';
-                });
-            });
-        }
-        
-        // Lazy load images
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        if (img.dataset.src) {
-                            img.src = img.dataset.src;
-                            img.removeAttribute('data-src');
-                        }
-                        observer.unobserve(img);
-                    }
-                });
-            });
-            
-            document.querySelectorAll('img[data-src]').forEach(img => {
-                imageObserver.observe(img);
-            });
-        }
-        
-        // Form validation enhancement
-        const forms = document.querySelectorAll('form');
-        forms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const submitBtn = this.querySelector('button[type="submit"]');
-                if (submitBtn && !submitBtn.disabled) {
-                    submitBtn.disabled = true;
-                    submitBtn.classList.add('btn-loading');
-                    
-                    // Re-enable after 3 seconds as fallback
-                    setTimeout(() => {
-                        submitBtn.disabled = false;
-                        submitBtn.classList.remove('btn-loading');
-                    }, 3000);
-                }
-            });
-        });
-        
-        // Date input validation
-        document.querySelectorAll('input[type="date"]').forEach(input => {
-            input.addEventListener('change', function() {
-                const startDate = document.querySelector('input[name="start_date"]');
-                const endDate = document.querySelector('input[name="end_date"]');
-                
-                if (startDate && endDate && startDate.value && endDate.value) {
-                    if (new Date(endDate.value) < new Date(startDate.value)) {
-                        endDate.value = startDate.value;
-                        alert('Tanggal selesai tidak boleh lebih awal dari tanggal mulai');
-                    }
-                }
-            });
-        });
-        
-        // PWA-like experience: cache scroll position
-        let scrollPosition = 0;
-        window.addEventListener('scroll', () => {
-            scrollPosition = window.scrollY;
-        });
-        
-        window.addEventListener('beforeunload', () => {
-            sessionStorage.setItem('scrollPosition', scrollPosition);
-        });
-        
-        window.addEventListener('load', () => {
-            const savedPosition = sessionStorage.getItem('scrollPosition');
-            if (savedPosition) {
-                window.scrollTo(0, parseInt(savedPosition));
-                sessionStorage.removeItem('scrollPosition');
-            }
-        });
-        
-        // Network status indicator
-        function updateOnlineStatus() {
-            const status = navigator.onLine ? 'online' : 'offline';
-            if (status === 'offline') {
-                const banner = document.createElement('div');
-                banner.id = 'offline-banner';
-                banner.className = 'fixed top-0 left-0 right-0 bg-red-500 text-white text-center py-2 text-sm z-50';
-                banner.textContent = '⚠️ Tidak ada koneksi internet';
-                document.body.prepend(banner);
-            } else {
-                const banner = document.getElementById('offline-banner');
-                if (banner) banner.remove();
-            }
-        }
-        
-        window.addEventListener('online', updateOnlineStatus);
-        window.addEventListener('offline', updateOnlineStatus);
-        
-        // Initial check
-        updateOnlineStatus();
-        
-        // Performance: Defer non-critical JavaScript
-        if ('requestIdleCallback' in window) {
-            requestIdleCallback(() => {
-                console.log('App loaded successfully');
-            });
-        }
-        
         // Console welcome message
-        console.log('%cNguliKuy Dashboard', 'color: #3b82f6; font-size: 24px; font-weight: bold;');
-        console.log('%cPlatform Booking Pekerja Harian Terpercaya', 'color: #6b7280; font-size: 14px;');
+        console.log('%cNguliKuy Dashboard', 'color: #2563eb; font-size: 20px; font-weight: bold;');
 
         // --- Generic Action Modal & AJAX Logic ---
         const CSRF_TOKEN = '<?php echo getCsrfToken(); ?>';
 
         const ajaxNotification = document.createElement('div');
         ajaxNotification.id = 'ajax-notification';
-        ajaxNotification.setAttribute('role', 'status');
-        ajaxNotification.setAttribute('aria-live', 'polite');
-        Object.assign(ajaxNotification.style, {
-            position: 'fixed',
-            bottom: '20px',
-            right: '20px',
-            padding: '10px 20px',
-            borderRadius: '6px',
-            color: 'white',
-            zIndex: '1000',
-            display: 'none',
-            transition: 'opacity 0.4s ease-in-out'
-        });
+        ajaxNotification.className = 'toast-notification hidden bg-white border shadow-lg rounded-xl p-4 flex items-center gap-3';
         document.body.appendChild(ajaxNotification);
 
         function showAjaxNotification(message, type = 'success') {
-            ajaxNotification.textContent = message;
-            ajaxNotification.className = '';
-            ajaxNotification.classList.add(type === 'success' ? 'success' : 'error');
-            if(type === 'success') ajaxNotification.style.backgroundColor = '#10B981';
-            else ajaxNotification.style.backgroundColor = '#EF4444';
+            const icon = type === 'success' ? 'check-circle' : 'alert-circle';
+            const colorClass = type === 'success' ? 'text-green-600' : 'text-red-600';
+            const bgClass = type === 'success' ? 'bg-green-50' : 'bg-red-50';
             
-            ajaxNotification.style.display = 'block';
-            ajaxNotification.style.opacity = '1';
+            ajaxNotification.innerHTML = `
+                <div class="w-8 h-8 ${bgClass} rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i data-feather="${icon}" class="w-5 h-5 ${colorClass}"></i>
+                </div>
+                <p class="text-sm font-medium text-gray-800">${message}</p>
+            `;
+            
+            ajaxNotification.classList.remove('hidden');
+            feather.replace();
+            
             setTimeout(() => {
-                ajaxNotification.style.opacity = '0';
-                setTimeout(() => { ajaxNotification.style.display = 'none'; }, 500);
+                ajaxNotification.classList.add('hidden');
             }, 4000);
         }
 
@@ -407,7 +296,7 @@
                 let iconContainerClass = 'bg-blue-100';
 
                 if (action === 'customer_delete_posted_job') {
-                    title = 'Hapus Pekerja?';
+                    title = 'Hapus Pekerjaan?';
                     description = `Anda akan menghapus pekerjaan <strong>"${jobTitle}"</strong>. Tindakan ini tidak dapat dibatalkan.`;
                     confirmText = 'Ya, Hapus';
                     confirmClass = 'bg-red-600 hover:bg-red-700';
@@ -420,8 +309,7 @@
                 modalDescription.innerHTML = description;
                 modalConfirmBtn.querySelector('.btn-text').textContent = confirmText;
                 
-                modalConfirmBtn.className = modalConfirmBtn.className.replace(/bg-\\S+\\s?/g, '').replace(/hover:bg-\\S+\\s?/g, '');
-                modalConfirmBtn.classList.add(...confirmClass.split(' '));
+                modalConfirmBtn.className = `w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white sm:ml-3 sm:w-auto sm:text-sm ${confirmClass}`;
                 
                 modalIcon.setAttribute('data-feather', iconName);
                 modalIcon.className = `h-6 w-6 ${iconClass}`;

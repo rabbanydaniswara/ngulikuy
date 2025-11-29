@@ -4,147 +4,114 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NguliKuy - Platform booking tukang harian terpercaya">
-    <meta name="theme-color" content="#3b82f6">
-    <title><?php echo $active_tab === 'home' ? 'Dashboard' : ucfirst($active_tab); ?> - Ngulikuy</title>
+    <meta name="theme-color" content="#ffffff">
+    <title><?php echo $active_tab === 'home' ? 'Dashboard' : ucfirst($active_tab); ?> - NguliKuy</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/feather-icons"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
         * {
             -webkit-tap-highlight-color: transparent;
         }
         
         body { 
-            font-family: 'Poppins', sans-serif; 
-            background: linear-gradient(to bottom right, #f8fafc 0%, #e2e8f0 100%);
+            font-family: 'Inter', sans-serif; 
+            background-color: #f9fafb; /* Gray-50 */
+            color: #111827; /* Gray-900 */
         }
         
-        .gradient-bg { 
-            background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); 
+        /* Minimalist Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        
-        .nav-active { 
-            border-bottom: 3px solid #3b82f6; 
-            color: #1f2937; 
-            font-weight: 600;
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.125rem 0.625rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
         }
         
         .status-completed { 
-            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-            color: #166534; 
-            border: 1px solid #86efac;
+            background-color: #ecfdf5; /* Green-50 */
+            color: #059669; /* Green-600 */
+            border: 1px solid #d1fae5;
         }
         
         .status-in-progress { 
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            color: #92400e; 
-            border: 1px solid #fcd34d;
+            background-color: #eff6ff; /* Blue-50 */
+            color: #2563eb; /* Blue-600 */
+            border: 1px solid #dbeafe;
         }
         
         .status-pending { 
-            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-            color: #1e40af; 
-            border: 1px solid #93c5fd;
+            background-color: #fffbeb; /* Amber-50 */
+            color: #d97706; /* Amber-600 */
+            border: 1px solid #fef3c7;
         }
         
         .status-cancelled { 
-            background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
-            color: #dc2626; 
-            border: 1px solid #f87171;
+            background-color: #fef2f2; /* Red-50 */
+            color: #dc2626; /* Red-600 */
+            border: 1px solid #fee2e2;
         }
         
-        .card-hover {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Card Styles */
+        .card {
+            background-color: white;
+            border-radius: 0.75rem; /* rounded-xl */
+            border: 1px solid #f3f4f6; /* gray-100 */
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            transition: box-shadow 0.2s ease-in-out;
         }
         
-        .card-hover:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        .card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        
-        .worker-card {
-            position: relative;
-            overflow: hidden;
+
+        /* Navigation Active State */
+        .nav-link {
+            transition: all 0.2s;
         }
-        
-        .worker-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            transition: left 0.5s;
+        .nav-link.active {
+            background-color: #eff6ff; /* Blue-50 */
+            color: #2563eb; /* Blue-600 */
         }
-        
-        .worker-card:hover::before {
-            left: 100%;
+        .nav-link:not(.active):hover {
+            background-color: #f9fafb; /* Gray-50 */
+            color: #111827; /* Gray-900 */
         }
-        
-        .badge-new {
-            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .7; }
-        }
-        
-        /* IMPROVED: Fixed rating star hover effect */
-        .rating-star-input {
-            display: none;
-        }
-        
-        .rating-star-label {
-            cursor: pointer;
-            display: inline-block;
-            transition: all 0.2s ease;
-        }
-        
-        .rating-star-label svg {
-            width: 2.5rem;
-            height: 2.5rem;
-            color: #d1d5db; /* Default empty color */
-            transition: all 0.2s ease;
-        }
-        
-        /* When hovering, fill the hovered star and all preceding stars (due to row-reverse) */
-        .rating-star-label:hover svg,
-        .rating-star-label:hover ~ .rating-star-label svg {
-            color: #fbbf24;
-            fill: #fbbf24;
-        }
-        
-        /* When an input is checked, fill its star and all preceding stars. */
-        /* This rule persists even when not hovering. */
-        .rating-star-input:checked ~ .rating-star-label svg {
-            color: #fbbf24;
-            fill: #fbbf24;
-        }
-        
-        .rating-stars-container {
-            display: flex;
-            flex-direction: row-reverse;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        
+
+        /* Modal Transitions */
         .modal-enter {
-            animation: modalEnter 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: modalEnter 0.2s ease-out forwards;
         }
         
         @keyframes modalEnter {
             from {
                 opacity: 0;
-                transform: scale(0.95);
+                transform: scale(0.98) translateY(10px);
             }
             to {
                 opacity: 1;
-                transform: scale(1);
+                transform: scale(1) translateY(0);
             }
         }
         
@@ -155,9 +122,9 @@
             left: 0;
             right: 0;
             background: white;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+            border-top: 1px solid #f3f4f6;
             z-index: 40;
-            padding: 0.5rem 0;
+            padding-bottom: env(safe-area-inset-bottom);
         }
         
         .mobile-nav-item {
@@ -165,158 +132,137 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem;
+            padding: 0.75rem 0;
             color: #6b7280;
-            transition: all 0.2s;
+            transition: color 0.2s;
         }
         
         .mobile-nav-item.active {
-            color: #3b82f6;
+            color: #2563eb;
         }
         
         .mobile-nav-item svg {
             width: 1.5rem;
             height: 1.5rem;
             margin-bottom: 0.25rem;
+            stroke-width: 2px;
         }
         
         .mobile-nav-item span {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 500;
         }
-        
-        /* Responsive adjustments */
-        @media (max-width: 640px) {
-            body {
-                padding-bottom: 5rem; /* Space for mobile nav */
-            }
-            
-            .hero-section {
-                padding: 2rem 1rem !important;
-            }
-            
-            .card-hover:hover {
-                transform: none;
-            }
-            
-            .modal-content {
-                max-height: 85vh;
-                overflow-y: auto;
-            }
+
+        /* Rating Stars */
+        .rating-star-input { display: none; }
+        .rating-star-label { cursor: pointer; transition: transform 0.1s; }
+        .rating-star-label:hover { transform: scale(1.1); }
+        .rating-star-label svg {
+            width: 2rem; height: 2rem; color: #e5e7eb; transition: color 0.2s;
         }
-        
-        /* Smooth scrolling */
-        html {
-            scroll-behavior: smooth;
+        .rating-star-label:hover svg,
+        .rating-star-label:hover ~ .rating-star-label svg,
+        .rating-star-input:checked ~ .rating-star-label svg {
+            color: #fbbf24; fill: #fbbf24;
         }
-        
-        /* Loading state */
+        .rating-stars-container {
+            display: flex; flex-direction: row-reverse; justify-content: center; gap: 0.5rem;
+        }
+
+        /* Toast Notification */
+        .toast-notification {
+            position: fixed; top: 1.5rem; right: 1.5rem; z-index: 100;
+            animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-1rem); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Loading Button */
         .btn-loading {
-            opacity: 0.7;
+            position: relative;
+            color: transparent !important;
             pointer-events: none;
         }
-        
-        /* Toast notification */
-        .toast-notification {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            z-index: 9999;
-            animation: slideInRight 0.3s ease-out;
+        .btn-loading::after {
+            content: "";
+            position: absolute;
+            width: 1.25em;
+            height: 1.25em;
+            top: 50%;
+            left: 50%;
+            margin-top: -0.625em;
+            margin-left: -0.625em;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
         }
-        
-        @keyframes slideInRight {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        /* Mobile menu toggle */
-        .mobile-menu {
-            display: none;
-        }
-        
-        @media (max-width: 640px) {
-            .mobile-menu.active {
-                display: block;
-            }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen pb-20 md:pb-0">
     
-    <nav class="bg-white shadow-md sticky top-0 z-50 backdrop-blur-sm bg-white/90">
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-100 sticky top-0 z-50 backdrop-blur-xl bg-white/80 supports-[backdrop-filter]:bg-white/60">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
+                <!-- Logo -->
                 <div class="flex items-center">
-                    <a href="?tab=home" class="flex-shrink-0 flex items-center group">
-                        <div class="p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 transition-colors">
-                            <i data-feather="tool" class="text-blue-600 w-5 h-5 sm:w-6 sm:h-6"></i>
+                    <a href="?tab=home" class="flex-shrink-0 flex items-center gap-2.5">
+                        <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white shadow-sm">
+                            <i data-feather="tool" class="w-4 h-4"></i>
                         </div>
-                        <span class="ml-2 sm:ml-3 font-bold text-lg sm:text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Ngulikuy</span>
+                        <span class="font-bold text-xl tracking-tight text-gray-900">NguliKuy</span>
                     </a>
                     
-                    <div class="hidden md:ml-8 md:flex md:space-x-4">
-                        <a href="?tab=home" class="<?php echo $active_tab === 'home' ? 'nav-active' : 'text-gray-600 hover:text-gray-900'; ?> inline-flex items-center px-3 pt-1 pb-1 text-sm font-medium transition-colors">
-                            <i data-feather="home" class="w-4 h-4 mr-2"></i>
+                    <!-- Desktop Nav -->
+                    <div class="hidden md:ml-10 md:flex md:space-x-2">
+                        <a href="?tab=home" class="nav-link <?php echo $active_tab === 'home' ? 'active' : 'text-gray-500'; ?> px-3 py-2 rounded-lg text-sm font-medium inline-flex items-center">
                             Home
                         </a>
-                        <a href="?tab=search" class="<?php echo $active_tab === 'search' ? 'nav-active' : 'text-gray-600 hover:text-gray-900'; ?> inline-flex items-center px-3 pt-1 pb-1 text-sm font-medium transition-colors">
-                            <i data-feather="search" class="w-4 h-4 mr-2"></i>
+                        <a href="?tab=search" class="nav-link <?php echo $active_tab === 'search' ? 'active' : 'text-gray-500'; ?> px-3 py-2 rounded-lg text-sm font-medium inline-flex items-center">
                             Cari Pekerja
                         </a>
-                        <a href="?tab=orders" class="<?php echo $active_tab === 'orders' ? 'nav-active' : 'text-gray-600 hover:text-gray-900'; ?> inline-flex items-center px-3 pt-1 pb-1 text-sm font-medium transition-colors">
-                            <i data-feather="clipboard" class="w-4 h-4 mr-2"></i>
+                        <a href="?tab=orders" class="nav-link <?php echo $active_tab === 'orders' ? 'active' : 'text-gray-500'; ?> px-3 py-2 rounded-lg text-sm font-medium inline-flex items-center">
                             Pesanan Saya
                         </a>
-                        <a href="?tab=my_jobs" class="<?php echo $active_tab === 'my_jobs' ? 'nav-active' : 'text-gray-600 hover:text-gray-900'; ?> inline-flex items-center px-3 pt-1 pb-1 text-sm font-medium transition-colors">
-                            <i data-feather="briefcase" class="w-4 h-4 mr-2"></i>
+                        <a href="?tab=my_jobs" class="nav-link <?php echo $active_tab === 'my_jobs' ? 'active' : 'text-gray-500'; ?> px-3 py-2 rounded-lg text-sm font-medium inline-flex items-center">
                             Pekerja Saya
                         </a>
-                        <a href="?tab=post_job" class="<?php echo $active_tab === 'post_job' ? 'nav-active' : 'text-gray-600 hover:text-gray-900'; ?> inline-flex items-center px-3 pt-1 pb-1 text-sm font-medium transition-colors">
-                            <i data-feather="plus-circle" class="w-4 h-4 mr-2"></i>
-                            Buat Pekerja
+                        <a href="?tab=post_job" class="nav-link <?php echo $active_tab === 'post_job' ? 'active' : 'text-gray-500'; ?> px-3 py-2 rounded-lg text-sm font-medium inline-flex items-center">
+                            Buat Lowongan
                         </a>
                     </div>
                 </div>
                 
-                <div class="hidden sm:ml-6 sm:flex sm:items-center space-x-3">
-                    <div class="relative">
-                        <button class="p-2 rounded-lg hover:bg-gray-100 transition-colors relative">
-                            <i data-feather="bell" class="text-gray-600 w-5 h-5"></i>
-                            <?php if ($pendingOrderCount > 0): ?>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold badge-new">
-                                <?php echo $pendingOrderCount; ?>
-                            </span>
-                            <?php endif; ?>
-                        </button>
-                    </div>
-                    <div class="flex items-center space-x-2 pl-3 border-l">
-                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face" alt="User" class="w-8 h-8 sm:w-9 sm:h-9 rounded-full ring-2 ring-blue-100">
-                        <span class="text-sm font-semibold text-gray-700 hidden lg:inline"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></span>
-                        <a href="login.php?logout=1" class="p-2 rounded-lg hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors" title="Logout">
+                <!-- Right Side Actions -->
+                <div class="flex items-center gap-3">
+                    <!-- Notifications -->
+                    <button class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors relative">
+                        <i data-feather="bell" class="w-5 h-5"></i>
+                        <?php if ($pendingOrderCount > 0): ?>
+                        <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                        <?php endif; ?>
+                    </button>
+
+                    <!-- User Menu -->
+                    <div class="hidden sm:flex items-center gap-3 pl-3 border-l border-gray-200">
+                        <div class="text-right hidden lg:block">
+                            <p class="text-sm font-semibold text-gray-900"><?php echo htmlspecialchars($_SESSION['user_name'] ?? 'User'); ?></p>
+                            <p class="text-xs text-gray-500">Pelanggan</p>
+                        </div>
+                        <div class="h-9 w-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 font-semibold border border-gray-200">
+                            <?php echo strtoupper(substr($_SESSION['user_name'] ?? 'U', 0, 1)); ?>
+                        </div>
+                        <a href="login.php?logout=1" class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Keluar">
                             <i data-feather="log-out" class="w-5 h-5"></i>
                         </a>
                     </div>
-                </div>
-                
-                <div class="flex sm:hidden items-center space-x-2">
-                    <div class="relative">
-                        <button class="p-2 rounded-lg hover:bg-gray-100 transition-colors relative">
-                            <i data-feather="bell" class="text-gray-600 w-5 h-5"></i>
-                            <?php if ($pendingOrderCount > 0): ?>
-                            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center font-bold">
-                                <?php echo $pendingOrderCount; ?>
-                            </span>
-                            <?php endif; ?>
-                        </button>
-                    </div>
-                    <a href="login.php?logout=1" class="p-2 rounded-lg hover:bg-red-50 text-gray-600 hover:text-red-600 transition-colors" title="Logout">
+
+                    <!-- Mobile Logout (Icon only) -->
+                    <a href="login.php?logout=1" class="sm:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
                         <i data-feather="log-out" class="w-5 h-5"></i>
                     </a>
                 </div>
@@ -324,22 +270,28 @@
         </div>
     </nav>
 
+    <!-- Flash Messages -->
     <?php if (!empty($success_message)): ?>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-            <div class="alert-notification p-3 sm:p-4 bg-gradient-to-r from-green-50 to-green-100 border-l-4 border-green-500 text-green-800 rounded-lg shadow-md flex items-start">
-                <i data-feather="check-circle" class="w-5 h-5 mr-2 sm:mr-3 text-green-600 flex-shrink-0 mt-0.5"></i>
-                <span class="font-medium text-sm sm:text-base"><?php echo htmlspecialchars($success_message); ?></span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+            <div class="alert-notification flex items-center p-4 bg-green-50 border border-green-100 rounded-xl shadow-sm text-green-700">
+                <div class="flex-shrink-0 w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+                    <i data-feather="check" class="w-5 h-5 text-green-600"></i>
+                </div>
+                <span class="font-medium text-sm"><?php echo htmlspecialchars($success_message); ?></span>
             </div>
         </div>
     <?php endif; ?>
     
     <?php if (!empty($error_message)): ?>
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
-             <div class="alert-notification p-3 sm:p-4 bg-gradient-to-r from-red-50 to-red-100 border-l-4 border-red-500 text-red-800 rounded-lg shadow-md flex items-start">
-                <i data-feather="alert-circle" class="w-5 h-5 mr-2 sm:mr-3 text-red-600 flex-shrink-0 mt-0.5"></i>
-                <span class="font-medium text-sm sm:text-base"><?php echo htmlspecialchars($error_message); ?></span>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+             <div class="alert-notification flex items-center p-4 bg-red-50 border border-red-100 rounded-xl shadow-sm text-red-700">
+                <div class="flex-shrink-0 w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                    <i data-feather="alert-circle" class="w-5 h-5 text-red-600"></i>
+                </div>
+                <span class="font-medium text-sm"><?php echo htmlspecialchars($error_message); ?></span>
             </div>
         </div>
     <?php endif; ?>
     
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+    <!-- Main Content Wrapper -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
